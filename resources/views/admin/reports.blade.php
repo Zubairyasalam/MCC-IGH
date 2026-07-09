@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 240px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00; /* Fallback */
+            --primary-color: #850f0f; /* Fallback */
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -58,7 +58,7 @@
             gap: 0.5rem;
         }
 
-        .sidebar-logo span { color: var(--primary-color); }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         .sidebar-menu {
             padding: 1rem 0.75rem;
@@ -81,12 +81,12 @@
         }
 
         .menu-item:hover {
-            background: rgba(255, 122, 0, 0.08);
+            background: rgba(133, 15, 15, 0.08);
             color: var(--primary-color);
         }
 
         .menu-item.active {
-            background: rgba(255, 122, 0, 0.1);
+            background: rgba(133, 15, 15, 0.1);
             color: var(--primary-color);
             font-weight: 600;
             border-left: 3px solid var(--primary-color);
@@ -303,7 +303,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> Space<span>Admin</span></div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <div class="sidebar-menu">
             <a href="{{ route('admin.dashboard') }}" class="menu-item">
@@ -311,6 +311,9 @@
             </a>
             <a href="{{ route('admin.bookings') }}" class="menu-item">
                 <i class="ph ph-calendar-check"></i> Bookings
+            </a>
+            <a href="{{ route('admin.college-guest') }}" class="menu-item">
+                <i class="ph ph-user-gear"></i> College Guests
             </a>
             <a href="{{ route('admin.reports') }}" class="menu-item active">
                 <i class="ph ph-file-text"></i> Reports
@@ -356,15 +359,15 @@
             <div class="summary-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Total Revenue</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);">₹{{ number_format($totalRevenue, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);">?{{ number_format($totalRevenue, 2) }}</div>
                 </div>
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Net Revenue (Excl. GST)</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">₹{{ number_format($netRevenue, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">?{{ number_format($netRevenue, 2) }}</div>
                 </div>
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Total GST Collected ({{ $gstRate }}%)</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: #64748b;">₹{{ number_format($totalGst, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #64748b;">?{{ number_format($totalGst, 2) }}</div>
                 </div>
             </div>
 
@@ -424,9 +427,9 @@
                                 <div style="font-weight: 600;">{{ str_replace('-', ' ', ucwords($b->room_name, '- ')) }}</div>
                                 <div style="font-size: 0.75rem; color: var(--text-muted);">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</div>
                             </td>
-                            <td style="color: #64748b;">₹{{ number_format($bSubtotal, 2) }}</td>
-                            <td style="color: #64748b;">₹{{ number_format($bGstAmount, 2) }}</td>
-                            <td style="font-weight: 700; color: var(--text-main);">₹{{ number_format($b->total_price, 2) }}</td>
+                            <td style="color: #64748b;">?{{ number_format($bSubtotal, 2) }}</td>
+                            <td style="color: #64748b;">?{{ number_format($bGstAmount, 2) }}</td>
+                            <td style="font-weight: 700; color: var(--text-main);">?{{ number_format($b->total_price, 2) }}</td>
                         </tr>
                         @empty
                         <tr>
@@ -473,7 +476,7 @@
                 }
             }
         });
-        // ── Layout Fix: force admin-main to never exceed viewport minus sidebar ──
+        // -- Layout Fix: force admin-main to never exceed viewport minus sidebar --
         (function fixAdminLayout() {
             const SIDEBAR_W = 240;
             const adminMain = document.querySelector('.admin-main');

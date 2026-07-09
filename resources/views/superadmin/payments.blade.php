@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -28,11 +28,11 @@
         /* Sidebar & Main Layout (Standardized) */
         .sidebar { width: var(--sidebar-width); background: white; height: 100vh; border-right: 1px solid var(--border); position: fixed; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); }
-        .sidebar-logo { font-weight: 800; color: var(--primary-color); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-        .sidebar-logo span { color: #1e293b; }
+        .sidebar-logo { display: flex; align-items: center; padding: 0.25rem 0; }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
         .sidebar-menu { flex: 1; padding: 1rem 0.75rem; }
         .menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.85rem; transition: all 0.2s; margin-bottom: 0.25rem; }
-        .menu-item:hover, .menu-item.active { background: rgba(255, 122, 0, 0.08); color: var(--primary-color); }
+        .menu-item:hover, .menu-item.active { background: rgba(133, 15, 15, 0.08); color: var(--primary-color); }
         .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); }
         .logout-btn { width: 100%; display: flex; align-items: center; gap: 0.75rem; background: none; border: none; padding: 0.75rem 1rem; color: var(--danger); cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 0.85rem; }
 
@@ -71,7 +71,7 @@
         .badge-confirmed { background: #eff6ff; color: #1d4ed8; }
         .badge-cancelled { background: #f1f5f9; color: #64748b; }
         .badge-booked { background: #fff7ed; color: #c2410c; }
-        .badge-available { background: #f0fdf4; color: #166534; }
+        .badge-available { background: #059669; color: #ffffff; font-weight: 700; }
 
         .copy-btn { border: 1px solid var(--border); background: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
         .copy-btn:hover { color: var(--primary-color); border-color: var(--primary-color); }
@@ -111,7 +111,7 @@
         }
         .page-item.active .page-link {
             background: var(--primary-color); border-color: var(--primary-color); color: white;
-            box-shadow: 0 4px 10px rgba(255, 122, 0, 0.25);
+            box-shadow: 0 4px 10px rgba(133, 15, 15, 0.25);
         }
         .page-item.disabled .page-link { opacity: 0.5; cursor: not-allowed; background: #f8fafc; }
         .page-item:not(.active):not(.disabled) .page-link:hover {
@@ -146,7 +146,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> <span>Space</span>Admin</div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
             <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; font-weight: 600;">SUPERADMIN PANEL</div>
         </div>
         <nav class="sidebar-menu">
@@ -266,7 +266,7 @@
                                     <div style="font-size: 0.75rem; font-weight: 600; margin-top: 4px;"><i class="ph ph-users"></i> {{ $booking->no_of_persons }} Guests</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 800; color: var(--primary-color);">₹{{ number_format($booking->total_price, 2) }}</div>
+                                    <div style="font-weight: 800; color: var(--primary-color);">?{{ number_format($booking->total_price, 2) }}</div>
                                     @if($booking->payments->count() > 0)
                                         @php $p = $booking->payments->first(); @endphp
                                         <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 5px; margin-top: 4px;">

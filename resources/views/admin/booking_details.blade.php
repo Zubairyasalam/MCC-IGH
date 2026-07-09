@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #eaedf0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -70,7 +70,7 @@
             gap: 0.5rem;
         }
 
-        .sidebar-logo span { color: var(--primary-color); }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         /* Main Content */
 
@@ -93,7 +93,7 @@
         }
 
         .menu-item:hover, .menu-item.active {
-            background: rgba(255, 122, 0, 0.08);
+            background: rgba(133, 15, 15, 0.08);
             color: var(--primary-color);
         }
 
@@ -305,6 +305,7 @@
         .badge-failed { background: rgba(239, 68, 68, 0.1); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.2); }
         .badge-approved { background: rgba(34, 197, 94, 0.1); color: #166534; border: 1px solid rgba(34, 197, 94, 0.2); }
         .badge-principal-approved { background: rgba(16, 185, 129, 0.1); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-approved-by-principal { background: rgba(16, 185, 129, 0.1); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.2); }
         .badge-rejected { background: rgba(239, 68, 68, 0.1); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.2); }
 
         /* ============================
@@ -343,7 +344,7 @@
 
         .btn-approve {
             padding: 1rem 2rem !important;
-            background: #ff7a00 !important;
+            background: #850f0f !important;
             color: #ffffff !important;
             border: none !important;
             border-radius: 12px !important;
@@ -356,14 +357,14 @@
             justify-content: center !important;
             gap: 10px !important;
             transition: background 0.2s ease, box-shadow 0.2s ease !important;
-            box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(133, 15, 15, 0.35) !important;
             letter-spacing: 0.2px !important;
             width: 100% !important;
         }
 
         .btn-approve:hover:not(:disabled) {
             background: #e66d00 !important;
-            box-shadow: 0 6px 20px rgba(255, 122, 0, 0.5) !important;
+            box-shadow: 0 6px 20px rgba(133, 15, 15, 0.5) !important;
             color: #ffffff !important;
         }
 
@@ -518,9 +519,9 @@
             top: 4px;
             width: 12px;
             height: 12px;
-            background: #ff7a00;
+            background: #850f0f;
             border-radius: 50%;
-            box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.15);
+            box-shadow: 0 0 0 4px rgba(133, 15, 15, 0.15);
             border: 2px solid white;
         }
 
@@ -585,7 +586,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> Space<span>Admin</span></div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <div class="sidebar-menu">
             <a href="{{ route('admin.dashboard') }}" class="menu-item">
@@ -593,6 +594,9 @@
             </a>
             <a href="{{ route('admin.bookings') }}" class="menu-item">
                 <i class="ph ph-calendar-check"></i> Bookings
+            </a>
+            <a href="{{ route('admin.college-guest') }}" class="menu-item">
+                <i class="ph ph-user-gear"></i> College Guests
             </a>
             <a href="{{ route('admin.reports') }}" class="menu-item">
                 <i class="ph ph-file-text"></i> Reports
@@ -659,7 +663,7 @@
                         <h3>Customer Information</h3>
                         <div style="display: flex; gap: 0.75rem;">
                             <div class="status-badge badge-{{ str_replace(' ', '-', strtolower($booking->approval_status)) }}">
-                                <i class="ph-fill ph-{{ $booking->approval_status == 'Approved' || $booking->approval_status == 'Principal Approved' ? 'check-circle' : ($booking->approval_status == 'Pending' ? 'clock' : 'x-circle') }}"></i>
+                                <i class="ph-fill ph-{{ $booking->approval_status == 'Approved' || $booking->approval_status == 'Principal Approved' || $booking->approval_status == 'Approved by Principal' ? 'check-circle' : ($booking->approval_status == 'Pending' ? 'clock' : 'x-circle') }}"></i>
                                 {{ ucfirst($booking->approval_status) }}
                             </div>
                             <div class="status-badge badge-{{ strtolower($booking->payment_status) }}">
@@ -678,6 +682,16 @@
                             <span class="info-label">Nationality</span>
                             <span class="info-value">{{ $booking->nationality }}</span>
                         </div>
+                        @if($booking->nationality === 'Non-Indian')
+                        <div class="info-item">
+                            <span class="info-label">Passport Number</span>
+                            <span class="info-value">{{ $booking->passport_number ?: 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Visa Number</span>
+                            <span class="info-value">{{ $booking->visa_number ?: 'N/A' }}</span>
+                        </div>
+                        @endif
                         <div class="info-item">
                             <span class="info-label">User Type</span>
                             <span class="info-value">{{ $booking->user_type }}</span>
@@ -709,10 +723,18 @@
                         <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
                             <span class="info-label">Referral Attachment</span>
                             <span class="info-value">
-                                <a href="{{ asset('storage/' . $booking->referral_attachment) }}" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #ff7a00; font-weight: 700;">
+                                <a href="{{ asset('storage/' . $booking->referral_attachment) }}" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #850f0f; font-weight: 700;">
                                     <i class="ph-bold ph-file-arrow-down" style="font-size: 1.25rem;"></i>
                                     View Attachment
                                 </a>
+                            </span>
+                        </div>
+                        @endif
+                        @if($booking->booking_reason)
+                        <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
+                            <span class="info-label">Reason for Booking</span>
+                            <span class="info-value" style="background: #f8fafc; border: 1px solid var(--border); padding: 1rem; border-radius: 10px; font-weight: 500; display: block; line-height: 1.6; color: #334155;">
+                                {{ $booking->booking_reason }}
                             </span>
                         </div>
                         @endif
@@ -734,11 +756,11 @@
                             <span class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('F d, Y') }}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Clock In</span>
+                            <span class="info-label">Check-In</span>
                             <span class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') }} | {{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Clock Out</span>
+                            <span class="info-label">Check-Out</span>
                             <span class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') }} | {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</span>
                         </div>
                         <div class="info-item">
@@ -802,15 +824,15 @@
                         @endphp
                         <div class="summary-row">
                             <span>Subtotal</span>
-                            <span>₹{{ number_format($subtotal, 2) }}</span>
+                            <span>?{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="summary-row">
                             <span>GST ({{ $gstRate }}%)</span>
-                            <span>₹{{ number_format($gstAmount, 2) }}</span>
+                            <span>?{{ number_format($gstAmount, 2) }}</span>
                         </div>
                         <div class="summary-row total">
                             <span>{{ $booking->payment_status === 'Paid' ? 'Amount Paid' : 'Amount to be Paid' }}</span>
-                            <span>₹{{ number_format($booking->total_price, 2) }}</span>
+                            <span>?{{ number_format($booking->total_price, 2) }}</span>
                         </div>
                     </div>
 
@@ -836,7 +858,7 @@
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 1.25rem; padding: 0 1.5rem 2rem 1.5rem;">
-                    @if($booking->approval_status === 'Pending' || $booking->approval_status === 'Principal Approved')
+                    @if($booking->approval_status === 'Pending' || $booking->approval_status === 'Principal Approved' || $booking->approval_status === 'Approved by Principal')
                         @if($booking->approval_status === 'Pending')
                             <div class="pulse-status" style="background: rgba(245, 158, 11, 0.1); height: 75px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; width: 100%;">
                                 <div style="margin: 0; font-size: 0.875rem; color: #b45309; font-weight: 600; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 10px; line-height: 1;">

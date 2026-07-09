@@ -18,7 +18,7 @@
         .detail-value { color: #1e293b; font-weight: 600; }
         .total-row { border-top: 1px dashed #cbd5e1; margin-top: 16px; padding-top: 16px; display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: {{ $primaryColor }}; }
         .cta-container { text-align: center; margin: 40px 0 20px; }
-        .btn { background-color: {{ $primaryColor }}; color: #ffffff !important; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; display: inline-block; transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(255, 122, 0, 0.3); }
+        .btn { background-color: {{ $primaryColor }}; color: #ffffff !important; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; display: inline-block; transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(133, 15, 15, 0.3); }
         .footer { text-align: center; padding: 20px; font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; }
         .expiry-note { font-size: 13px; color: #ef4444; margin-top: 24px; text-align: center; font-weight: 500; }
     </style>

@@ -24,7 +24,7 @@ class PaymentSuccessMail extends Mailable
     {
         $this->booking = $booking;
         $this->payment = $payment;
-        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->first()->value ?? '#ff7a00';
+        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->first()->value ?? '#850f0f';
     }
 
     /**
@@ -39,7 +39,10 @@ class PaymentSuccessMail extends Mailable
             'primaryColor' => $this->primaryColor
         ]);
 
-        return $this->subject('Official Invoice - MCC International Guest House')
+        $senderEmail = 'noreply@mccigh.com';
+
+        return $this->from($senderEmail, 'MCC IGH System')
+                    ->subject('Official Invoice - MCC International Guest House')
                     ->view('emails.payment_success')
                     ->attachData($pdf->output(), 'Invoice_' . $this->payment->txnid . '.pdf', [
                         'mime' => 'application/pdf',

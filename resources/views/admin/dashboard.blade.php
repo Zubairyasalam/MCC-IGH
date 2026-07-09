@@ -13,7 +13,7 @@
         :root {
             --sidebar-width: 240px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -68,7 +68,7 @@
             gap: 0.5rem;
         }
 
-        .sidebar-logo span { color: var(--primary-color); }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         .sidebar-menu {
             padding: 1rem 0.75rem; flex: 1;
@@ -82,11 +82,11 @@
         }
 
         .menu-item:hover {
-            background: rgba(255, 122, 0, 0.08); color: var(--primary-color);
+            background: rgba(133, 15, 15, 0.08); color: var(--primary-color);
         }
 
         .menu-item.active {
-            background: rgba(255, 122, 0, 0.1);
+            background: rgba(133, 15, 15, 0.1);
             color: var(--primary-color);
             font-weight: 600;
             border-left: 3px solid var(--primary-color);
@@ -405,7 +405,7 @@
             background: var(--primary-color); 
             color: white; 
             font-weight: 700; 
-            box-shadow: 0 2px 4px rgba(255, 122, 0, 0.3);
+            box-shadow: 0 2px 4px rgba(133, 15, 15, 0.3);
         }
 
         .cal-month-year {
@@ -441,7 +441,7 @@
 <body class="admin-page">
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> Space<span>Admin</span></div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <div class="sidebar-menu">
             <a href="{{ route('admin.dashboard') }}" class="menu-item active">
@@ -449,6 +449,9 @@
             </a>
             <a href="{{ route('admin.bookings') }}" class="menu-item">
                 <i class="ph ph-calendar-check"></i> Bookings
+            </a>
+            <a href="{{ route('admin.college-guest') }}" class="menu-item">
+                <i class="ph ph-user-gear"></i> College Guests
             </a>
             <a href="{{ route('admin.reports') }}" class="menu-item">
                 <i class="ph ph-file-text"></i> Reports
@@ -502,11 +505,11 @@
                             @forelse($notificationBookings as $nb)
                                 <a href="{{ route('admin.bookings.show', $nb->id) }}" class="notification-item">
                                     <div class="title">
-                                        {{ $nb->approval_status === 'Pending' ? 'New Booking Request' : 'Principal Approved' }}
+                                        {{ $nb->approval_status === 'Pending' ? 'New Booking Request' : 'Approved by Principal' }}
                                     </div>
                                     <div class="desc">
                                         {{ $nb->name }} booked {{ $nb->room_name }}
-                                        @if($nb->approval_status === 'Principal Approved')
+                                        @if($nb->approval_status === 'Principal Approved' || $nb->approval_status === 'Approved by Principal')
                                             - <span style="color: var(--success); font-weight: 600;">Requires Final Action</span>
                                         @endif
                                     </div>
@@ -544,14 +547,14 @@
                         <span class="stat-label">Total Rev</span>
                         <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
                     </div>
-                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
+                    <div class="stat-value">?{{ number_format($totalRevenue) }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Today's Rev</span>
                         <div class="stat-icon icon-orange"><i class="ph ph-coins"></i></div>
                     </div>
-                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
+                    <div class="stat-value">?{{ number_format($todayRevenue) }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
@@ -569,7 +572,7 @@
                 </div>
                 <div class="stat-card" style="border-left: 4px solid #3b82f6;">
                     <div class="stat-header">
-                        <span class="stat-label">Principal Approved</span>
+                        <span class="stat-label">Approved by Principal</span>
                         <div class="stat-icon icon-blue"><i class="ph ph-check-square"></i></div>
                     </div>
                     <div class="stat-value">{{ $principalApprovals }}</div>
@@ -741,7 +744,7 @@
                                 <td style="font-weight: 600;">{{ $booking->name }}</td>
                                 <td>{{ $booking->room_name }}</td>
                                 <td style="color: #64748b;">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M') }} | {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }}</td>
-                                <td style="font-weight: 700;">₹{{ number_format($booking->total_price, 2) }}</td>
+                                <td style="font-weight: 700;">?{{ number_format($booking->total_price, 2) }}</td>
                                 <td>
                                     <span class="status-pill pill-{{ strtolower($booking->payment_status) }}">
                                         {{ $booking->payment_status }}
@@ -807,7 +810,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Revenue (₹)',
+                        label: 'Revenue (?)',
                         data: data,
                         borderColor: window.primaryColor,
                         backgroundColor: `rgba(${window.primaryColorRGB}, 0.05)`,
@@ -830,7 +833,7 @@
                             grid: { color: '#f1f5f9', drawBorder: false }, 
                             ticks: { 
                                 font: { size: 10 },
-                                callback: v => '₹' + v 
+                                callback: v => '?' + v 
                             } 
                         },
                         x: { 
@@ -878,7 +881,7 @@
             }
             revenueChart.update();
         }
-        // ── Layout Fix: force admin-main to never exceed viewport minus sidebar ──
+        // -- Layout Fix: force admin-main to never exceed viewport minus sidebar --
         (function fixAdminLayout() {
             const SIDEBAR_W = 240;
             const adminMain = document.querySelector('.admin-main');

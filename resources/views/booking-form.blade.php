@@ -7,44 +7,85 @@
     <title>Booking Form - MCC IGH</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ time() }}">
     <style>
-        .page-header-banner {
-            background: #ffffff;
-            padding: 2.5rem 1rem 4rem 1rem;
-            text-align: center;
-            border-bottom: 1px solid #eaedf0;
+        .booking-page-container {
+            max-width: 1180px;
+            margin: 0.5rem auto 2rem auto;
+            padding: 8px 24px 24px 24px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .page-hero-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fef8f8 100%);
+            border: 1px solid rgba(133, 15, 15, 0.08);
+            border-radius: 24px;
+            padding: 1.5rem; /* reduced padding for compact look */
+            margin-bottom: 1rem; /* reduced margin */
+            box-shadow: 0 8px 20px -8px rgba(133, 15, 15, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero-card-badge {
+            background: rgba(133, 15, 15, 0.06);
+            color: #850f0f;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(133, 15, 15, 0.15);
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .page-hero-card h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .page-hero-card p {
+            font-size: 1rem;
+            color: #475569;
+            margin: 0;
+        }
+
+        .booking-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2.5rem;
+            align-items: start;
+            width: 100%;
+        }
+
+        @media (max-width: 991px) {
+            .booking-layout-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
         }
 
         .form-container {
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-            padding: 1.25rem 2.25rem;
-            /* Compact padding */
-            width: 100%;
-            position: relative;
-            z-index: 5;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-
-        .form-container:hover {
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+            padding: 2.5rem;
+            border: 1px solid #f1f5f9;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            /* 2 equal columns */
-            gap: 20px;
-            /* Perfect 20px spacing */
+            gap: 24px;
             align-items: end;
-            /* CRITICAL FIX: Base-aligns all inputs flawlessly to the exact same horizontal baseline irrespective of label wrapping above them */
         }
-
 
         .form-group {
             display: flex;
@@ -61,220 +102,179 @@
         .paired-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 24px;
             align-items: end;
             grid-column: 1 / -1;
-            /* Forces row to span full width securely isolating inside grids */
             width: 100%;
         }
 
-
         .form-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.4rem;
-            display: block;
-            min-height: 1.1rem;
+            font-size: 13.5px;
+            font-weight: 750;
+            color: #1e293b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .form-label span {
-            color: #e53e3e;
-            margin-left: 2px;
+            color: #ef4444;
         }
 
         .form-helper {
-            font-size: 0.8rem;
+            font-size: 11.5px;
             color: #64748b;
             font-weight: 500;
-            margin-top: 0.3rem;
+            margin-top: 6px;
             display: block;
-            min-height: 1rem;
         }
 
         .form-input,
         .form-select,
         input.form-input,
         select.form-select {
-            height: 44px;
-            /* Perfect normalized 44px field height */
-            padding: 0 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            height: 48px;
+            padding: 0 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
+            font-size: 14.5px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             background: #ffffff;
             width: 100%;
             box-sizing: border-box;
-            color: #333333 !important;
-            opacity: 1 !important;
-            -webkit-text-fill-color: #333333 !important;
-            font-weight: 500 !important;
+            color: #0f172a !important;
+            font-weight: 600 !important;
+        }
+
+        .form-select,
+        select.form-select {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 16px center !important;
+            background-size: 14px !important;
+            padding-right: 40px !important;
         }
 
         .form-input::placeholder {
-            color: #9ca3af !important;
+            color: #94a3b8 !important;
             font-weight: 400 !important;
-            -webkit-text-fill-color: #9ca3af !important;
-            opacity: 1 !important;
-        }
-
-        .form-input:hover,
-        .form-select:hover {
-            border-color: #cbd5e1;
         }
 
         .form-input:focus,
         .form-select:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: #850f0f;
             background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
-            /* Clean orange glow */
+            box-shadow: 0 0 0 4px rgba(133, 15, 15, 0.08);
         }
 
+        /* Custom Radio Button Group */
         .form-radio-group {
             display: flex;
             gap: 1.5rem;
             align-items: center;
-            padding: 0.3rem 0;
+            padding: 6px 0;
         }
 
         .radio-label {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
+            gap: 8px;
+            font-size: 14.5px;
             cursor: pointer;
-            color: var(--text-color);
-            font-weight: 500;
+            color: #334155;
+            font-weight: 600;
+            user-select: none;
         }
 
         .radio-label input[type="radio"] {
-            accent-color: var(--primary-color);
-            width: 18px;
-            height: 18px;
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: #850f0f;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
+        }
+
+        .radio-label input[type="radio"]::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            background-color: currentColor;
+        }
+
+        .radio-label input[type="radio"]:checked {
+            border-color: #850f0f;
+        }
+
+        .radio-label input[type="radio"]:checked::before {
+            transform: scale(1);
         }
 
         .breadcrumb {
             font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
         }
 
         .breadcrumb a {
-            color: var(--primary-color);
+            color: #850f0f;
             text-decoration: none;
-            transition: 0.2s;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .breadcrumb a:hover {
             text-decoration: underline;
-            color: #cc4800;
         }
 
-        .submit-btn {
-            background: var(--primary-color) !important;
-            color: #ffffff !important;
-            border: none !important;
-            padding: 1.1rem 2rem !important;
-            font-size: 1rem !important;
-            font-weight: 700 !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 10px !important;
-            width: 100% !important;
-            margin-top: 2rem !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
-            font-family: 'Inter', sans-serif !important;
+        .breadcrumb-separator {
+            color: #94a3b8;
         }
 
-        .submit-btn:hover {
-            background: var(--primary-color) !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            color: #ffffff !important;
-            transform: translateY(-1px) !important;
-        }
-
-        .submit-btn:active {
-            transform: translateY(0) !important;
-        }
-
-        .btn {
-            background: var(--primary-color) !important;
-            color: #ffffff !important;
-            border: none !important;
-            padding: 0.9rem 1.6rem !important;
-            font-size: 0.95rem !important;
-            font-weight: 800 !important;
-            border-radius: 12px !important;
-            cursor: pointer !important;
-            transition: background 0.2s ease, box-shadow 0.2s ease !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 8px !important;
-            text-decoration: none !important;
-            box-shadow: 0 4px 12px rgba(255, 122, 0, 0.25) !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.8px !important;
-            opacity: 1 !important;
-            transform: none !important;
-        }
-
-        .btn:hover {
-            background: var(--primary-color) !important;
-            box-shadow: 0 6px 20px rgba(255, 122, 0, 0.35) !important;
-            color: #ffffff !important;
-            transform: none !important;
-            padding: 0.9rem 1.6rem !important;
-        }
-
-        .btn-outline {
-            background: transparent !important;
-            color: var(--primary-color) !important;
-            border: 2px solid var(--primary-color) !important;
-            box-shadow: none !important;
-            transform: none !important;
-        }
-
-        .btn-outline:hover {
-            background: var(--primary-color) !important;
-            color: #ffffff !important;
-            transform: none !important;
+        .breadcrumb-current {
+            color: #64748b;
         }
 
         .form-section-title {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 800;
-            color: var(--primary-color);
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(255, 122, 0, 0.1);
+            color: #0f172a;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(133, 15, 15, 0.08);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-top: 0.75rem;
-            margin-bottom: 0.75rem;
-            letter-spacing: -0.2px;
+            gap: 8px;
+            margin-top: 0 !important;
+            margin-bottom: 0.25rem !important;
+            grid-column: 1 / -1;
         }
 
         .form-section-title i {
-            font-size: 1.4rem;
-            flex-shrink: 0;
-            color: var(--primary-color);
-        }
-
-        .section-divider {
-            display: none;
+            font-size: 1.35rem;
+            color: #850f0f;
         }
 
         .dynamic-field {
@@ -285,166 +285,186 @@
             display: flex;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Booking Summary Card */
+        .booking-summary-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+            position: sticky;
+            top: 90px;
+            z-index: 10;
         }
 
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .summary-room-img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        .summary-banner {
-            background: rgba(255, 122, 0, 0.04);
-            border: 1px solid rgba(255, 122, 0, 0.15);
-            border-radius: 8px;
-            padding: 0.75rem 1.25rem;
-            margin-bottom: 1.25rem;
+        .summary-room-badge {
+            background: rgba(133, 15, 15, 0.06);
+            border: 1px solid rgba(133, 15, 15, 0.12);
+            color: #850f0f;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .summary-room-title {
+            font-size: 1.25rem;
+            font-weight: 850;
+            color: #0f172a;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .summary-detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13.5px;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .summary-detail-row span.label {
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .summary-detail-row span.value {
+            font-weight: 750;
+            color: #0f172a;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: linear-gradient(90deg, #e2e8f0 0%, rgba(226, 232, 240, 0.1) 100%);
+            margin: 18px 0;
+        }
+
+        .summary-calculator-box {
+            background: #fafbfc;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 15px;
+        }
+
+        .calculator-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .calc-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 13.5px;
+            margin-bottom: 10px;
+            color: #475569;
         }
 
-        .summary-banner h3 {
-            color: var(--text-color);
-            font-size: 1.15rem;
-            font-weight: 700;
+        .calc-row.total {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed #cbd5e1;
+            font-weight: 900;
+            font-size: 16px;
+            color: #850f0f;
+        }
+
+        .calc-row.total span.val {
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .gst-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(133, 15, 15, 0.05);
+            color: #850f0f;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 750;
+            border: 1px solid rgba(133, 15, 15, 0.15);
+            white-space: nowrap;
+        }
+
+        .section-header-flex {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(133, 15, 15, 0.08);
+            padding-bottom: 8px;
+        }
+
+        .section-header-flex .form-section-title {
             margin: 0;
+            padding: 0;
+            border-bottom: none;
         }
 
-        .summary-banner p {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin: 0;
-            margin-top: 5px;
+        .submit-btn {
+            background: linear-gradient(135deg, #850f0f, #b91c1c) !important;
+            color: #ffffff !important;
+            border: none !important;
+            padding: 18px 24px !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            border-radius: 16px !important;
+            cursor: pointer !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            width: 100% !important;
+            margin-top: 1rem !important;
+            box-shadow: 0 10px 25px rgba(133, 15, 15, 0.2) !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            font-family: inherit !important;
         }
 
-        /* ── RESPONSIVE FIXES ── */
-        @media (max-width: 1024px) {
-            main { padding: 0 1.5rem 3rem !important; }
-            .form-container { padding: 1.5rem 2rem !important; }
+        .submit-btn:hover {
+            box-shadow: 0 15px 35px rgba(133, 15, 15, 0.3) !important;
+            transform: translateY(-2px) !important;
         }
 
-        @media (max-width: 768px) {
-            main { padding: 0 1rem 2rem !important; }
-            .form-grid, .paired-row {
-                grid-template-columns: 1fr !important;
-                gap: 1.25rem !important;
-                align-items: start !important;
-            }
-            .form-group {
-                margin-top: 0 !important;
-            }
-            .form-container {
-                padding: 1.25rem 1rem !important;
-                border-radius: 12px !important;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.04) !important;
-            }
-            .form-section-title {
-                font-size: 1.1rem !important;
-                margin-top: 1.5rem !important;
-                margin-bottom: 1rem !important;
-                padding-bottom: 0.5rem !important;
-            }
-            .submit-btn {
-                padding: 1rem !important;
-                font-size: 0.95rem !important;
-                margin-top: 2rem !important;
-            }
-            .form-radio-group {
-                gap: 1rem !important;
-                flex-wrap: wrap;
-                padding-top: 0.25rem !important;
-            }
-            .form-label {
-                font-size: 0.88rem !important;
-                margin-bottom: 0.4rem !important;
-                min-height: 0 !important;
-            }
-            .form-helper {
-                font-size: 0.78rem !important;
-                line-height: 1.4 !important;
-                margin-top: 0.35rem !important;
-                min-height: 0 !important;
-            }
-            .form-input, .form-select {
-                height: 44px !important;
-                font-size: 0.95rem !important;
-            }
-            .breadcrumb {
-                font-size: 0.8rem !important;
-                margin-bottom: 0.75rem !important;
-                overflow-x: auto;
-                white-space: nowrap;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            .breadcrumb::-webkit-scrollbar { display: none; }
-
-            h2[style*="font-size: 2rem"] {
-                font-size: 1.75rem !important;
-                letter-spacing: -0.8px !important;
-                margin-bottom: 0.25rem !important;
-            }
-            p[style*="font-size: 0.95rem"] {
-                font-size: 0.9rem !important;
-                line-height: 1.4 !important;
-            }
-            .summary-banner {
-                padding: 1rem !important;
-                margin-bottom: 1.5rem !important;
-            }
-            .summary-banner h3 {
-                font-size: 1.05rem !important;
-            }
+        .submit-btn:active {
+            transform: translateY(0) !important;
         }
 
-        @media (max-width: 480px) {
-            main { padding: 0 0.5rem 2rem !important; }
-            .form-container { padding: 1rem 0.75rem !important; }
-            h2[style*="font-size: 2rem"] {
-                font-size: 1.4rem !important;
-            }
-            .form-section-title {
-                font-size: 1rem !important;
-            }
-            .custom-file-zone { 
-                padding: 10px !important;
-                gap: 8px !important;
-            }
-            .file-icon-box { width: 36px !important; height: 36px !important; }
-            .file-icon-box i { font-size: 1.2rem !important; }
-            .file-main-text { font-size: 0.8rem !important; }
-            .file-sub-text { font-size: 0.65rem !important; }
-            .browse-btn-mobile { display: none !important; } /* Hide browse button on tiny screens to save space */
-            
-            .paired-row { gap: 1rem !important; }
-        }
-
-        /* Standardized File Upload Zone CSS */
+        /* Custom File Zone */
         .custom-file-zone {
             display: flex;
             align-items: center;
             gap: 14px;
             padding: 14px 18px;
             border: 1.5px dashed #cbd5e1;
-            border-radius: 12px;
+            border-radius: 14px;
             background: #f8fafc;
             cursor: pointer;
             transition: all 0.25s ease;
@@ -452,10 +472,12 @@
             box-sizing: border-box;
             overflow: hidden;
         }
+
         .custom-file-zone:hover {
-            border-color: var(--primary-color);
-            background: #fff8f3;
+            border-color: #850f0f;
+            background: rgba(133, 15, 15, 0.02);
         }
+
         .file-icon-box {
             width: 42px;
             height: 42px;
@@ -467,104 +489,341 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             flex-shrink: 0;
         }
-        .file-icon-box i { font-size: 1.5rem; color: var(--primary-color); }
+
+        .file-icon-box i { font-size: 1.5rem; color: #850f0f; }
         .file-text-group { flex: 1; min-width: 0; }
-        .file-main-text { display: block; font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-sub-text { display: block; font-size: 0.75rem; color: #64748b; font-weight: 500; }
-        /* GST Badge Styling */
-        .gst-badge {
-            display: inline-flex;
-            align-items: center;
-            background-color: #F5E6E6;
-            color: #8B3A3A;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid #D4A5A5;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
-            box-shadow: 0 1px 2px rgba(139, 58, 58, 0.05);
-        }
+        .file-main-text { display: block; font-weight: 750; font-size: 13.5px; color: #0f172a; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .section-header-flex {
+        .section-divider {
             grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(255, 122, 0, 0.1);
-            padding-bottom: 0.5rem;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(133, 15, 15, 0.08) 0%, rgba(133, 15, 15, 0.02) 100%);
+            margin: 0 !important;
+            width: 100%;
         }
 
-        .section-header-flex .form-section-title {
-            margin: 0;
-            padding: 0;
-            border-bottom: none;
-        }
+        @media (max-width: 768px) {
+            html, body {
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+            header, .header-container, .main-header {
+                max-width: 100% !important;
+                width: 100% !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            footer, .main-footer, .footer-content {
+                max-width: 100% !important;
+                width: 100% !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+            }
+            main {
+                padding: 0 8px 8px !important;
+            }
+            .booking-page-container {
+                margin: 0 auto 1rem auto !important;
+                padding: 8px 16px 16px 16px !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+            }
+            .booking-layout-grid {
+                display: block !important;
+                width: 100% !important;
+            }
+            .booking-form-column {
+                width: 100% !important;
+                display: block !important;
+                margin: 0 0 0.75rem 0 !important;
+                padding: 0 !important;
+            }
+            .booking-summary-column {
+                width: 100% !important;
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .form-container {
+                padding: 20px 16px !important;
+                border-radius: 20px !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+                overflow-x: hidden !important;
+                background: #ffffff !important;
+                border: 1.5px solid var(--primary-color) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+            }
 
-        @media (max-width: 640px) {
+            .form-helper[style*="visibility: hidden"],
+            .form-helper[style*="visibility:hidden"] {
+                display: none !important;
+            }
+            .section-divider {
+                display: none !important;
+            }
             .section-header-flex {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+                margin-top: 0.75rem !important;
+                margin-bottom: 0.5rem !important;
+                padding-bottom: 6px !important;
+            }
+            .gst-badge {
+                white-space: normal !important;
+                word-break: break-word !important;
+                text-align: left !important;
+                display: inline-flex !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .page-hero-card {
+                padding: 1.25rem 1rem !important;
+                border-radius: 16px !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .page-hero-card h1 {
+                font-size: 1.75rem !important;
+            }
+            .breadcrumb {
+                margin-top: 0.25rem !important;
+                margin-bottom: 0.75rem !important;
+                font-size: 0.8rem !important;
+            }
+            form {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .form-grid, .paired-row {
+                grid-template-columns: 100% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                gap: 12px !important;
+            }
+            .form-group {
+                height: auto !important;
+                justify-content: flex-start !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .form-input, .form-select, select.form-select, input.form-input {
+                font-size: 13.5px !important;
+                padding: 0 12px !important;
+                height: 44px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .form-select,
+            select.form-select {
+                background-position: right 12px center !important;
+                padding-right: 32px !important;
+            }
+            .form-label {
+                font-size: 13px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .form-section-title {
+                font-size: 1.1rem !important;
+                margin-top: 0 !important;
+                margin-bottom: 8px !important;
+            }
+            .form-radio-group {
+                gap: 1rem !important;
+                flex-wrap: wrap !important;
+            }
+            .booking-summary-card {
+                padding: 20px 16px !important;
+                border-radius: 20px !important;
+                border: 1.5px solid var(--primary-color) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+                position: static !important;
+            }
+            .calc-row.total span.val {
+                font-size: 18px !important;
+            }
+
+            /* Custom file upload zone vertical stack on mobile */
+            .custom-file-zone {
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                padding: 20px 16px !important;
+                gap: 10px !important;
+            }
+            .file-text-group {
+                width: 100% !important;
+                text-align: center !important;
+            }
+            .file-main-text {
+                white-space: normal !important;
+                text-overflow: unset !important;
+                overflow: visible !important;
+                font-size: 13.5px !important;
+                line-height: 1.4 !important;
+                margin-bottom: 4px !important;
+                text-align: center !important;
+            }
+            .file-sub-text {
+                text-align: center !important;
+                font-size: 11px !important;
+            }
+            .browse-btn-mobile {
+                width: 100% !important;
+                text-align: center !important;
+                padding: 10px !important;
+                font-size: 0.9rem !important;
+                border-radius: 10px !important;
+                box-sizing: border-box !important;
             }
         }
     </style>
     @include('partials.dynamic-styles')
 </head>
 
-<body style="background: var(--bg-color);">
+<body style="background: #f8fafc;">
     @include('partials.header', ['headerBackBtn' => ['url' => route('home'), 'label' => 'Home']])
 
+    @php
+        $normalizedRoomId = strtolower($roomId);
+        
+        // Get GST rate from DB
+        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+        
+        // Static room data for Summary Card
+        $roomsData = [
+            'conference-hall' => [
+                'name' => 'Conference Hall',
+                'price' => 2000,
+                'price_formatted' => '₹2,000',
+                'time' => '/ 4 Hours',
+                'capacity' => '60 Members',
+                'img' => asset('assets/standard/conference.JPG'),
+                'category' => 'Conference Wing'
+            ],
+            'conference-room' => [
+                'name' => 'Conference Room',
+                'price' => 1500,
+                'price_formatted' => '₹1,500',
+                'time' => '/ 4 Hours',
+                'capacity' => '12 Members',
+                'img' => asset('assets/standard/conferenceroom.JPG'),
+                'category' => 'Conference Wing'
+            ],
+            'glass-room' => [
+                'name' => 'Glass Room',
+                'price' => 1500,
+                'price_formatted' => '₹1,500',
+                'time' => '/ 4 Hours',
+                'capacity' => '20 Members',
+                'img' => asset('assets/standard/glassroom.JPG'),
+                'category' => 'Conference Wing'
+            ],
+            'suite-room' => [
+                'name' => 'Luxury Suite Room',
+                'price' => 4500,
+                'price_formatted' => '₹4,500',
+                'time' => '/ Day',
+                'capacity' => '4 Members',
+                'img' => asset('assets/suite.JPG'),
+                'category' => 'Luxury Wing'
+            ]
+        ];
+
+        // Check for standard/advance rooms
+        if (str_contains($normalizedRoomId, 'standard')) {
+            $room = [
+                'name' => 'Standard Guest Room',
+                'price' => 1400,
+                'price_formatted' => '₹1,400',
+                'time' => '/ 12 Hours',
+                'capacity' => '2 Members',
+                'img' => asset('assets/standard/standardroom.JPG'),
+                'category' => 'Guest Wing'
+            ];
+            $maxCapacity = 2;
+        } elseif (str_contains($normalizedRoomId, 'advance')) {
+            $room = [
+                'name' => 'Advance Executive Room',
+                'price' => 2500,
+                'price_formatted' => '₹2,500',
+                'time' => '/ Day',
+                'capacity' => '4 Members',
+                'img' => asset('assets/room1.JPG'),
+                'category' => 'Executive Wing'
+            ];
+            $maxCapacity = 4;
+        } else {
+            // Fallback using matched data or general values
+            $key = isset($roomsData[$normalizedRoomId]) ? $normalizedRoomId : 'conference-hall';
+            $room = $roomsData[$key];
+            
+            if (str_contains($normalizedRoomId, 'conference-hall') || str_contains($normalizedRoomId, 'conference-room')) {
+                $maxCapacity = 60;
+            } elseif (str_contains($normalizedRoomId, 'glass-room')) {
+                $maxCapacity = 20;
+            } else {
+                $maxCapacity = 4;
+            }
+        }
+    @endphp
+
     <main>
-        <div style="max-width: 820px; margin: 1rem auto; padding: 0 1.25rem;">
+        <div class="booking-page-container">
 
             <!-- Breadcrumbs ALIGNED EXACTLY WITH HEADER & FORM -->
             <div class="breadcrumb">
-                <a href="{{ route('home') }}">Home</a> &gt;
-                <a href="{{ route('standard.rooms') }}">Rooms</a> &gt;
-                <span style="color: var(--text-color);">Booking Form</span>
+                <a href="{{ route('home') }}">
+                    <i class="ph-bold ph-house"></i>
+                    Home
+                </a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="{{ route('standard.rooms') }}">Rooms</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">Booking Form</span>
             </div>
 
-            <!-- Page Header Aligned Correctly -->
-            <div style="margin-bottom: 1rem; animation: fadeInDown 0.4s ease-out;">
-                <h2
-                    style="font-size: 2rem; color: var(--text-color); font-weight: 800; letter-spacing: -1px; margin-bottom: 0.15rem;">
-                    IGH Booking</h2>
-                <p style="color: var(--text-light); font-size: 0.95rem; font-weight: 500; margin: 0;">Secure your
-                    accommodation efficiently for <strong style="color: var(--primary-color);">
-                        {{ str_replace('-', ' ', ucwords($roomId, '- ')) }}</strong></p>
+            <!-- Page Header -->
+            <div class="page-hero-card">
+                <span class="page-hero-card-badge">Secure Your Stay</span>
+                <h1>IGH <span style="color: #850f0f;">Booking</span></h1>
+                <p>Secure your accommodation efficiently for <strong>{{ $room['name'] }}</strong></p>
             </div>
 
-            <div class="form-container">
-                <div class="summary-banner">
-                    <div>
-                        <h3>Selected: {{ str_replace('-', ' ', ucwords($roomId, '- ')) }}</h3>
-                        <p>Enjoy premium amenities and professional hospitality</p>
-                    </div>
-                </div>
+            <div class="booking-layout-grid">
+                <!-- Left Column: The Form -->
+                <div class="booking-form-column">
+                    <div class="form-container">
+                        @if($errors->any())
+                        <div style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                            <ul style="margin: 0; padding-left: 1.5rem;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
 
-                @if($errors->any())
-                <div style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
-                    <ul style="margin: 0; padding-left: 1.5rem;">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
+                        @if(session('error'))
+                        <div style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                            {{ session('error') }}
+                        </div>
+                        @endif
 
-                @if(session('error'))
-                <div style="background: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
-                    {{ session('error') }}
-                </div>
-                @endif
-
-                <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="room_name" value="{{ $roomId }}">
+                        <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="room_name" value="{{ $roomId }}">
 
                     <div class="form-grid">
 
@@ -603,7 +862,6 @@
                                 <label class="form-label">Applicant Name <span>*</span></label>
                                 <input type="text" name="name" class="form-input"
                                     placeholder="Your full name as per official ID" value="{{ old('name') }}" required>
-                                <div class="form-helper" style="visibility: hidden;">Placeholder helper</div>
                             </div>
                         </div>
 
@@ -620,7 +878,7 @@
 
                         <div class="form-group dynamic-field student-field" id="levelFieldGroup">
                             <label class="form-label">Level <span>*</span></label>
-                            <select class="form-select" name="level">
+                            <select class="form-select" name="level" id="levelSelect" onchange="handleLevelChange()">
                                 <option value="" disabled selected>Select Degree Level</option>
                                 <option value="UG">Undergraduate (UG)</option>
                                 <option value="PG">Postgraduate (PG)</option>
@@ -679,8 +937,9 @@
 
                         <div class="form-group full-width">
                             <label class="form-label">Number of Persons <span>*</span></label>
-                            <input type="number" name="no_of_persons" min="1" max="4" class="form-input"
-                                placeholder="e.g. 2" required>
+                            <input type="number" name="no_of_persons" min="1" max="{{ $maxCapacity }}" class="form-input"
+                                placeholder="e.g. 2 (Maximum: {{ $maxCapacity }} persons)" required>
+                            <div class="form-helper">Maximum capacity for this room is {{ $maxCapacity }} {{ Str::plural('person', $maxCapacity) }}</div>
                         </div>
 
                         <!-- DYNAMIC: Non-Indian Fields -->
@@ -688,7 +947,14 @@
                             style="grid-column: 1/-1;">
                             <label class="form-label">Passport Number <span>*</span></label>
                             <input type="text" name="passport_number" class="form-input"
-                                placeholder="Required for Non-Indian guests" id="passportInput">
+                                placeholder="Required for Non-Indian guests" id="passportInput" value="{{ old('passport_number') }}">
+                        </div>
+
+                        <div class="form-group dynamic-field non-indian-field full-width" id="visaFieldGroup"
+                            style="grid-column: 1/-1;">
+                            <label class="form-label">Visa Number <span>*</span></label>
+                            <input type="text" name="visa_number" class="form-input"
+                                placeholder="Required for Non-Indian guests" id="visaInput" value="{{ old('visa_number') }}">
                         </div>
 
                         <div class="form-group dynamic-field non-indian-field full-width" id="gstFieldGroup"
@@ -707,19 +973,26 @@
                             <span class="gst-badge"><i class="ph-bold ph-info" style="margin-right: 5px;"></i> + {{ $gstRate }}% GST applicable on all room rates</span>
                         </div>
 
-                        <!-- ISOLATED ROW 5: Clock In (Left) | Clock Out (Right) -->
+                        <!-- ISOLATED ROW 5: Check-In (Left) | Check-Out (Right) -->
                         <div class="paired-row">
                             <div class="form-group">
-                                <label class="form-label">Clock In Date & Time <span>*</span></label>
+                                <label class="form-label">Check-In Date & Time <span>*</span></label>
                                 <input type="datetime-local" name="clock_in" class="form-input" value="{{ old('clock_in') }}" required>
                                 <div class="form-helper">Select your intended arrival</div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Clock Out Date & Time <span>*</span></label>
+                                <label class="form-label">Check-Out Date & Time <span>*</span></label>
                                 <input type="datetime-local" name="clock_out" class="form-input" value="{{ old('clock_out') }}" required>
                                 <div class="form-helper">Select your intended departure</div>
                             </div>
+                        </div>
+
+                        <!-- Reason for Booking -->
+                        <div class="form-group full-width" style="margin-top: 0.5rem;">
+                            <label class="form-label">Reason for Booking <span>*</span></label>
+                            <textarea name="booking_reason" class="form-input" style="height: auto; min-height: 80px; padding: 0.75rem 1rem; resize: vertical;" placeholder="Briefly explain the purpose of this booking (e.g. guest lecture, official visit, internship, academic conference)" required>{{ old('booking_reason') }}</textarea>
+                            <div class="form-helper">Purpose/Reason for reserving the accommodation</div>
                         </div>
 
                         <!-- Referral Attachment -->
@@ -758,7 +1031,63 @@
                     </div>
                 </form>
             </div><!-- /.form-container -->
-        </div>
+            </div>
+
+            <!-- Right Column: Booking Summary -->
+            <div class="booking-summary-column">
+                <div class="booking-summary-card">
+                    <span class="summary-room-badge">{{ $room['category'] }}</span>
+                    <img src="{{ $room['img'] }}" alt="{{ $room['name'] }}" class="summary-room-img">
+                    
+                    <h3 class="summary-room-title" style="margin-top: 16px;">{{ $room['name'] }}</h3>
+                    
+                    <div class="summary-divider"></div>
+                    
+                    <div class="summary-detail-row">
+                        <span class="label">Max Capacity:</span>
+                        <span class="value">{{ $room['capacity'] }}</span>
+                    </div>
+                    <div class="summary-detail-row">
+                        <span class="label">Wing Location:</span>
+                        <span class="value">{{ $room['category'] }}</span>
+                    </div>
+                    <div class="summary-detail-row">
+                        <span class="label">Pricing Tier:</span>
+                        <span class="value">{{ $room['price_formatted'] }} {{ $room['time'] }}</span>
+                    </div>
+                    
+                    <div class="summary-divider"></div>
+                    
+                    <div class="summary-calculator-box">
+                        <div class="calculator-title">
+                            <i class="ph-bold ph-calculator" style="color: #850f0f; font-size: 13px;"></i>
+                            Live Price Estimator
+                        </div>
+                        
+                        <div class="calc-row">
+                            <span class="lbl">Stay Duration:</span>
+                            <span class="val" id="summaryDurationVal">—</span>
+                        </div>
+                        
+                        <div class="calc-row">
+                            <span class="lbl">Subtotal:</span>
+                            <span class="val" id="summarySubtotalVal">—</span>
+                        </div>
+                        
+                        <div class="calc-row">
+                            <span class="lbl">GST Tax ({{ $gstRate }}%):</span>
+                            <span class="val" id="summaryGstVal">—</span>
+                        </div>
+                        
+                        <div class="calc-row total">
+                            <span class="lbl">Estimated Total:</span>
+                            <span class="val" id="summaryTotalVal">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div> <!-- /.booking-layout-grid -->
+        </div> <!-- /.booking-page-container -->
     </main>
     @include('partials.footer')
 
@@ -770,19 +1099,24 @@
             studentFields.forEach(field => {
                 if (userType === 'Student') {
                     field.classList.add('show');
+                    field.style.display = ''; // Reset display style
                     // Add required securely to dynamic inputs, explicitly excluding "Other" handler
                     const inputs = field.querySelectorAll('input:not(#otherDepartmentInput), select');
                     inputs.forEach(input => input.setAttribute('required', 'true'));
                 } else {
                     field.classList.remove('show');
+                    field.style.display = 'none'; // Hide completely
                     // Remove required
                     const inputs = field.querySelectorAll('input, select');
                     inputs.forEach(input => input.removeAttribute('required'));
                 }
             });
 
-            // Refresh Other Dept logic on toggle
-            if (userType === 'Student') toggleOtherDepartment();
+            // Refresh Other Dept and Level logic on toggle
+            if (userType === 'Student') {
+                toggleOtherDepartment();
+                handleLevelChange();
+            }
         }
 
         const aidedDepartments = [
@@ -801,13 +1135,85 @@
             "Physical Education, Health Education and Sports", "Psychology", "Data Science"
         ];
 
+        const researchDepartments = [
+            "Botany", "Chemistry", "Commerce", "Economics", "English", "History",
+            "Mathematics", "Philosophy", "Physics", "Political Science",
+            "Public Administration", "Social Work", "Statistics", "Tamil", "Zoology",
+            "Computer Science", "Microbiology"
+        ];
+
+        function handleLevelChange() {
+            const levelSelect = document.getElementById('levelSelect');
+            if (!levelSelect) return;
+            const level = levelSelect.value;
+            const streamFieldGroup = document.getElementById('streamFieldGroup');
+            const streamInputs = streamFieldGroup ? streamFieldGroup.querySelectorAll('input[type="radio"]') : [];
+            const deptSelect = document.getElementById('departmentSelect');
+            const userType = document.getElementById('userTypeSelect').value;
+
+            if (level === 'MPhil' || level === 'PhD') {
+                // Hide Stream field group for research levels
+                if (streamFieldGroup) {
+                    streamFieldGroup.style.setProperty('display', 'none', 'important');
+                    streamInputs.forEach(input => input.removeAttribute('required'));
+                }
+                
+                // Populate departments directly with research departments
+                if (deptSelect) {
+                    deptSelect.innerHTML = '<option value="" disabled selected>Select Department</option>';
+                    researchDepartments.forEach(dept => {
+                        let opt = document.createElement('option');
+                        opt.value = dept;
+                        opt.innerHTML = dept;
+                        deptSelect.appendChild(opt);
+                    });
+                    
+                    // Attach "Other" option
+                    let otherOpt = document.createElement('option');
+                    otherOpt.value = 'Other';
+                    otherOpt.innerHTML = 'Other';
+                    deptSelect.appendChild(otherOpt);
+                }
+                
+                toggleOtherDepartment();
+            } else {
+                // Show Stream field group for UG / PG if student
+                if (streamFieldGroup) {
+                    if (userType === 'Student') {
+                        streamFieldGroup.style.display = '';
+                        streamInputs.forEach(input => input.setAttribute('required', 'true'));
+                    } else {
+                        streamFieldGroup.style.display = 'none';
+                        streamInputs.forEach(input => input.removeAttribute('required'));
+                    }
+                }
+                
+                // Reset department options based on currently selected stream
+                const selectedStream = document.querySelector('input[name="stream"]:checked');
+                if (deptSelect) {
+                    if (selectedStream) {
+                        updateDepartments(selectedStream.value);
+                    } else {
+                        deptSelect.innerHTML = '<option value="" disabled selected>Select Stream First</option>';
+                    }
+                }
+            }
+        }
+
         function updateDepartments(stream) {
             const deptSelect = document.getElementById('departmentSelect');
+            const levelSelect = document.getElementById('levelSelect');
+            const level = levelSelect ? levelSelect.value : '';
 
             // Clean slate -> Resets selection smoothly on change
             deptSelect.innerHTML = '<option value="" disabled selected>Select Department</option>';
 
-            let options = stream === 'Aided' ? aidedDepartments : sfsDepartments;
+            let options = [];
+            if (level === 'MPhil' || level === 'PhD') {
+                options = researchDepartments;
+            } else {
+                options = stream === 'Aided' ? aidedDepartments : sfsDepartments;
+            }
 
             options.forEach(dept => {
                 let opt = document.createElement('option');
@@ -832,14 +1238,18 @@
             const otherInput = document.getElementById('otherDepartmentInput');
             const isStudent = document.getElementById('userTypeSelect').value === 'Student';
 
-            if (deptSelect.value === 'Other' && isStudent) {
+            if (deptSelect && deptSelect.value === 'Other' && isStudent) {
                 otherWrapper.style.display = 'block';
                 otherWrapper.style.maxHeight = '100px';
                 otherInput.setAttribute('required', 'true');
             } else {
-                otherWrapper.style.display = 'none';
-                otherWrapper.style.maxHeight = '0';
-                otherInput.removeAttribute('required');
+                if (otherWrapper) {
+                    otherWrapper.style.display = 'none';
+                    otherWrapper.style.maxHeight = '0';
+                }
+                if (otherInput) {
+                    otherInput.removeAttribute('required');
+                }
             }
         }
 
@@ -862,6 +1272,7 @@
             const isNonIndian = document.querySelector('input[name="nationality"][value="Non-Indian"]').checked;
             const nonIndianFields = document.querySelectorAll('.non-indian-field');
             const passportInput = document.getElementById('passportInput');
+            const visaInput = document.getElementById('visaInput');
 
             nonIndianFields.forEach(field => {
                 if (isNonIndian) {
@@ -872,16 +1283,86 @@
             });
 
             if (isNonIndian) {
-                passportInput.setAttribute('required', 'true');
+                if (passportInput) passportInput.setAttribute('required', 'true');
+                if (visaInput) visaInput.setAttribute('required', 'true');
             } else {
-                passportInput.removeAttribute('required');
+                if (passportInput) passportInput.removeAttribute('required');
+                if (visaInput) visaInput.removeAttribute('required');
             }
+        }
+
+        // Live Estimator Calculator Logic
+        const basePrice = {{ $room['price'] }};
+        const gstRate = {{ $gstRate }};
+        const rateType = "{{ $room['time'] }}";
+
+        function calculateEstimatedPrice() {
+            const clockInVal = document.querySelector('input[name="clock_in"]').value;
+            const clockOutVal = document.querySelector('input[name="clock_out"]').value;
+            
+            const durationEl = document.getElementById('summaryDurationVal');
+            const subtotalEl = document.getElementById('summarySubtotalVal');
+            const gstEl = document.getElementById('summaryGstVal');
+            const totalEl = document.getElementById('summaryTotalVal');
+            
+            if (!clockInVal || !clockOutVal) {
+                durationEl.textContent = '—';
+                subtotalEl.textContent = '—';
+                gstEl.textContent = '—';
+                totalEl.textContent = '—';
+                return;
+            }
+            
+            const inDate = new Date(clockInVal);
+            const outDate = new Date(clockOutVal);
+            
+            const diffMs = outDate - inDate;
+            if (diffMs <= 0) {
+                durationEl.textContent = 'Invalid Dates';
+                subtotalEl.textContent = '₹0.00';
+                gstEl.textContent = '₹0.00';
+                totalEl.textContent = '₹0.00';
+                return;
+            }
+            
+            let duration = 1;
+            let durationUnit = "";
+            
+            if (rateType.includes('Day')) {
+                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+                durationUnit = duration === 1 ? 'Day' : 'Days';
+            } else if (rateType.includes('12')) {
+                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 12)));
+                durationUnit = duration === 1 ? '12-Hr Interval' : '12-Hr Intervals';
+            } else if (rateType.includes('4')) {
+                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 4)));
+                durationUnit = duration === 1 ? '4-Hr Interval' : '4-Hr Intervals';
+            }
+            
+            const subtotal = basePrice * duration;
+            const gst = subtotal * (gstRate / 100);
+            const total = subtotal + gst;
+            
+            durationEl.textContent = `${duration} ${durationUnit}`;
+            subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            gstEl.textContent = `₹${gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalEl.textContent = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
         // Initialize state natively on load to prevent glitch rendering
         document.addEventListener('DOMContentLoaded', () => {
             toggleStudentFields();
             toggleNationalityFields();
+
+            const clockInEl = document.querySelector('input[name="clock_in"]');
+            const clockOutEl = document.querySelector('input[name="clock_out"]');
+            
+            if (clockInEl && clockOutEl) {
+                clockInEl.addEventListener('change', calculateEstimatedPrice);
+                clockOutEl.addEventListener('change', calculateEstimatedPrice);
+            }
+            
+            calculateEstimatedPrice();
         });
     </script>
 </body>

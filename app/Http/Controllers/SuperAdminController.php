@@ -27,7 +27,7 @@ class SuperAdminController extends Controller
 
         // ── Booking Status Breakdown ───────────────────────────────────
         $pendingApprovals     = Booking::where('approval_status', 'Pending')->count();
-        $principalApprovals   = Booking::where('approval_status', 'Principal Approved')->count();
+        $principalApprovals   = Booking::whereIn('approval_status', ['Principal Approved', 'Approved by Principal'])->count();
         $approvedBookings     = Booking::where('approval_status', 'Approved')->count();
         $rejectedBookings     = Booking::where('approval_status', 'Rejected')->count();
         $pendingPayments      = Booking::where('payment_status', 'Pending')->count();
@@ -103,7 +103,13 @@ class SuperAdminController extends Controller
             'primary_color'       => 'nullable|string',
             'secondary_color'     => 'nullable|string',
             'use_secondary_color' => 'nullable',
-            'gst_rate'            => 'required|numeric|min:0|max:100'
+            'gst_rate'            => 'required|numeric|min:0|max:100',
+            'whatsapp_enabled'    => 'nullable',
+            'principal_phone'     => 'nullable|string',
+            'whatsapp_provider'   => 'nullable|string',
+            'whatsapp_sender'     => 'nullable|string',
+            'whatsapp_sid'        => 'nullable|string',
+            'whatsapp_token'      => 'nullable|string',
         ]);
 
         Setting::updateOrCreate(['key' => 'principal_email'], ['value' => $request->system_email]);
@@ -115,10 +121,18 @@ class SuperAdminController extends Controller
         Setting::updateOrCreate(['key' => 'mail_encryption'], ['value' => $request->mail_encryption]);
         Setting::updateOrCreate(['key' => 'mail_mailer'],     ['value' => $request->mail_mailer]);
         
-        Setting::updateOrCreate(['key' => 'primary_color'],   ['value' => $request->primary_color ?? '#ff7a00']);
+        Setting::updateOrCreate(['key' => 'primary_color'],   ['value' => $request->primary_color ?? '#850f0f']);
         Setting::updateOrCreate(['key' => 'secondary_color'], ['value' => $request->secondary_color ?? '#001a33']);
         Setting::updateOrCreate(['key' => 'use_secondary_color'], ['value' => $request->has('use_secondary_color') ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'gst_rate'],            ['value' => $request->gst_rate ?? '5']);
+
+        // WhatsApp Settings
+        Setting::updateOrCreate(['key' => 'whatsapp_enabled'],  ['value' => $request->has('whatsapp_enabled') ? '1' : '0']);
+        Setting::updateOrCreate(['key' => 'principal_phone'],   ['value' => $request->principal_phone ?? '']);
+        Setting::updateOrCreate(['key' => 'whatsapp_provider'], ['value' => $request->whatsapp_provider ?? 'ultramsg']);
+        Setting::updateOrCreate(['key' => 'whatsapp_sender'],   ['value' => $request->whatsapp_sender ?? '']);
+        Setting::updateOrCreate(['key' => 'whatsapp_sid'],      ['value' => $request->whatsapp_sid ?? '']);
+        Setting::updateOrCreate(['key' => 'whatsapp_token'],    ['value' => $request->whatsapp_token ?? '']);
 
         return redirect()->back()->with('success', 'System settings updated successfully.');
     }

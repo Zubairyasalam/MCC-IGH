@@ -94,6 +94,15 @@
             width: 50px; height: 3px; background: var(--primary-color);
             margin: 1.25rem auto; border-radius: 5px; opacity: 0.8;
         }
+        .premium-facility-card .desc-content p {
+            font-family: 'Inter', sans-serif !important;
+            text-align: left !important;
+            font-size: 1.15rem;
+            line-height: 1.75;
+            color: #475569;
+            max-width: 750px;
+            margin: 0 auto;
+        }
         .feature-grid {
             display: grid; 
             grid-template-columns: repeat(4, 1fr);
@@ -109,6 +118,12 @@
             .feature-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
             .premium-facility-card { padding: 2rem 1.25rem; margin: 1rem auto; }
             .facility-title { font-size: 1.6rem; }
+            .premium-facility-card .desc-content p {
+                font-family: 'Inter', sans-serif !important;
+                text-align: left !important;
+                font-size: 0.95rem !important;
+                line-height: 1.6 !important;
+            }
         }
         .feature-item {
             display: flex; align-items: center; gap: 15px;
@@ -124,11 +139,33 @@
         .slider-card {
             display: flex !important;
             flex-direction: column !important;
+            height: auto !important;
+            min-height: auto !important;
+            background: #ffffff !important;
+            border-radius: 20px !important;
+            border: 1px solid #f1f5f9 !important;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03) !important;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+            overflow: hidden;
+        }
+        .slider-card:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 20px 40px rgba(133, 15, 15, 0.08) !important;
+            border-color: rgba(133, 15, 15, 0.18) !important;
+        }
+        .slider-card .card-image-wrapper {
+            height: 185px !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+        .slider-card .card-image-wrapper img {
+            width: 100% !important;
             height: 100% !important;
-            min-height: 480px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
-            border: 1px solid #edf2f7 !important;
-            transition: all 0.3s ease !important;
+            object-fit: cover !important;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        }
+        .slider-card:hover .card-image-wrapper img {
+            transform: scale(1.08) !important;
         }
         .slider-card .card-content {
             flex: 1 !important;
@@ -143,11 +180,13 @@
             margin-bottom: 0.5rem;
         }
         .slider-card .description {
-            color: #334155 !important;
-            font-weight: 500 !important;
-            line-height: 1.6 !important;
-            min-height: 90px !important;
-            margin-bottom: 1.5rem !important;
+            color: #475569 !important;
+            font-weight: 400 !important;
+            line-height: 1.5 !important;
+            height: auto !important;
+            min-height: auto !important;
+            margin-bottom: 0.5rem !important;
+            flex-grow: 0 !important;
         }
         .slider-card .card-btn-wrapper {
             margin-top: auto !important;
@@ -157,16 +196,26 @@
         .premium-card {
             display: flex !important;
             flex-direction: column !important;
-            height: 100% !important;
-            min-height: 520px !important;
+            height: auto !important;
+            min-height: 450px !important;
         }
         .premium-card .card-content {
             flex: 1 !important;
             display: flex !important;
             flex-direction: column !important;
+            justify-content: flex-start !important;
+        }
+        .premium-card h2 {
+            font-size: 2.1rem !important;
+            font-weight: 800 !important;
+            color: #850f0f !important;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.6rem !important;
         }
         .premium-card .description {
-            min-height: 80px !important;
+            min-height: 60px !important;
+            flex: none !important;
+            margin-bottom: 8px !important;
         }
         .premium-card .card-btn-wrapper {
             margin-top: auto !important;
@@ -184,6 +233,255 @@
         .slider-card {
             transform: translateZ(0); 
             backface-visibility: hidden;
+        }
+
+        /* =============================================================
+           TARIFF PLANS REDESIGN (Pricing Overview)
+        ============================================================= */
+        .pricing-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .tariff-card {
+            position: relative;
+            border-radius: 28px;
+            padding: 2.2rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            min-height: 420px;
+        }
+
+        .tariff-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Card Themes */
+        .tariff-card.tariff-standard {
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.12) 100%);
+            color: var(--primary-color);
+            border-color: rgba(var(--primary-rgb), 0.15);
+        }
+
+        .tariff-card.tariff-premium {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.05) 0%, rgba(30, 41, 59, 0.12) 100%);
+            color: #1e293b;
+            border-color: rgba(30, 41, 59, 0.15);
+        }
+
+        /* Card Header */
+        .tariff-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .tariff-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin: 0;
+            color: inherit;
+        }
+
+        .tariff-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 1rem;
+            border: 1.5px solid currentColor;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.25);
+            letter-spacing: -0.2px;
+        }
+
+        /* Description */
+        .tariff-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+            opacity: 0.85;
+            font-weight: 500;
+            max-width: 90%;
+        }
+
+        /* Features List */
+        .tariff-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin: 0 0 auto 0; /* Pushes footer to the bottom */
+            padding: 0;
+        }
+
+        .tariff-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: inherit;
+        }
+
+        .tariff-list li::before {
+            content: "";
+            position: absolute;
+            left: 2px;
+            top: 0.5rem;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.75;
+        }
+
+        /* Footer Section */
+        .tariff-footer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tariff-price-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .tariff-price-main {
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .tariff-currency {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .tariff-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .tariff-period {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.75;
+            margin-left: 0.15rem;
+        }
+
+        .tariff-gst {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.65;
+            letter-spacing: 0.2px;
+        }
+
+        /* Call To Action Buttons */
+        .tariff-cta {
+            display: inline-flex;
+            align-items: center;
+            color: #fff;
+            padding: 0.25rem 0.25rem 0.25rem 1.4rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+
+        .tariff-standard .tariff-cta {
+            background: var(--primary-color); /* Maroon */
+        }
+        .tariff-standard .tariff-cta:hover {
+            filter: brightness(0.9);
+        }
+
+        .tariff-premium .tariff-cta {
+            background: #1e293b; /* Dark slate */
+        }
+        .tariff-premium .tariff-cta:hover {
+            background: #0f172a;
+        }
+
+        .tariff-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .tariff-cta-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .tariff-cta:hover .tariff-cta-arrow {
+            transform: rotate(45deg);
+        }
+
+        /* Geometric Watermark */
+        .tariff-watermark {
+            position: absolute;
+            right: -25px;
+            bottom: -25px;
+            width: 150px;
+            height: 150px;
+            opacity: 0.05;
+            pointer-events: none;
+            color: currentColor;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            .tariff-card {
+                padding: 1.75rem;
+            }
+            .tariff-title {
+                font-size: 1.8rem;
+            }
+            .tariff-badge {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.75rem;
+            }
+            .tariff-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.25rem;
+            }
+            .tariff-cta {
+                width: 100%;
+                justify-content: space-between;
+                box-sizing: border-box;
+            }
         }
     </style>
     @include('partials.dynamic-styles')
@@ -239,17 +537,7 @@
                 <a href="#explore-rooms" class="btn btn-primary banner-cta" style="pointer-events: auto;">BOOK NOW</a>
             </div>
         </div>
-        <!-- Nav Arrows -->
-        <div class="hero-slider-arrow left"><button class="hero-prev"><i class="ph-bold ph-caret-left"></i></button></div>
-        <div class="hero-slider-arrow right"><button class="hero-next"><i class="ph-bold ph-caret-right"></i></button></div>
-        <!-- Dots -->
-        <div class="hero-dots" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10;">
-            <div class="hero-dot active" style="width:30px;height:4px;border-radius:2px;cursor:pointer;transition:all 0.3s ease;"></div>
-            <div class="hero-dot" style="width:30px;height:4px;border-radius:2px;cursor:pointer;transition:all 0.3s ease;"></div>
-            <div class="hero-dot" style="width:30px;height:4px;border-radius:2px;cursor:pointer;transition:all 0.3s ease;"></div>
-            <div class="hero-dot" style="width:30px;height:4px;border-radius:2px;cursor:pointer;transition:all 0.3s ease;"></div>
-            <div class="hero-dot" style="width:30px;height:4px;border-radius:2px;cursor:pointer;transition:all 0.3s ease;"></div>
-        </div>
+
     </section>
 
     <!-- Slider Script -->
@@ -257,9 +545,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const slider = document.querySelector('.main-image-slider');
             const slides = document.querySelectorAll('.hero-slide');
-            const dots = document.querySelectorAll('.hero-dot');
-            const prev = document.querySelector('.hero-prev');
-            const next = document.querySelector('.hero-next');
+
             let current = 0;
             let timer;
             let isDragging = false;
@@ -269,10 +555,7 @@
             function renderSlide(index) {
                 if (index < 0 || index >= slides.length) return;
                 slides.forEach(s => s.classList.remove('active-slide'));
-                dots.forEach(d => d.classList.remove('active'));
-                
                 slides[index].classList.add('active-slide');
-                if (dots[index]) dots[index].classList.add('active');
                 current = index;
             }
 
@@ -285,30 +568,12 @@
                     if (!isHovered && !isDragging) {
                         nextSlide();
                     }
-                }, 4000);
+                }, 2000);
             }
 
             function stopTimer() {
                 if (timer) clearInterval(timer);
             }
-
-            // Click Nav
-            next.addEventListener('click', () => { 
-                nextSlide(); 
-                startTimer(); 
-            });
-            prev.addEventListener('click', () => { 
-                prevSlide(); 
-                startTimer(); 
-            });
-
-            dots.forEach((dot, i) => {
-                dot.addEventListener('click', () => { 
-                    renderSlide(i); 
-                    startTimer(); 
-                });
-            });
-
             // Pause on hover
             slider.addEventListener('mouseenter', () => {
                 isHovered = true;
@@ -352,44 +617,526 @@
         });
     </script>
 
-    <main>
+    <!-- BOOKING WIDGET OVERLAY -->
+    <style>
+        #bookingWidget { position: relative; z-index: 50; margin: -150px auto 0; max-width: 1300px; padding: 0 2rem; }
+        .bw-dark-card {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1.5px solid var(--primary-color);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.12);
+            padding: 2rem;
+            color: #0f172a;
+            font-family: inherit;
+        }
+        .bw-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.25rem;
+        }
+        .bw-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .bw-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .bw-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .bw-input {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #0f172a;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            width: 100%;
+        }
+        .bw-input::placeholder {
+            color: #94a3b8;
+        }
+        .bw-input:focus {
+            border-color: var(--primary-color);
+            background: #ffffff;
+        }
+        .bw-input::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+        .bw-input option {
+            background: #ffffff;
+            color: #0f172a;
+        }
+        .bw-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .bw-info {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .bw-btn {
+            background: var(--primary-color);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .bw-btn:hover {
+            background: #901010;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.45);
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            #bookingWidget {
+                margin: -60px auto 0 !important;
+                padding: 0 1rem !important;
+            }
+            .bw-dark-card {
+                padding: 1.25rem !important;
+            }
+            .bw-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .bw-field {
+                gap: 0.35rem !important;
+                min-width: 0 !important;
+            }
+            .bw-label {
+                font-size: 0.65rem !important;
+            }
+            .bw-input {
+                padding: 0.6rem 0.5rem !important;
+                font-size: 0.82rem !important;
+                min-width: 0 !important;
+            }
+            .bw-input::-webkit-calendar-picker-indicator {
+                display: none !important;
+                -webkit-appearance: none !important;
+            }
+            .bw-footer {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                text-align: center !important;
+                gap: 0.75rem !important;
+            }
+            .bw-info {
+                font-size: 0.75rem !important;
+            }
+            .bw-btn {
+                justify-content: center !important;
+                padding: 0.75rem 1.5rem !important;
+                font-size: 0.9rem !important;
+            }
+            
+            /* Mobile slider card height and spacing optimizations */
+            .slider-card {
+                min-height: auto !important;
+            }
+            .slider-card .card-image-wrapper {
+                height: 130px !important;
+                margin-bottom: 0 !important;
+            }
+            .slider-card .card-content {
+                padding: 12px !important;
+            }
+            .slider-card .card-price-row span:first-child {
+                font-size: 1.15rem !important;
+            }
+            .slider-card h2 {
+                font-size: 1.05rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            .slider-card .description {
+                min-height: auto !important;
+                margin-bottom: 0.4rem !important;
+                font-size: 0.78rem !important;
+                line-height: 1.4 !important;
+            }
+            .slider-card .card-amenities {
+                margin-bottom: 0.5rem !important;
+                gap: 4px !important;
+            }
+            .slider-card .amenity-tag {
+                padding: 2px 6px !important;
+                font-size: 0.68rem !important;
+            }
+            .slider-card .btn-outline {
+                height: 2.4rem !important;
+                font-size: 0.8rem !important;
+            }
+            .slider-card .card-footer-info {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                min-height: 30px !important;
+                width: 100% !important;
+                gap: 4px !important;
+            }
+            .slider-card .gst-text {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                font-size: 0.65rem !important;
+                padding: 3px 6px !important;
+                gap: 4px !important;
+                white-space: nowrap !important;
+            }
+            .slider-card .card-amenity-icons {
+                gap: 4px !important;
+            }
+            .slider-card .card-amenity-icons button {
+                width: 26px !important;
+                height: 26px !important;
+            }
+            .slider-card .card-amenity-icons i {
+                font-size: 0.85rem !important;
+            }
+
+            /* Mobile premium card height and spacing optimizations */
+            .premium-card {
+                min-height: 320px !important;
+            }
+            .premium-card .card-content {
+                padding: 12px !important;
+            }
+            .premium-card .description {
+                min-height: auto !important;
+                margin-bottom: 0.5rem !important;
+                font-size: 0.82rem !important;
+                line-height: 1.5 !important;
+            }
+            .premium-card .btn-outline {
+                height: 2.4rem !important;
+                font-size: 0.8rem !important;
+            }
+        }
+        .pricing-overview-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1.5rem !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+        @media (max-width: 768px) {
+            .pricing-overview-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.25rem !important;
+            }
+        }
+        
+        /* Title section defaults (matches original desktop UI exactly) */
+        .title-section {
+            text-align: center !important;
+            margin-bottom: 1.75rem !important;
+            padding: 0 1rem !important;
+        }
+        .title-section .subtitle-badge {
+            display: none !important;
+        }
+        .title-section .title-divider {
+            display: none !important;
+        }
+        .title-section h2 {
+            font-size: clamp(2rem, 5vw, 2.8rem) !important;
+            font-weight: 800 !important;
+            color: var(--text-color) !important;
+            letter-spacing: -0.5px !important;
+            margin: 0 auto 0.4rem auto !important;
+            line-height: 1.2 !important;
+        }
+        .title-section p {
+            color: #64748b !important;
+            font-size: 1rem !important;
+            font-weight: 400 !important;
+            margin: 0 auto !important;
+            font-family: inherit !important;
+        }
+
+        /* Specific overrides for Pricing Overview on desktop to match original size */
+        .title-section.pricing-overview h2 {
+            font-size: clamp(2.4rem, 6vw, 3.4rem) !important;
+            letter-spacing: -1px !important;
+            margin-bottom: 0.4rem !important;
+        }
+        .title-section.pricing-overview p {
+            font-size: 1.25rem !important;
+            font-weight: 500 !important;
+            color: #475569 !important;
+        }
+
+        /* Specific overrides for Browse All Rooms heading on desktop to match original font-size */
+        .title-section.browse-all-rooms h2 {
+            font-size: clamp(1.4rem, 4vw, 1.9rem) !important;
+            letter-spacing: -0.5px !important;
+            margin-bottom: 0.3rem !important;
+        }
+        .title-section.browse-all-rooms p {
+            font-size: 0.9rem !important;
+        }
+
+        /* Mobile responsive override (only active on mobile <= 768px) */
+        @media (max-width: 768px) {
+            .title-section {
+                text-align: left !important;
+                padding: 0 1.25rem !important;
+                margin-bottom: 1.75rem !important;
+            }
+            .title-section .subtitle-badge {
+                display: inline-block !important;
+                font-size: 0.75rem !important;
+                font-weight: 800 !important;
+                color: var(--primary-color) !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1.5px !important;
+                margin-bottom: 0.4rem !important;
+                font-family: 'Inter', sans-serif !important;
+            }
+            .title-section h2 {
+                font-size: clamp(1.8rem, 5vw, 2.4rem) !important;
+                letter-spacing: -0.8px !important;
+                margin: 0 0 0.6rem 0 !important;
+                text-wrap: balance !important;
+            }
+            .title-section.browse-all-rooms h2 {
+                font-size: clamp(1.8rem, 5vw, 2.4rem) !important;
+            }
+            .title-section .title-divider {
+                display: block !important;
+                width: 40px !important;
+                height: 3px !important;
+                background: var(--primary-color) !important;
+                margin: 0.75rem 0 !important;
+                border-radius: 99px !important;
+            }
+            .title-section p,
+            .title-section.pricing-overview p,
+            .title-section.browse-all-rooms p {
+                color: #475569 !important;
+                font-size: 0.95rem !important;
+                font-weight: 500 !important;
+                line-height: 1.5 !important;
+                margin: 0 !important;
+                text-align: left !important;
+                font-family: 'Inter', sans-serif !important;
+                text-wrap: balance !important;
+            }
+        }
+    </style>
+    <div id="bookingWidget">
+        <div class="bw-dark-card">
+            <div class="bw-title">Quick Booking</div>
+            <div class="bw-grid">
+                <!-- Check-In -->
+                <div class="bw-field">
+                    <label class="bw-label">Check-In</label>
+                    <input type="date" id="bw_checkin" class="bw-input" placeholder="dd-mm-yyyy">
+                </div>
+
+                <!-- Check-Out -->
+                <div class="bw-field">
+                    <label class="bw-label">Check-Out</label>
+                    <input type="date" id="bw_checkout" class="bw-input" placeholder="dd-mm-yyyy">
+                </div>
+
+                <!-- Room Type -->
+                <div class="bw-field">
+                    <label class="bw-label">Room Type</label>
+                    <select id="bw_roomtype" class="bw-input">
+                        <option value="" disabled selected>Select room</option>
+                        <option value="standard">Standard</option>
+                        <option value="advance">Advance</option>
+                        <option value="suite">Suite</option>
+                        <option value="conference">Conference</option>
+                    </select>
+                </div>
+
+                <!-- Guests -->
+                <div class="bw-field">
+                    <label class="bw-label">Guests</label>
+                    <input type="number" id="bw_guests" class="bw-input" min="1" value="1" placeholder="e.g., 25">
+                </div>
+            </div>
+
+            <div class="bw-footer">
+                <div class="bw-info">+ 5.8% GST applicable on all bookings</div>
+                <a href="{{ route('standard.rooms') }}" class="bw-btn">Check availability &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+
+    <main class="main-content-flow">
+
 
         <!-- EXPLORE OUR ROOMS SLIDER -->
+
         <section id="explore-rooms" class="explore-rooms-section">
             <div class="slider-master-container">
-                <div class="title-section" style="text-align: center; margin-bottom: 1.75rem; padding: 0 1rem;">
-                    <h2 style="font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; margin-bottom: 0.4rem;">Room Categories</h2>
-                    <p style="color: #64748b; font-size: 0.95rem; font-weight: 400;">Choose from our range of professionally equipped rooms and halls</p>
+                <div class="title-section">
+                    <span class="subtitle-badge">Our Offerings</span>
+                    <h2>Room <span class="primary-text">Categories</span></h2>
+                    <div class="title-divider"></div>
+                    <p>Choose from our range of professionally equipped rooms and halls, tailored for comfort and productivity.</p>
                 </div>
 
                 <div class="slider-outer-frame">
-                    <button type="button" id="roomPrevBtn" class="room-nav-btn left" aria-label="Previous">‹</button>
+                    <button type="button" id="roomPrevBtn" class="room-nav-btn left" aria-label="Previous">
+                        <i class="ph ph-caret-left" style="font-size: 1.4rem;"></i>
+                    </button>
                     
                     <div id="cardsCarousel" class="cards-container" style="align-items: stretch;">
                         @php
                             $roomCards = [
-                                ['badge' => 'Standard', 'badgeClass' => 'standard-badge', 'image' => asset('assets/standard/standardroom.JPG'), 'title' => 'Standard Rooms', 'desc' => 'Thoughtfully designed for efficiency and comfort, our Standard Rooms provide a restful haven for short-term visitors with essential modern amenities.', 'route' => 'standard.rooms', 'btnText' => 'EXPLORE STANDARD'],
-                                ['badge' => 'Premium', 'badgeClass' => 'premium-badge', 'image' => asset('assets/room1.JPG'), 'title' => 'Advance Rooms', 'desc' => 'Experience elevated hospitality in our Advance Rooms, specifically curated for guests seeking enhanced privacy and premium comfort during longer stays.', 'route' => 'advance.rooms', 'btnText' => 'EXPLORE ADVANCE'],
-                                ['badge' => 'Conference', 'badgeClass' => 'conference-badge', 'image' => asset('assets/standard/conference.JPG'), 'title' => 'Conference Room', 'desc' => 'A versatile venue designed for large-scale gatherings and corporate events with high-definition projection and professional acoustics.', 'route' => 'conference.rooms', 'btnText' => 'EXPLORE HALLS'],
-                                ['badge' => 'Glass Room', 'badgeClass' => 'conference-badge', 'image' => asset('assets/standard/glass.JPG'), 'title' => 'Glass Room', 'desc' => 'Inspire creativity in our modern Glass Room, designed for collaborative brainstorming and focused team sessions with ample natural light.', 'route' => 'conference.rooms', 'btnText' => 'EXPLORE HALLS'],
-                                ['badge' => 'Suite', 'badgeClass' => 'suite-badge', 'image' => asset('assets/suite.JPG'), 'title' => 'Suite Room', 'desc' => 'Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries for ultimate relaxation.', 'route' => 'conference.rooms', 'btnText' => 'EXPLORE SUITE'],
+                                [
+                                    'badge' => 'Standard',
+                                    'badgeClass' => 'standard-badge',
+                                    'image' => asset('assets/standard/standardroom.JPG'),
+                                    'title' => 'Standard Rooms',
+                                    'price' => '₹1,400',
+                                    'period' => '12 Hours',
+                                    'desc' => 'Thoughtfully designed for efficiency and comfort, providing a restful haven with essential modern amenities.',
+                                    'route' => 'standard.rooms',
+                                    'btnText' => 'EXPLORE STANDARD',
+                                    'amenities' => [
+                                        ['name' => 'AC', 'icon' => 'ph-snowflake'],
+                                        ['name' => 'Free WiFi', 'icon' => 'ph-wifi-high'],
+                                        ['name' => 'Desk', 'icon' => 'ph-desktop'],
+                                    ]
+                                ],
+                                [
+                                    'badge' => 'Premium',
+                                    'badgeClass' => 'premium-badge',
+                                    'image' => asset('assets/room1.JPG'),
+                                    'title' => 'Advance Rooms',
+                                    'price' => '₹2,500',
+                                    'period' => 'Day',
+                                    'desc' => 'Curated for guests seeking enhanced privacy and premium comfort during longer stays with high-end bedding.',
+                                    'route' => 'advance.rooms',
+                                    'btnText' => 'EXPLORE ADVANCE',
+                                    'amenities' => [
+                                        ['name' => 'AC', 'icon' => 'ph-snowflake'],
+                                        ['name' => 'Free WiFi', 'icon' => 'ph-wifi-high'],
+                                        ['name' => 'Upgraded', 'icon' => 'ph-sparkle'],
+                                    ]
+                                ],
+                                [
+                                    'badge' => 'Conference',
+                                    'badgeClass' => 'conference-badge',
+                                    'image' => asset('assets/standard/conference.JPG'),
+                                    'title' => 'Conference Room',
+                                    'price' => '₹500',
+                                    'period' => 'Hour (Min 4h)',
+                                    'desc' => 'Versatile venue for large-scale gatherings and corporate events with professional projection and sound.',
+                                    'route' => 'conference.rooms',
+                                    'btnText' => 'EXPLORE HALLS',
+                                    'amenities' => [
+                                        ['name' => '60 Capacity', 'icon' => 'ph-users'],
+                                        ['name' => 'Projector', 'icon' => 'ph-projector-screen'],
+                                        ['name' => 'Sound Sys', 'icon' => 'ph-speaker-high'],
+                                    ]
+                                ],
+                                [
+                                    'badge' => 'Glass Room',
+                                    'badgeClass' => 'conference-badge',
+                                    'image' => asset('assets/standard/glass.JPG'),
+                                    'title' => 'Glass Room',
+                                    'price' => '₹500',
+                                    'period' => 'Hour (Min 4h)',
+                                    'desc' => 'Inspire creativity in our modern Glass Room, designed for collaborative brainstorming and focused team sessions.',
+                                    'route' => 'conference.rooms',
+                                    'btnText' => 'EXPLORE HALLS',
+                                    'amenities' => [
+                                        ['name' => '20 Capacity', 'icon' => 'ph-users'],
+                                        ['name' => 'AC', 'icon' => 'ph-snowflake'],
+                                        ['name' => 'Brainstorm', 'icon' => 'ph-lightbulb'],
+                                    ]
+                                ],
+                                [
+                                    'badge' => 'Suite',
+                                    'badgeClass' => 'suite-badge',
+                                    'image' => asset('assets/suite.JPG'),
+                                    'title' => 'Suite Room',
+                                    'price' => '₹500',
+                                    'period' => 'Hour (Min 4h)',
+                                    'desc' => 'Flagship Suite Room offering the pinnacle of luxury, featuring a grand king-size bed and premium toiletries.',
+                                    'route' => 'conference.rooms',
+                                    'btnText' => 'EXPLORE SUITE',
+                                    'amenities' => [
+                                        ['name' => 'King Bed', 'icon' => 'ph-bed'],
+                                        ['name' => 'AC', 'icon' => 'ph-snowflake'],
+                                        ['name' => 'Luxury Bath', 'icon' => 'ph-shower'],
+                                    ]
+                                ],
                             ];
                         @endphp
 
                         @for ($i = 0; $i < 2; $i++)
                             @foreach ($roomCards as $card)
-                                <div class="card slider-card" style="display: flex; flex-direction: column; height: 100%; min-width: 320px;">
-                                    <div class="card-image-wrapper" style="height: 160px; flex-shrink: 0;">
-                                        <span class="badge {{ $card['badgeClass'] }}" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">{{ $card['badge'] }}</span>
-                                        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}">
+                                <div class="card slider-card" style="display: flex; flex-direction: column;">
+                                    <div class="card-image-wrapper" style="height: 185px; flex-shrink: 0; overflow: hidden; position: relative;">
+                                        <span class="badge {{ $card['badgeClass'] }}" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(133, 15, 15, 0.15); color: var(--primary-color); font-weight: 700; padding: 4px 12px; border-radius: 30px; font-size: 0.72rem; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">{{ $card['badge'] }}</span>
+                                        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
-                                    <div class="card-content" style="flex: 1; display: flex; flex-direction: column; padding: 1.25rem;">
-                                        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #0f172a;">{{ $card['title'] }}</h2>
-                                        <p class="description" style="font-size: 0.9rem; color: #475569; line-height: 1.6; margin-bottom: 1rem; flex: none; min-height: 90px;">{!! $card['desc'] !!}</p>
+                                    <div class="card-content" style="flex: 1; display: flex; flex-direction: column; padding: 1.5rem;">
+                                        <div class="card-price-row" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.35rem;">
+                                            <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;">{{ $card['price'] }}</span>
+                                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">/ {{ $card['period'] }}</span>
+                                        </div>
+                                        <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; color: #0f172a; letter-spacing: -0.3px;">{{ $card['title'] }}</h2>
+                                        <p class="description" style="font-size: 0.86rem; color: #64748b; line-height: 1.5; margin-bottom: 0.5rem; flex-grow: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{!! $card['desc'] !!}</p>
+                                        
                                         @php $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5; @endphp
-                                        <p class="gst-text" style="font-size: 0.8rem; color: #94a3b8; margin-top: auto; margin-bottom: 1rem;">+ {{ $gstRate }}% GST applicable</p>
-                                        <div class="card-btn-wrapper" style="margin-top: 0;">
-                                            <a href="{{ route($card['route']) }}" class="btn btn-outline" style="width: 100%; text-align: center; justify-content: center; text-transform: uppercase; font-weight: 700;">{{ $card['btnText'] }}</a>
+                                        <div class="card-footer-info" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; min-height: 32px;">
+                                            <p class="gst-text" style="font-size: 0.72rem; color: #94a3b8; font-weight: 600; margin: 0 !important; display: flex; align-items: center; gap: 4px;">
+                                                <i class="ph-bold ph-info" style="font-size: 0.78rem; color: #cbd5e1;"></i> 
+                                                + {{ $gstRate }}% GST
+                                            </p>
+                                            <div class="card-amenity-icons" style="display: flex; align-items: center; gap: 6px;">
+                                                @foreach ($card['amenities'] as $amenity)
+                                                    <div style="position: relative; display: inline-flex;">
+                                                        <button type="button" onclick="showAmenityTooltip(this, '{{ $amenity['name'] }}')" title="{{ $amenity['name'] }}" style="width: 30px; height: 30px; border-radius: 50%; background: #f8fafc; border: 1.5px solid #e2e8f0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; padding: 0;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.transform='scale(1.08)'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='scale(1)'">
+                                                            <i class="ph {{ $amenity['icon'] }}" style="color: var(--primary-color); font-size: 1rem;"></i>
+                                                        </button>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        <div class="card-btn-wrapper" style="margin-top: auto !important;">
+                                            <a href="{{ route($card['route']) }}" class="btn btn-outline" style="width: 100%; text-align: center; justify-content: center; text-transform: uppercase; font-weight: 700; border-radius: 12px; height: 2.8rem; font-size: 0.85rem; letter-spacing: 0.3px;">{{ $card['btnText'] }}</a>
                                         </div>
                                     </div>
                                 </div>
@@ -397,7 +1144,9 @@
                         @endfor
                     </div>
 
-                    <button type="button" id="roomNextBtn" class="room-nav-btn right" aria-label="Next">›</button>
+                    <button type="button" id="roomNextBtn" class="room-nav-btn right" aria-label="Next">
+                        <i class="ph ph-caret-right" style="font-size: 1.4rem;"></i>
+                    </button>
                 </div>
             </div>
         </section>
@@ -469,40 +1218,103 @@
             });
         </script>
         <!-- ROOM CATEGORIES QUICK REFERENCE -->
-        <section style="max-width: 1100px;">
-            <div class="title-section" style="text-align: center; margin-bottom: 1.5rem;">
-                <h2 style="font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; margin-bottom: 0.3rem;">Pricing Overview</h2>
-                <p style="color: #64748b; font-size: 0.9rem;">Quick reference for room rates and availability</p>
+        <section style="max-width: 1100px; padding-top: 0; margin-top: -4rem; position: relative; z-index: 10;">
+            <div class="title-section pricing-overview">
+                <span class="subtitle-badge">Tariff Guide</span>
+                <h2 style="font-size: clamp(2.4rem, 6vw, 3.4rem) !important;">Pricing <span class="primary-text">Overview</span></h2>
+                <div class="title-divider"></div>
+                <p>Quick reference for room rates and availability</p>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: stretch;">
-                <!-- Standard Rooms Info -->
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                    <h3 style="color: var(--primary-color); font-size: 1.2rem; margin-bottom: 1rem; font-weight: 700;">STANDARD ROOMS</h3>
-                    <ul style="list-style: none; padding: 0; color: var(--text-light); font-size: 0.95rem; line-height: 1.8;">
-                        <li><i class="ph-fill ph-tag" style="color: var(--primary-color); margin-right: 8px;"></i> <strong>₹1400 / 12 hrs</strong> <span class="gst-text" style="display: inline; font-size: 0.75rem;">(+ {{ $gstRate }}% GST)</span></li>
-                        <li><i class="ph-fill ph-clock" style="color: var(--primary-color); margin-right: 8px;"></i> Ideal for short stay</li>
-                        <li><i class="ph-fill ph-check-circle" style="color: var(--primary-color); margin-right: 8px;"></i> Basic amenities (AC, WiFi, Work Desk)</li>
-                        <li><i class="ph-fill ph-door" style="color: var(--primary-color); margin-right: 8px;"></i> Rooms 1 – 8</li>
+            <div class="pricing-overview-grid">
+
+                <!-- Standard Rooms Card -->
+                <div class="tariff-card tariff-standard">
+                    <!-- Geometric Watermark -->
+                    <svg class="tariff-watermark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 15L85 35V75L50 95L15 75V35L50 15Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M50 15V95" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15 35L50 55L85 35" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+
+                    <div class="tariff-header">
+                        <h3 class="tariff-title">Standard</h3>
+                        <span class="tariff-badge">Rooms 1 – 8</span>
+                    </div>
+
+                    <p class="tariff-desc">Ideal for short-term stays, stopovers, and budget-conscious academic or corporate visits.</p>
+
+                    <ul class="tariff-list">
+                        <li>Ideal for short stays</li>
+                        <li>AC, WiFi &amp; Work Desk included</li>
+                        <li>Clean bedding &amp; basic amenities</li>
                     </ul>
+
+                    <div class="tariff-footer">
+                        <div class="tariff-price-block">
+                            <div class="tariff-price-main">
+                                <span class="tariff-currency">₹</span><span class="tariff-amount">1400</span>
+                                <span class="tariff-period">/ 12 hours</span>
+                            </div>
+                            <div class="tariff-gst">+ {{ $gstRate }}% GST applicable</div>
+                        </div>
+                        <a href="{{ route('standard.rooms') }}" class="tariff-cta">
+                            <span>View Rooms</span>
+                            <span class="tariff-cta-arrow">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </a>
+                    </div>
                 </div>
-                <!-- Advance Rooms Info -->
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                    <h3 style="color: var(--primary-color); font-size: 1.2rem; margin-bottom: 1rem; font-weight: 700;">ADVANCE ROOMS</h3>
-                    <ul style="list-style: none; padding: 0; color: var(--text-light); font-size: 0.95rem; line-height: 1.8;">
-                        <li><i class="ph-fill ph-tag" style="color: var(--primary-color); margin-right: 8px;"></i> <strong>₹2500 / day</strong> <span class="gst-text" style="display: inline; font-size: 0.75rem;">(+ {{ $gstRate }}% GST)</span></li>
-                        <li><i class="ph-fill ph-shield-star" style="color: var(--primary-color); margin-right: 8px;"></i> Premium stay experience</li>
-                        <li><i class="ph-fill ph-star" style="color: var(--primary-color); margin-right: 8px;"></i> Better interiors + privacy</li>
-                        <li><i class="ph-fill ph-door" style="color: var(--primary-color); margin-right: 8px;"></i> Rooms 101–104, 201–207</li>
+
+                <!-- Premium Rooms Card -->
+                <div class="tariff-card tariff-premium">
+                    <!-- Geometric Watermark -->
+                    <svg class="tariff-watermark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 15L85 35V75L50 95L15 75V35L50 15Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M50 15V95" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15 35L50 55L85 35" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    </svg>
+
+                    <div class="tariff-header">
+                        <h3 class="tariff-title">Premium</h3>
+                        <span class="tariff-badge">Rooms 101 – 207</span>
+                    </div>
+
+                    <p class="tariff-desc">Spacious and premium lodging offering enhanced comfort, privacy, and full amenities for long stays.</p>
+
+                    <ul class="tariff-list">
+                        <li>Premium stay experience</li>
+                        <li>Better interiors &amp; privacy</li>
+                        <li>Smart TV &amp; Mini Fridge included</li>
                     </ul>
+
+                    <div class="tariff-footer">
+                        <div class="tariff-price-block">
+                            <div class="tariff-price-main">
+                                <span class="tariff-currency">₹</span><span class="tariff-amount">2500</span>
+                                <span class="tariff-period">/ day</span>
+                            </div>
+                            <div class="tariff-gst">+ {{ $gstRate }}% GST applicable</div>
+                        </div>
+                        <a href="{{ route('advance.rooms') }}" class="tariff-cta">
+                            <span>View Rooms</span>
+                            <span class="tariff-cta-arrow">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </span>
+                        </a>
+                    </div>
                 </div>
+
             </div>
         </section>
 
         <!-- CATEGORY SELECTION -->
         <section style="max-width: 1350px;">
-            <div class="title-section" style="text-align: center; margin-bottom: 1.75rem;">
-                <h2 style="font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 800; color: var(--text-color); letter-spacing: -0.5px; margin-bottom: 0.3rem;">Browse All Rooms</h2>
-                <p style="color: #64748b; font-size: 0.9rem;">Select a category to explore availability and book your stay</p>
+            <div class="title-section browse-all-rooms">
+                <span class="subtitle-badge">Explore Accommodations</span>
+                <h2 style="font-size: clamp(2.4rem, 6vw, 3.4rem) !important;">Browse All <span class="primary-text">Rooms</span></h2>
+                <div class="title-divider"></div>
+                <p>Select a category to explore availability and book your stay</p>
             </div>
             <div class="dashboard-rooms-grid" style="align-items: stretch;">
 
@@ -559,10 +1371,10 @@
         <!-- ABOUT FACILITIES -->
         <section class="description-section">
             <div class="premium-facility-card" id="facilityCard">
-                <h2 class="facility-title">About Our Facilities</h2>
+                <h2 class="facility-title">About Our <span class="primary-text">Facilities</span></h2>
                 <div class="facility-divider"></div>
                 <div class="desc-content">
-                    <p style="font-size: 1.15rem; line-height: 1.7; color: #555; max-width: 750px; margin: 0 auto;">Experience a refined stay tailored to the needs of modern professionals and distinguished guests. At MCC IGH, we combine traditional hospitality with premium modern amenities, ensuring every moment of your visit is both relaxing and highly productive.</p>
+                    <p>Experience a refined stay tailored to the needs of modern professionals and distinguished guests. At MCC IGH, we combine traditional hospitality with premium modern amenities, ensuring every moment of your visit is both relaxing and highly productive.</p>
                 </div>
 
                 <div class="feature-grid">
@@ -616,7 +1428,7 @@
                     <p><strong>Space:</strong> <span id="modalRoomName"></span></p>
                     <p><strong>Date:</strong> <span id="modalDate"></span></p>
                     <p><strong>Time:</strong> <span id="modalTime"></span></p>
-                    <p><strong>Rate:</strong> ₹<span id="modalPrice"></span> / hr</p>
+                    <p><strong>Rate:</strong> <span class="rupee-symbol">₹</span><span id="modalPrice"></span> / hr</p>
                     <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
                 </div>
                 <div class="modal-warning" id="modalWarning" style="display:none;"></div>
@@ -652,6 +1464,53 @@
     <script>
         document.addEventListener('DOMContentLoaded', initIndexPage);
 
+        function showAmenityTooltip(el, text) {
+            document.querySelectorAll('.custom-amenity-tooltip').forEach(t => t.remove());
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'custom-amenity-tooltip';
+            tooltip.innerText = text;
+            tooltip.style.position = 'absolute';
+            tooltip.style.bottom = '125%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translateX(-50%) translateY(4px)';
+            tooltip.style.background = '#0f172a';
+            tooltip.style.color = '#fff';
+            tooltip.style.padding = '5px 10px';
+            tooltip.style.borderRadius = '6px';
+            tooltip.style.fontSize = '0.75rem';
+            tooltip.style.fontWeight = '600';
+            tooltip.style.whiteSpace = 'nowrap';
+            tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            tooltip.style.zIndex = '100';
+            tooltip.style.opacity = '0';
+            tooltip.style.pointerEvents = 'none';
+            tooltip.style.transition = 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+            
+            const arrow = document.createElement('div');
+            arrow.style.position = 'absolute';
+            arrow.style.top = '100%';
+            arrow.style.left = '50%';
+            arrow.style.transform = 'translateX(-50%)';
+            arrow.style.borderWidth = '4px';
+            arrow.style.borderStyle = 'solid';
+            arrow.style.borderColor = '#0f172a transparent transparent transparent';
+            tooltip.appendChild(arrow);
+            
+            el.parentElement.appendChild(tooltip);
+            
+            requestAnimationFrame(() => {
+                tooltip.style.opacity = '1';
+                tooltip.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            
+            setTimeout(() => {
+                tooltip.style.opacity = '0';
+                tooltip.style.transform = 'translateX(-50%) translateY(4px)';
+                setTimeout(() => tooltip.remove(), 200);
+            }, 2500);
+        }
+
 
 
         function slideLeft() {
@@ -683,12 +1542,12 @@
             
             let hours = parseFloat(hoursInput.value);
             if (isNaN(hours) || hours <= 0) {
-                priceDisplay.innerHTML = '₹0';
+                priceDisplay.innerHTML = '<span class="rupee-symbol">₹</span>0';
                 timeTextDisplay.innerHTML = '0 hours';
                 return;
             }
             let finalPrice = hours > 4 ? 5000 : 2000;
-            priceDisplay.innerHTML = '₹' + finalPrice;
+            priceDisplay.innerHTML = '<span class="rupee-symbol">₹</span>' + finalPrice;
             timeTextDisplay.innerHTML = hours + (hours === 1 ? ' hour' : ' hours');
         }
     </script>

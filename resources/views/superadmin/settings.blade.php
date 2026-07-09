@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: {{ $settings['primary_color'] ?? '#ff7a00' }};
+            --primary-color: {{ $settings['primary_color'] ?? '#850f0f' }};
             --secondary-color: {{ $settings['secondary_color'] ?? '#001a33' }};
             --border: #e2e8f0;
             --text-main: #1e293b;
@@ -55,7 +55,7 @@
             gap: 0.5rem;
         }
 
-        .sidebar-logo span { color: #1e293b; }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         .sidebar-menu {
             flex: 1;
@@ -252,7 +252,7 @@
         }
 
         .sidebar-menu a.active {
-            background: rgba(255, 122, 0, 0.08);
+            background: rgba(133, 15, 15, 0.08);
             color: var(--primary-color);
         }
 
@@ -299,7 +299,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> <span>Space</span>Admin</div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item {{ Route::is('superadmin.dashboard') ? 'active' : '' }}">
@@ -380,7 +380,7 @@
 
                 <div class="form-group">
                     <label>Mail Password / App Password</label>
-                    <input type="password" name="mail_password" value="{{ $settings['mail_password'] ?? '' }}" required placeholder="â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢">
+                    <input type="password" name="mail_password" value="{{ $settings['mail_password'] ?? '' }}" required placeholder="•••• •••• •••• ••••">
                     <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">
                         <i class="ph ph-shield-check"></i> This password is encrypted for security.
                     </div>
@@ -428,8 +428,8 @@
                     <div class="form-group" style="margin-bottom: 2rem; background: #fff; padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 12px;">
                         <label style="color: #1e293b; font-weight: 700; margin-bottom: 0.75rem; display: block;">Global Primary Color</label>
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <input type="color" name="primary_color" value="{{ $settings['primary_color'] ?? '#ff7a00' }}" style="width: 50px; height: 50px; padding: 2px; cursor: pointer; border: 2px solid #e2e8f0; border-radius: 10px;">
-                            <input type="text" id="colorCode" value="{{ $settings['primary_color'] ?? '#ff7a00' }}" readonly style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; font-family: monospace; color: #64748b; font-size: 0.95rem; font-weight: 600;">
+                            <input type="color" name="primary_color" value="{{ $settings['primary_color'] ?? '#850f0f' }}" style="width: 50px; height: 50px; padding: 2px; cursor: pointer; border: 2px solid #e2e8f0; border-radius: 10px;">
+                            <input type="text" id="colorCode" value="{{ $settings['primary_color'] ?? '#850f0f' }}" readonly style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; font-family: monospace; color: #64748b; font-size: 0.95rem; font-weight: 600;">
                         </div>
                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 10px;">
                             <i class="ph ph-info"></i> This is the main theme color used for buttons, links, and icons throughout the site.
@@ -474,6 +474,60 @@
                         </div>
                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 10px;">
                             <i class="ph ph-info"></i> This rate will be used to calculate GST for all room bookings.
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 1.1rem; color: #1e293b; margin: 2rem 0 1.5rem 0; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                        <i class="ph-bold ph-whatsapp-logo" style="color: #25D366;"></i> WhatsApp Notification Integration
+                    </h3>
+
+                    <div style="padding: 1.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; margin-bottom: 2rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.95rem; color: #166534; font-weight: 700;">
+                                <input type="checkbox" name="whatsapp_enabled" id="whatsappToggle" value="1" {{ ($settings['whatsapp_enabled'] ?? '0') == '1' ? 'checked' : '' }} style="width: 18px !important; height: 18px !important; accent-color: #25D366;">
+                                Enable WhatsApp Notifications for Principal
+                            </label>
+                            <span class="badge" id="whatsappStatusBadge" style="{{ ($settings['whatsapp_enabled'] ?? '0') == '1' ? 'background:#25D366;color:white;' : 'background:#f1f5f9;color:#64748b;' }}">
+                                {{ ($settings['whatsapp_enabled'] ?? '0') == '1' ? 'Active' : 'Disabled' }}
+                            </span>
+                        </div>
+
+                        <div id="whatsappSettingsSection" style="{{ ($settings['whatsapp_enabled'] ?? '0') == '1' ? '' : 'opacity: 0.5; pointer-events: none;' }}">
+                            <div class="form-group">
+                                <label>Principal's WhatsApp Phone Number (with Country Code prefix)</label>
+                                <input type="text" name="principal_phone" value="{{ $settings['principal_phone'] ?? '' }}" placeholder="e.g. +919876543210">
+                                <div style="font-size: 0.75rem; color: #166534; margin-top: 5px;">
+                                    Include the country code prefix (e.g., +91 for India).
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>WhatsApp Service Provider</label>
+                                    <select name="whatsapp_provider" id="whatsappProviderSelect" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; color: #1e293b;">
+                                        <option value="ultramsg" {{ ($settings['whatsapp_provider'] ?? 'ultramsg') == 'ultramsg' ? 'selected' : '' }}>Ultramsg (Recommended)</option>
+                                        <option value="meta" {{ ($settings['whatsapp_provider'] ?? 'ultramsg') == 'meta' ? 'selected' : '' }}>Meta WhatsApp Cloud API (100% Free - Official)</option>
+                                        <option value="twilio" {{ ($settings['whatsapp_provider'] ?? 'ultramsg') == 'twilio' ? 'selected' : '' }}>Twilio WhatsApp API</option>
+                                        <option value="callmebot" {{ ($settings['whatsapp_provider'] ?? 'ultramsg') == 'callmebot' ? 'selected' : '' }}>CallMeBot (100% Free - Single Recipient)</option>
+                                        <option value="log" {{ ($settings['whatsapp_provider'] ?? 'ultramsg') == 'log' ? 'selected' : '' }}>Log / Simulated Mode (Testing)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label id="whatsappSenderLabel">Sender/From Phone Number (or Twilio Sandbox No.)</label>
+                                    <input type="text" name="whatsapp_sender" id="whatsappSenderInput" value="{{ $settings['whatsapp_sender'] ?? '' }}" placeholder="e.g. +14155238886">
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label id="whatsappCredentialLabel1">Instance ID / Account SID</label>
+                                    <input type="text" name="whatsapp_sid" id="whatsappSidInput" value="{{ $settings['whatsapp_sid'] ?? '' }}" placeholder="e.g. instance12345 or ACxxxxxxxx">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label id="whatsappCredentialLabel2">API / Auth Token</label>
+                                    <input type="password" name="whatsapp_token" value="{{ $settings['whatsapp_token'] ?? '' }}" placeholder="••••••••••••••••">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -553,6 +607,89 @@
                     statusBadge.style.color = '#64748b';
                 }
             });
+        }
+
+        // WhatsApp Toggle
+        const whatsappToggle = document.getElementById('whatsappToggle');
+        const whatsappSettingsSection = document.getElementById('whatsappSettingsSection');
+        const whatsappStatusBadge = document.getElementById('whatsappStatusBadge');
+        
+        if (whatsappToggle && whatsappSettingsSection && whatsappStatusBadge) {
+            whatsappToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    whatsappSettingsSection.style.opacity = '1';
+                    whatsappSettingsSection.style.pointerEvents = 'auto';
+                    whatsappStatusBadge.innerText = 'Active';
+                    whatsappStatusBadge.style.background = '#25D366';
+                    whatsappStatusBadge.style.color = 'white';
+                } else {
+                    whatsappSettingsSection.style.opacity = '0.5';
+                    whatsappSettingsSection.style.pointerEvents = 'none';
+                    whatsappStatusBadge.innerText = 'Disabled';
+                    whatsappStatusBadge.style.background = '#f1f5f9';
+                    whatsappStatusBadge.style.color = '#64748b';
+                }
+            });
+        }
+
+        const providerSelect = document.getElementById('whatsappProviderSelect');
+        const label1 = document.getElementById('whatsappCredentialLabel1');
+        const label2 = document.getElementById('whatsappCredentialLabel2');
+        const senderLabel = document.getElementById('whatsappSenderLabel');
+        if (providerSelect && label1 && label2) {
+            const updateLabels = () => {
+                const senderInput = document.getElementById('whatsappSenderInput');
+                const sidInput = document.getElementById('whatsappSidInput');
+
+                if (providerSelect.value === 'twilio') {
+                    label1.innerText = 'Account SID (Twilio)';
+                    label2.innerText = 'Auth Token (Twilio)';
+                    if (senderLabel) senderLabel.innerText = 'Sender/From Phone Number (or Twilio Sandbox No.)';
+                    if (senderInput) {
+                        senderInput.placeholder = 'e.g. +14155238886';
+                        senderInput.disabled = false;
+                    }
+                    if (sidInput) sidInput.disabled = false;
+                } else if (providerSelect.value === 'ultramsg') {
+                    label1.innerText = 'Instance ID (Ultramsg)';
+                    label2.innerText = 'API Token (Ultramsg)';
+                    if (senderLabel) senderLabel.innerText = 'Sender/From Phone Number (Optional)';
+                    if (senderInput) {
+                        senderInput.placeholder = 'e.g. +14155238886';
+                        senderInput.disabled = false;
+                    }
+                    if (sidInput) sidInput.disabled = false;
+                } else if (providerSelect.value === 'meta') {
+                    label1.innerText = 'Phone Number ID (Meta)';
+                    label2.innerText = 'Permanent Access Token (Meta)';
+                    if (senderLabel) senderLabel.innerText = 'Template Name (default: booking_notification)';
+                    if (senderInput) {
+                        senderInput.placeholder = 'e.g. booking_notification or text';
+                        senderInput.disabled = false;
+                    }
+                    if (sidInput) sidInput.disabled = false;
+                } else if (providerSelect.value === 'callmebot') {
+                    label1.innerText = 'Not Required (CallMeBot)';
+                    label2.innerText = 'API Key (CallMeBot)';
+                    if (senderLabel) senderLabel.innerText = 'Not Required (CallMeBot)';
+                    if (sidInput) {
+                        sidInput.disabled = true;
+                        sidInput.value = '';
+                    }
+                    if (senderInput) {
+                        senderInput.disabled = true;
+                        senderInput.value = '';
+                    }
+                } else {
+                    label1.innerText = 'Instance ID / Account SID';
+                    label2.innerText = 'API / Auth Token';
+                    if (senderLabel) senderLabel.innerText = 'Sender/From Phone Number';
+                    if (sidInput) sidInput.disabled = false;
+                    if (senderInput) senderInput.disabled = false;
+                }
+            };
+            providerSelect.addEventListener('change', updateLabels);
+            updateLabels();
         }
 
         // Profile Dropdown Toggle

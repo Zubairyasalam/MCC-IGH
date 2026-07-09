@@ -21,9 +21,9 @@
         @endif
 
         @if(isset($headerBackBtn))
-            <a href="{{ $headerBackBtn['url'] }}" class="btn btn-outline" style="text-decoration:none; padding: 0.5rem 1rem;">
-                <i class="ph ph-arrow-left"></i>
-                {{ $headerBackBtn['label'] ?? 'Back' }}
+            <a href="{{ $headerBackBtn['url'] }}" class="btn-header-back" style="text-decoration:none;">
+                <i class="ph-bold ph-arrow-left"></i>
+                <span>{{ $headerBackBtn['label'] ?? 'Back' }}</span>
             </a>
         @else
             <div class="profile-dropdown">

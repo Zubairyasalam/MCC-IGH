@@ -92,6 +92,11 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/bookings/{id}/resend-link', [AdminController::class, 'resendPaymentLink'])->name('admin.bookings.resend');
     Route::post('/notifications/mark-read', [AdminController::class, 'markNotificationsRead'])->name('admin.notifications.read');
     Route::delete('/bookings/{id}', [AdminController::class, 'destroy'])->name('admin.bookings.destroy');
+
+    // College Guest Bookings
+    Route::get('/college-guest', [AdminController::class, 'showCollegeGuestForm'])->name('admin.college-guest');
+    Route::post('/college-guest', [AdminController::class, 'storeCollegeGuestBooking'])->name('admin.college-guest.store');
+    Route::post('/college-guest/check-availability', [AdminController::class, 'checkAvailability'])->name('admin.college-guest.check-availability');
 });
 
 // These routes are now public for one-click approval from email

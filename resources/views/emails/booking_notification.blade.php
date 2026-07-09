@@ -116,7 +116,7 @@
             <table class="booking-details">
                 <tr>
                     <th>Guest Name</th>
-                    <td>{{ $booking->name }}</td>
+                    <td>{{ ucwords(strtolower($booking->name)) }}</td>
                 </tr>
                 <tr>
                     <th>Email</th>
@@ -131,11 +131,11 @@
                     <td>{{ ucwords(str_replace('-', ' ', $booking->room_name)) }}</td>
                 </tr>
                 <tr>
-                    <th>Clock In</th>
+                    <th>Check-In</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A') }}</td>
                 </tr>
                 <tr>
-                    <th>Clock Out</th>
+                    <th>Check-Out</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A') }}</td>
                 </tr>
                 <tr>

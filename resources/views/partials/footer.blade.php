@@ -1,6 +1,14 @@
 <!-- FOOTER SECTION -->
 <footer class="main-footer">
     <div class="footer-content">
+        <div class="footer-column brand-column" style="display: flex; flex-direction: column; justify-content: flex-start;">
+            <div class="footer-logo" style="margin-bottom: 1.2rem;">
+                <img src="{{ asset('assets/logo.png') }}" alt="MCC Logo" style="max-height: 180px; width: 100%; max-width: 280px; object-fit: contain; display: block; filter: grayscale(1) invert(1) brightness(2); mix-blend-mode: screen; transform-origin: left center;">
+            </div>
+            <p style="margin: 0; line-height: 1.6; color: #64748b; font-size: 0.9rem;">
+                Premium hospitality and comfortable accommodation located in the serene surroundings of the Madras Christian College campus.
+            </p>
+        </div>
         <div class="footer-column">
             <h4>Quick Links</h4>
             <ul>
@@ -12,8 +20,8 @@
         <div class="footer-column">
             <h4>Contact Info</h4>
             <ul>
-                <li><i class="ph-fill ph-envelope-simple"></i> <a href="mailto:contact@mmip.example.com" class="footer-contact-link">contact@mmip.example.com</a></li>
-                <li><i class="ph-fill ph-phone"></i> <a href="tel:+919876543210" class="footer-contact-link">+91 98765 43210</a></li>
+                <li><i class="ph-fill ph-envelope-simple" style="color: var(--primary-color);"></i> <a href="mailto:contact@mmip.example.com" class="footer-contact-link">contact@mmip.example.com</a></li>
+                <li><i class="ph-fill ph-phone" style="color: var(--primary-color);"></i> <a href="tel:+919876543210" class="footer-contact-link">+91 98765 43210</a></li>
             </ul>
             <div class="footer-social-icons">
                 <a href="https://wa.me/919876543210" target="_blank" rel="noopener" title="WhatsApp"><i class="ph-bold ph-whatsapp-logo"></i></a>

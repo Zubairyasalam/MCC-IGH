@@ -38,6 +38,7 @@
             padding: 0 2rem;
             width: 100%;
             box-sizing: border-box;
+            align-items: start;
         }
 
         .main-content {
@@ -47,51 +48,84 @@
 
         /* Image Gallery & Actions */
         .gallery-section {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
+            background: transparent;
+            margin-bottom: 2.25rem;
             width: 100%;
         }
 
         .main-img-wrapper {
             width: 100%;
-            height: 500px;
+            height: 480px;
+            border-radius: 24px;
             overflow: hidden;
             cursor: pointer;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
         }
 
         .main-img-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, filter 0.3s ease;
         }
 
         .main-img-wrapper:hover img {
-            transform: scale(1.03);
+            transform: scale(1.04);
+        }
+
+        .main-img-wrapper:hover .img-zoom-hint {
+            background: rgba(133, 15, 15, 0.9) !important;
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4) !important;
         }
 
         .thumbnail-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            padding: 10px;
-            background: #f8fafc;
+            display: flex;
+            gap: 14px;
+            padding: 18px 4px 8px 4px;
+            background: transparent;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .thumbnail-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        .thumbnail-grid::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px;
         }
 
         .thumb-item {
+            flex: 0 0 135px;
             height: 90px;
-            border-radius: 10px;
+            border-radius: 14px;
             overflow: hidden;
             cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
+            border: 2.5px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            background: #fff;
         }
 
-        .thumb-item.active { border-color: var(--primary-color); }
-        .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-item:hover {
+            opacity: 0.95;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+
+        .thumb-item.active { 
+            border-color: #850f0f; 
+            opacity: 1;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(133, 15, 15, 0.22);
+        }
+        .thumb-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .thumb-item:hover img { transform: scale(1.08); }
 
         /* Spec Cards Row */
         .gallery-info-row {
@@ -103,67 +137,159 @@
         }
 
         .spec-card {
-            background: white;
-            padding: 0.85rem 0.75rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
+            background: linear-gradient(135deg, #ffffff 0%, #fffefe 100%);
+            padding: 20px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             text-align: center;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 4px;
             overflow: hidden;
             min-width: 0;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0,0,0,0.01);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .spec-card i { color: var(--primary-color); font-size: 1.25rem; margin-bottom: 4px; }
-        .spec-card .val { display: block; font-weight: 700; color: var(--text-dark); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spec-card .lbl { font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
+        .spec-card:hover, .spec-card:active, .spec-card:focus, .spec-card:focus-within {
+            transform: translateY(-3px);
+            border-color: rgba(133, 15, 15, 0.25);
+            box-shadow: 0 12px 30px -8px rgba(133, 15, 15, 0.08), 0 2px 4px rgba(133, 15, 15, 0.02);
+            outline: none;
+        }
 
+        .spec-card i, .spec-card svg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(133, 15, 15, 0.05) 0%, rgba(133, 15, 15, 0.12) 100%) !important;
+            border: 1px solid rgba(133, 15, 15, 0.15) !important;
+            color: #850f0f !important;
+            font-size: 20px !important;
+            margin-bottom: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
+        .spec-card:hover i, .spec-card:hover svg,
+        .spec-card:active i, .spec-card:active svg,
+        .spec-card:focus i, .spec-card:focus svg,
+        .spec-card:focus-within i, .spec-card:focus-within svg {
+            background: linear-gradient(135deg, rgba(133, 15, 15, 0.08) 0%, rgba(133, 15, 15, 0.18) 100%) !important;
+            border-color: rgba(133, 15, 15, 0.25) !important;
+            color: #850f0f !important;
+            transform: scale(1.08);
+            box-shadow: 0 4px 10px rgba(133, 15, 15, 0.04);
+        }
 
-        /* Main Content Typography */
-        .room-title {
-            font-size: 2.25rem; /* 36px */
+        .spec-card .val {
+            display: block;
             font-weight: 800;
-            color: var(--text-dark);
+            color: #0f172a;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.2px;
+        }
+
+        .spec-card .lbl {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-top: 2px;
+        }
+
+
+        /* Main Room Info Header Styles */
+        .room-title {
+            font-size: 2.5rem; /* 40px */
+            font-weight: 900;
+            color: #0f172a;
             margin-bottom: 0.75rem;
-            letter-spacing: -0.02em;
+            letter-spacing: -1.2px;
+            line-height: 1.15;
+            font-family: 'Outfit', sans-serif;
         }
 
         .room-meta-row {
             display: flex;
-            gap: 24px;
-            color: var(--text-medium);
-            font-size: 1rem;
-            margin-bottom: 2rem;
+            gap: 12px;
+            color: #475569;
+            font-size: 0.95rem;
+            margin-bottom: 2.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .room-meta-item { display: flex; align-items: center; gap: 8px; }
-        .room-meta-item i { color: var(--primary-color); font-size: 1.3rem; }
+        .room-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 13.5px;
+            transition: all 0.2s ease;
+        }
 
+        .room-meta-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+        .room-meta-item i {
+            color: #850f0f;
+            font-size: 16px;
+        }
+
+        /* Luxury Tab Control */
         .tabs-container {
-            border-bottom: 2px solid var(--border-light);
-            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
             display: flex;
-            gap: 40px;
+            gap: 32px;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
         }
 
         .tab-btn {
-            padding: 12px 0;
+            padding: 12px 4px;
             font-weight: 700;
-            font-size: 1rem;
-            color: var(--text-light);
+            font-size: 14px;
+            color: #64748b;
             border-bottom: 3px solid transparent;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
             position: relative;
             bottom: -2px;
         }
 
+        .tab-btn:hover {
+            color: #0f172a;
+            background: transparent;
+        }
+
         .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
+            color: #850f0f !important;
+            border-bottom: 3px solid #850f0f !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border-radius: 0;
         }
 
         .tab-pane { display: none; }
@@ -174,14 +300,76 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Section Headings */
         .section-title {
-            font-size: 1.25rem; /* 20px */
-            font-weight: 700;
-            color: var(--text-dark);
+            font-size: 1.15rem; /* 18px */
+            font-weight: 800;
+            color: #0f172a;
             margin: 2.5rem 0 1.25rem 0;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 10px;
+            border-bottom: 2px solid rgba(133, 15, 15, 0.1);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .tab-pane .section-title:first-child {
+            margin-top: 0.25rem !important;
+        }
+
+        .section-title i {
+            color: #850f0f;
+            font-size: 18px;
+            vertical-align: middle;
+        }
+
+        /* Stay Rules Layout */
+        .stay-rules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 2.5rem;
+        }
+
+        .stay-rule-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stay-rule-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(133, 15, 15, 0.15);
+            box-shadow: 0 8px 20px rgba(133, 15, 15, 0.04);
+        }
+
+        .rule-icon-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #10b981;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .rule-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
         }
 
         .description-text {
@@ -190,27 +378,169 @@
             font-size: 1rem; /* 16px */
         }
 
+        /* Luxury Testimonial/Review Cards */
+        .review-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-left: 4px solid #850f0f;
+            padding: 24px 28px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.015);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .review-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(133, 15, 15, 0.15);
+            box-shadow: 0 12px 30px -5px rgba(133, 15, 15, 0.05);
+        }
+
+        .review-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(133, 15, 15, 0.06) 0%, rgba(133, 15, 15, 0.12) 100%);
+            border: 1px solid rgba(133, 15, 15, 0.18);
+            color: #850f0f;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .review-content-wrapper {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .review-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .review-author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .review-author-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .review-date-badge {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            margin-top: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .review-rating-stars {
+            color: #fbbf24;
+            font-size: 13px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .review-quote-text {
+            color: #475569;
+            font-style: italic;
+            font-size: 14.5px;
+            line-height: 1.65;
+            margin: 0;
+            position: relative;
+            padding-left: 6px;
+        }
+
+        .review-quote-text::before {
+            content: '\201C';
+            font-family: Georgia, serif;
+            font-size: 32px;
+            line-height: 0;
+            position: absolute;
+            left: -8px;
+            top: 12px;
+            color: rgba(133, 15, 15, 0.15);
+        }
+
         /* Sidebar Standardized Typography & Spacing */
         .sidebar-card {
             background: #ffffff;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid var(--border-light);
-            position: relative; /* Removed sticky sliding behavior */
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            position: relative;
             height: fit-content;
         }
 
-        .price-box {
-            background: #fff8f3;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 122, 0, 0.1);
+        .luxury-price-box {
+            background: linear-gradient(145deg, #ffffff, #fef2f2);
+            border-radius: 20px;
+            padding: 26px 20px;
+            margin-bottom: 22px;
+            border: 1.5px solid rgba(133, 15, 15, 0.15);
             text-align: center;
+            box-shadow: 0 8px 25px rgba(133, 15, 15, 0.05);
+            position: relative;
+            overflow: hidden;
         }
 
-        .price-val { font-size: 2.25rem; font-weight: 800; color: var(--primary-color); }
-        .price-unit { color: var(--text-medium); font-size: 1rem; font-weight: 500; }
+        .luxury-price-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #850f0f, #ef4444);
+        }
+
+        .book-now-btn {
+            background: linear-gradient(135deg, #a51d24 0%, #700b10 100%) !important;
+            box-shadow: 0 8px 25px rgba(133, 15, 15, 0.3) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .book-now-btn:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 12px 30px rgba(133, 15, 15, 0.45) !important;
+            background: linear-gradient(135deg, #b91c1c 0%, #850f0f 100%) !important;
+        }
+
+        .sidebar-feature-card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 15px rgba(133, 15, 15, 0.04) !important;
+            border-color: rgba(133, 15, 15, 0.25) !important;
+        }
+
+        .highlight-item-card:hover, .amenity-mini-item:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+            border-color: rgba(133, 15, 15, 0.2) !important;
+        }
+
+        .explore-services-btn:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: 0 12px 28px rgba(133, 15, 15, 0.4) !important;
+            background: linear-gradient(135deg, #b91c1c 0%, #850f0f 100%) !important;
+        }
 
         .sidebar-section-box {
             background: #fafafa;
@@ -294,8 +624,61 @@
 
         .amenity-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 16px;
+        }
+
+        .amenity-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .amenity-card:hover,
+        .amenity-card:active,
+        .amenity-card:focus,
+        .amenity-card:focus-within {
+            transform: translateY(-2px);
+            border-color: rgba(133, 15, 15, 0.15);
+            box-shadow: 0 8px 20px rgba(133, 15, 15, 0.04);
+            outline: none;
+        }
+
+        .amenity-card .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(133,15,15,0.04) 0%, rgba(133,15,15,0.1) 100%) !important;
+            border: 1px solid rgba(133,15,15,0.12) !important;
+            color: #850f0f !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .amenity-card:hover .icon-box,
+        .amenity-card:active .icon-box,
+        .amenity-card:focus .icon-box,
+        .amenity-card:focus-within .icon-box {
+            background: linear-gradient(135deg, rgba(133,15,15,0.08) 0%, rgba(133,15,15,0.18) 100%) !important;
+            border-color: rgba(133,15,15,0.2) !important;
+            color: #850f0f !important;
+            transform: scale(1.08);
+        }
+
+        .amenity-card span {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         /* Interactive State Styles */
@@ -396,53 +779,121 @@
         /* ===== RESPONSIVE: MOBILE (≤ 768px) ===== */
         @media (max-width: 768px) {
             .details-container {
-                padding: 0 1.25rem !important;
+                padding: 0 1rem !important;
                 margin: 0.5rem auto 2rem !important;
-                gap: 1.25rem !important;
+                gap: 0.75rem !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+            }
+            .sidebar-section {
+                margin-top: 0 !important;
+            }
+            .sidebar-card {
+                width: 100% !important;
+                margin-top: 0 !important;
+            }
+            .related-section {
+                margin-bottom: 0 !important;
+            }
+
+            /* Breadcrumbs responsive */
+            .breadcrumb {
+                padding: 6px 14px 6px 6px !important;
+                border-radius: 24px !important;
+                font-size: 0.8rem !important;
+                gap: 6px 8px !important;
+                max-width: 100% !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .breadcrumb a {
+                padding: 4px 10px !important;
+                font-size: 0.8rem !important;
+                border-radius: 20px !important;
+            }
+
+            .main-content {
+                width: 100% !important;
+            }
+
+            .sidebar-card {
+                width: 100% !important;
+                padding: 16px !important;
+                margin-top: 0 !important;
             }
 
             /* Gallery */
-            .main-img-wrapper { height: 260px !important; }
-            .gallery-section { border-radius: 14px !important; }
+            .main-img-wrapper { height: 240px !important; }
+            .gallery-section { border-radius: 14px !important; width: 100% !important; }
             .thumbnail-grid {
+                display: grid !important;
                 grid-template-columns: repeat(3, 1fr) !important;
                 gap: 8px !important;
-                padding: 8px !important;
+                padding: 8px 0 !important;
+                width: 100% !important;
             }
-            .thumb-item { height: 72px !important; }
+            .thumb-item { 
+                height: 72px !important; 
+                flex: none !important; 
+                width: 100% !important; 
+            }
 
             /* Spec cards: stack vertically full width */
             .gallery-info-row {
-                grid-template-columns: 1fr !important;
+                display: flex !important;
+                flex-direction: column !important;
                 gap: 8px !important;
                 margin-bottom: 12px !important;
+                width: 100% !important;
             }
             .spec-card {
-                flex-direction: row !important;
+                display: grid !important;
+                grid-template-columns: auto 1fr !important;
+                grid-template-rows: auto auto !important;
+                gap: 2px 12px !important;
                 align-items: center !important;
-                justify-content: flex-start !important;
-                gap: 12px !important;
                 padding: 12px 14px !important;
+                width: 100% !important;
                 text-align: left !important;
-                min-width: 0 !important;
             }
-            .spec-card i { margin-bottom: 0 !important; flex-shrink: 0 !important; }
+            .spec-card i {
+                grid-row: span 2 !important;
+                grid-column: 1 !important;
+                margin-bottom: 0 !important;
+                flex-shrink: 0 !important;
+            }
             .spec-card .val {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
                 font-size: 0.95rem !important;
                 white-space: normal !important;
                 overflow: visible !important;
                 text-overflow: unset !important;
+                line-height: 1.25 !important;
+                font-weight: 800 !important;
             }
-            .spec-card .lbl { font-size: 0.72rem !important; }
-
-
+            .spec-card .lbl {
+                grid-column: 2 !important;
+                grid-row: 2 !important;
+                font-size: 0.72rem !important;
+                margin-top: 0 !important;
+                text-align: left !important;
+            }
 
             /* Room header */
-            .room-title { font-size: 1.5rem !important; line-height: 1.2 !important; }
+            .room-title { font-size: 1.5rem !important; line-height: 1.2 !important; white-space: normal !important; }
             .room-meta-row {
                 flex-direction: column !important;
+                align-items: flex-start !important;
                 gap: 8px !important;
                 margin-bottom: 1.25rem !important;
+                width: 100% !important;
+            }
+            .room-meta-item {
+                font-size: 0.85rem !important;
+                padding: 8px 12px !important;
+                width: 100% !important;
+                justify-content: flex-start !important;
             }
 
             /* Tabs */
@@ -460,30 +911,194 @@
             .section-title { font-size: 1.1rem !important; margin: 1.5rem 0 1rem !important; }
 
             /* Amenity & Highlight grids */
-            .amenity-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+            .amenity-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+            .amenity-card { padding: 12px 16px !important; gap: 12px !important; }
+            
             .highlights-list { grid-template-columns: 1fr !important; gap: 8px !important; }
-            .capacity-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+            .capacity-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 
-            /* Sidebar */
-            .sidebar-card { padding: 16px !important; }
+            /* Stay Rules */
+            .stay-rules-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+            .stay-rule-card { padding: 12px 16px !important; }
+
+            /* Reviews */
+            .review-card { padding: 16px !important; gap: 12px !important; flex-direction: column !important; align-items: flex-start !important; }
+            .review-avatar { width: 40px !important; height: 40px !important; font-size: 14px !important; }
+            
+            /* Sidebar responsiveness fixes */
             .price-val { font-size: 1.75rem !important; }
-            .amenity-mini-grid { grid-template-columns: 1fr 1fr !important; }
+            .amenity-mini-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+            .book-now-btn { width: 100% !important; }
+            
+            .sidebar-feature-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                padding: 16px !important;
+                box-sizing: border-box !important;
+            }
+            .highlights-list {
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            .highlight-item-card {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 8px 10px !important;
+                gap: 8px !important;
+            }
+            /* Make text wrap properly inside highlights */
+            .highlight-item-card span {
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .highlight-item-card > div:first-child {
+                width: auto !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                min-width: 0 !important;
+                flex: 1 1 auto !important;
+            }
+            .highlight-item-card > div:first-child > div:first-child {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 16px !important;
+                border-radius: 8px !important;
+            }
+            .highlight-item-card span:first-child {
+                font-size: 12.5px !important;
+            }
+            .highlight-item-card span:last-child {
+                font-size: 10.5px !important;
+                margin-top: 1px !important;
+            }
+            .highlight-item-card > div:last-child {
+                align-self: center !important;
+                margin-top: 0 !important;
+                padding: 2px 6px !important;
+                font-size: 9.5px !important;
+            }
+
+            .capacity-box {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                padding: 16px 14px !important;
+                box-sizing: border-box !important;
+            }
+            .capacity-box > div:first-child {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .capacity-box span {
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .capacity-box .cap-val {
+                white-space: normal !important;
+            }
+            
+            /* VIP concierge link wrapping */
+            .sidebar-feature-card a {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .sidebar-feature-card a span {
+                white-space: normal !important;
+            }
 
             /* Modals */
             .modal-content { width: 95% !important; padding: 20px 16px !important; }
-            .share-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+            .share-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+            /* Complete Mobile Responsiveness Overrides */
+            .sidebar-feature-card > div:first-child {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                gap: 8px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .sidebar-feature-card > div:first-child > div {
+                flex-shrink: 1 !important;
+                min-width: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+            }
+            .sidebar-feature-card > div:first-child span {
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .sidebar-feature-card div[style*="border: 1.5px solid"] {
+                padding: 16px 12px !important;
+                border-radius: 16px !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+            }
+            .sidebar-feature-card div[style*="border: 1.5px solid"] > div {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .sidebar-feature-card div[style*="border: 1.5px solid"] span {
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .luxury-price-box > div:nth-child(2) {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                padding: 6px 10px !important;
+                border-radius: 20px !important;
+                font-size: 11px !important;
+                text-align: center !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .amenity-mini-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+            }
+            .amenity-mini-item {
+                padding: 12px 8px !important;
+                gap: 6px !important;
+                border-radius: 12px !important;
+                box-sizing: border-box !important;
+            }
+            .amenity-mini-item span {
+                font-size: 12px !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                text-align: center !important;
+            }
+            .amenity-mini-item span:last-child {
+                font-size: 9px !important;
+                padding: 2px 6px !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+            }
+            .rooms-grid {
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
         }
 
         /* ===== RESPONSIVE: SMALL PHONE (≤ 480px) ===== */
         @media (max-width: 480px) {
-            .details-container { padding: 0 1.25rem !important; }
+            .details-container { padding: 0 12px !important; }
             .main-img-wrapper { height: 210px !important; }
-            .thumbnail-grid { grid-template-columns: repeat(3, 1fr) !important; }
             .thumb-item { height: 60px !important; }
             .room-title { font-size: 1.35rem !important; }
-            .amenity-grid { grid-template-columns: 1fr !important; }
-            .capacity-grid { grid-template-columns: 1fr 1fr !important; }
-            .highlights-list { grid-template-columns: 1fr !important; }
+            .capacity-grid { grid-template-columns: 1fr !important; }
         }
     </style>
     @include('partials.dynamic-styles')
@@ -496,8 +1111,8 @@
         $roomsData = [
             'conference-hall' => [
                 'name' => 'Conference Hall',
-                'price' => '₹2000',
-                'time' => 'for 4 hours',
+                'price' => '₹2,000',
+                'time' => '/ 4 Hours',
                 'capacity' => '60 Members',
                 'size' => '1200 sq.ft',
                 'location' => 'Main Wing, 1st Floor',
@@ -542,10 +1157,52 @@
                 ],
                 'category' => 'conference'
             ],
+            'conference-room' => [
+                'name' => 'Conference Room',
+                'price' => '₹1,500',
+                'time' => '/ 4 Hours',
+                'capacity' => '12 Members',
+                'size' => '350 sq.ft',
+                'location' => 'Main Wing, 1st Floor',
+                'img' => asset('assets/standard/conference.JPG'),
+                'desc' => 'An elegant, state-of-the-art corporate room designed for executive meetings, board discussions, and private presentations. Equipped with high-speed WiFi, modern presentation screen, comfortable executive chairs, and dedicated beverage support, the Conference Room is the perfect setting for high-level decision making.',
+                'amenities' => [
+                    ['name' => 'Projector', 'icon' => 'ph-projector-screen'],
+                    ['name' => 'PA System', 'icon' => 'ph-speaker-hifi'],
+                    ['name' => 'Whiteboard', 'icon' => 'ph-chalkboard'],
+                    ['name' => 'High Speed WiFi', 'icon' => 'ph-wifi-high'],
+                    ['name' => 'Drinking Water', 'icon' => 'ph-drop'],
+                    ['name' => 'AC', 'icon' => 'ph-snowflake'],
+                ],
+                'highlights' => [
+                    ['text' => 'High-definition projection systems', 'icon' => 'ph ph-monitor'],
+                    ['text' => 'Comfortable ergonomic executive chairs', 'icon' => 'ph ph-chair'],
+                    ['text' => 'Flexible meeting configurations', 'icon' => 'ph ph-users-three'],
+                    ['text' => 'Dedicated technical support', 'icon' => 'ph ph-headset'],
+                ],
+                'capacity_breakdown' => [
+                    ['title' => 'Theater', 'value' => '20'],
+                    ['title' => 'Boardroom', 'value' => '12'],
+                ],
+                'tips' => [
+                    'Minimum booking: 4 hours',
+                    'Book at least 2 days in advance',
+                    'Technical setup support included',
+                ],
+                'included' => [
+                    'Smart TV/Screen access',
+                    'Flipcharts and markers',
+                    'Bottled drinking water',
+                ],
+                'faqs' => [
+                    ['q' => 'Is audio-conferencing supported?', 'a' => 'Yes, we provide advanced speakerphones for conference calls.'],
+                ],
+                'category' => 'conference'
+            ],
             'glass-room' => [
                 'name' => 'Glass Room',
-                'price' => '₹2000',
-                'time' => 'for 4 hours',
+                'price' => '₹2,000',
+                'time' => '/ 4 Hours',
                 'capacity' => '20 Members',
                 'size' => '450 sq.ft',
                 'location' => 'East Wing, Ground Floor',
@@ -589,8 +1246,8 @@
             ],
             'suite-room' => [
                 'name' => 'Suite Room',
-                'price' => '₹2000',
-                'time' => 'for 4 hours',
+                'price' => '₹2,000',
+                'time' => '/ 4 Hours',
                 'capacity' => '4 Members',
                 'size' => '600 sq.ft',
                 'location' => 'Executive Wing, 2nd Floor',
@@ -636,9 +1293,9 @@
 
         // Generic fallback for numbered rooms (Standard/Advance)
         $room = $roomsData[$roomId] ?? [
-            'name' => str_replace('-', ' ', ucwords($roomId)),
-            'price' => str_contains($roomId, 'advance') ? '₹2500' : '₹1400',
-            'time' => str_contains($roomId, 'advance') ? '/ day' : '/ 12 hours',
+            'name' => ucwords(str_replace('-', ' ', $roomId)),
+            'price' => str_contains($roomId, 'advance') ? '₹2,500' : '₹1,400',
+            'time' => str_contains($roomId, 'advance') ? '/ Day' : '/ 12 Hours',
             'capacity' => str_contains($roomId, 'advance') ? '4 Members' : '2 Members',
             'size' => '250 sq.ft',
             'location' => 'Guest Wing',
@@ -653,7 +1310,7 @@
                 ['name' => 'Clean Bedding', 'icon' => 'ph-bed'],
                 ['name' => 'Basic Toiletries', 'icon' => 'ph-spray-bottle'],
             ],
-            'category' => 'standard'
+            'category' => str_contains($roomId, 'advance') ? 'Advance' : (str_contains($roomId, 'conference') ? 'Conference' : (str_contains($roomId, 'suite') ? 'Luxury' : 'Standard'))
         ];
     @endphp
 
@@ -661,18 +1318,32 @@
         <div class="details-container">
             <!-- Left Column -->
             <div class="main-content">
+
                 <!-- Breadcrumbs -->
-                <nav class="breadcrumb" style="font-size: 0.85rem; margin-bottom: 1.5rem; color: var(--text-light);">
-                    <a href="{{ route('home') }}" style="color: var(--primary-color); text-decoration: none;">Home</a>
-                    <span style="margin: 0 8px;">/</span>
-                    <span style="text-transform: capitalize;">{{ $room['category'] }} Rooms</span>
-                    <span style="margin: 0 8px;">/</span>
-                    <span style="color: var(--text-dark); font-weight: 600;">{{ $room['name'] }}</span>
+                <nav class="breadcrumb">
+                    <a href="{{ route('home') }}">
+                        <i class="ph-fill ph-house"></i> Home
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    @php
+                        $cat = strtolower($room['category'] ?? 'standard');
+                        if (!in_array($cat, ['standard', 'advance', 'conference'])) {
+                            $cat = 'standard';
+                        }
+                    @endphp
+                    <a href="{{ route($cat . '.rooms') }}" style="text-transform: capitalize;">
+                        {{ $cat }} Rooms
+                    </a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current">{{ ucwords($room['name']) }}</span>
                 </nav>
 
                 <div class="gallery-section">
                     <div class="main-img-wrapper" onclick="openLightbox()">
                         <img id="mainImage" src="{{ $room['img'] }}" alt="{{ $room['name'] }}" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=90'">
+                        <div class="img-zoom-hint" style="position: absolute; bottom: 20px; right: 20px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); color: #fff; padding: 10px 18px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px; pointer-events: none; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 25px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                            <i class="ph-bold ph-arrows-out-simple" style="color: #fca5a5; font-size: 1rem;"></i> Click to Fullscreen
+                        </div>
                     </div>
                     <div class="thumbnail-grid">
                         @if(str_contains($roomId, 'standard'))
@@ -702,7 +1373,7 @@
                                     <img src="{{ $suiteImg }}" alt="Suite View {{ $j }}" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'">
                                 </div>
                             @endfor
-                        @elseif($roomId === 'conference-hall')
+                        @elseif($roomId === 'conference-hall' || $roomId === 'conference-room')
                             @for($j=1; $j<=5; $j++)
                                 @php
                                     $conImg = asset('assets/standard/con'.$j.'.JPG');
@@ -761,8 +1432,8 @@
                 <div class="room-info-header">
                     <h1 class="room-title">{{ $room['name'] }}</h1>
                     <div class="room-meta-row">
-                        <div class="room-meta-item"><i class="ph ph-map-pin"></i> {{ $room['location'] }}</div>
-                        <div class="room-meta-item"><i class="ph ph-calendar"></i> Verified Location</div>
+                        <div class="room-meta-item"><i class="ph-fill ph-map-pin"></i> {{ $room['location'] }}</div>
+                        <div class="room-meta-item"><i class="ph-fill ph-calendar"></i> Verified Location</div>
                     </div>
                 </div>
 
@@ -776,19 +1447,31 @@
 
                 <div id="overview" class="tab-pane active">
                     <h2 class="section-title"><i class="ph-fill ph-article"></i> About this Space</h2>
-                    <p class="description-text">{{ $room['desc'] }}</p>
+                    <p class="description-text" style="font-size: 15.5px; color: #334155; line-height: 1.8; margin-bottom: 25px;">{{ $room['desc'] }}</p>
                     
                     <h2 class="section-title"><i class="ph-fill ph-shield-check"></i> Stay Rules</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 0.95rem; margin-bottom: 30px;">
-                        <div style="display: flex; gap: 10px; align-items: start;"><i class="ph-bold ph-check" style="color: #16a34a; margin-top: 4px;"></i> <span>Check-in: Flexible timings subject to availability.</span></div>
-                        <div style="display: flex; gap: 10px; align-items: start;"><i class="ph-bold ph-check" style="color: #16a34a; margin-top: 4px;"></i> <span>Alcohol is strictly prohibited in the campus.</span></div>
-                        <div style="display: flex; gap: 10px; align-items: start;"><i class="ph-bold ph-check" style="color: #16a34a; margin-top: 4px;"></i> <span>Valid ID proof is mandatory during check-in.</span></div>
-                        <div style="display: flex; gap: 10px; align-items: start;"><i class="ph-bold ph-check" style="color: #16a34a; margin-top: 4px;"></i> <span>Guests are responsible for room belongings.</span></div>
+                    <div class="stay-rules-grid">
+                        <div class="stay-rule-card">
+                            <div class="rule-icon-box"><i class="ph ph-check"></i></div>
+                            <span class="rule-text">Check-in: Flexible timings subject to availability.</span>
+                        </div>
+                        <div class="stay-rule-card">
+                            <div class="rule-icon-box"><i class="ph ph-check"></i></div>
+                            <span class="rule-text">Alcohol is strictly prohibited in the campus.</span>
+                        </div>
+                        <div class="stay-rule-card">
+                            <div class="rule-icon-box"><i class="ph ph-check"></i></div>
+                            <span class="rule-text">Valid ID proof is mandatory during check-in.</span>
+                        </div>
+                        <div class="stay-rule-card">
+                            <div class="rule-icon-box"><i class="ph ph-check"></i></div>
+                            <span class="rule-text">Guests are responsible for room belongings.</span>
+                        </div>
                     </div>
 
                     <h2 class="section-title"><i class="ph-fill ph-map-pin"></i> Getting There</h2>
-                    <p class="description-text" style="margin-bottom: 20px;">Madras Christian College, East Tambaram, Chennai, Tamil Nadu, India</p>
-                    <div style="height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-light); margin-bottom: 30px;">
+                    <p class="description-text" style="margin-bottom: 20px; font-size: 15px; color: #475569;"><i class="ph ph-map-pin" style="color: #850f0f;"></i> Madras Christian College, East Tambaram, Chennai, Tamil Nadu, India</p>
+                    <div style="height: 300px; border-radius: 24px; overflow: hidden; border: 1.5px solid rgba(133, 15, 15, 0.15); margin-bottom: 30px; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.06);">
                         <iframe 
                             width="100%" height="100%" style="border:0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.37526978187!2d80.1189493758832!3d12.92215268738865!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525f16422d86e5%3A0xc3b54b6d4793f0b0!2sMadras%20Christian%20College!5e0!3m2!1sen!2sin!4v1711620000000!5m2!1sen!2sin">
@@ -796,88 +1479,98 @@
                     </div>
 
                     <h2 class="section-title"><i class="ph-fill ph-star"></i> Guest Experiences</h2>
-                    <div class="reviews-list" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="reviews-list" style="display: flex; flex-direction: column; gap: 16px;">
                         @foreach([['name' => 'Rahul S.', 'rating' => 5, 'text' => "Excellent facility and remarkably clean environment."]] as $review)
-                        <div class="review-item" style="background: #fafafa; border: 1px solid var(--border-light); padding: 16px; border-radius: 12px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.9rem;">{{ $review['name'] }}</div>
-                                <div class="rating-stars" style="color: #fbbf24; font-size: 0.7rem;">
+                        <div class="review-item" style="background: #ffffff; border: 1px solid #f1f5f9; border-left: 4px solid #850f0f; padding: 18px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">{{ $review['name'] }}</div>
+                                <div class="rating-stars" style="color: #fbbf24; font-size: 13px; display: flex; gap: 2px;">
                                     @for($i=0; $i<$review['rating']; $i++) <i class="ph-fill ph-star"></i> @endfor
                                 </div>
                             </div>
-                            <p style="color: var(--text-medium); font-style: italic; font-size: 0.85rem; line-height: 1.5; margin: 0;">"{{ $review['text'] }}"</p>
+                            <p style="color: #475569; font-style: italic; font-size: 14px; line-height: 1.6; margin: 0;">"{{ $review['text'] }}"</p>
                         </div>
                         @endforeach
-                        <a href="javascript:void(0)" onclick="switchTab('reviews', document.querySelectorAll('.tab-btn')[3])" style="color: var(--primary-color); font-weight: 700; text-decoration: none; font-size: 0.9rem;">View all reviews →</a>
+                        <a href="javascript:void(0)" onclick="switchTab('reviews', document.querySelectorAll('.tab-btn')[3])" style="color: #850f0f; font-weight: 800; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                            <span>View all reviews</span> <i class="ph-bold ph-arrow-right" style="font-size: 14px;"></i>
+                        </a>
                     </div>
-                </div>
-
-                <div id="amenities" class="tab-pane">
+                </div>                <div id="amenities" class="tab-pane">
                     <h2 class="section-title"><i class="ph-fill ph-grid-four"></i> Available Amenities</h2>
                     
-                    <div class="amenity-categories" style="display: flex; flex-direction: column; gap: 30px;">
-                        <!-- Furniture & Setup -->
-                        <div class="amenity-group">
-                            <h3 style="font-size: 1rem; color: var(--text-dark); margin-bottom: 15px; font-weight: 700;">Furniture & Setup</h3>
-                            <div class="amenity-grid">
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 50px; height: 50px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 8px;">
-                                        <i class="ph ph-armchair" style="font-size: 24px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Modern Furniture</span>
-                                </div>
-                                @if($roomId === 'glass-room')
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 50px; height: 50px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 8px;">
-                                        <i class="ph ph-bounding-box" style="font-size: 24px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Glass Walls</span>
-                                </div>
-                                @endif
+                    <div class="amenity-grid">
+                        <!-- Modern Furniture -->
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph ph-armchair"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Furniture</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">Modern Furniture</span>
                             </div>
                         </div>
 
-                        <!-- Technology -->
-                        <div class="amenity-group">
-                            <h3 style="font-size: 1rem; color: var(--text-dark); margin-bottom: 15px; font-weight: 700;">Technology</h3>
-                            <div class="amenity-grid">
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 50px; height: 50px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 8px;">
-                                        <i class="ph-bold ph-wifi-high" style="font-size: 24px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">High Speed WiFi</span>
-                                </div>
-                                @if($roomId === 'conference-hall')
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 60px; height: 60px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 10px;">
-                                        <i class="ph-bold ph-presentation-chart" style="font-size: 32px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Presentation Support</span>
-                                </div>
-                                @endif
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 60px; height: 60px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 10px;">
-                                        <i class="ph-bold ph-lightning" style="font-size: 32px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Charging Ports</span>
-                                </div>
+                        <!-- High Speed WiFi -->
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph-bold ph-wifi-high"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Technology</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">High Speed WiFi</span>
                             </div>
                         </div>
 
-                        <!-- Comfort -->
-                        <div class="amenity-group">
-                            <h3 style="font-size: 1rem; color: var(--text-dark); margin-bottom: 15px; font-weight: 700;">Comfort</h3>
-                            <div class="amenity-grid">
-                                <div class="amenity-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px; background: white; border: 1px solid var(--border-light); border-radius: 8px; transition: all 0.3s ease;">
-                                    <div style="width: 50px; height: 50px; background: #fff8f3; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 8px;">
-                                        <i class="ph ph-snowflake" style="font-size: 24px; color: var(--primary-color);"></i>
-                                    </div>
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Air Conditioning</span>
-                                </div>
+                        <!-- Charging Ports -->
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph-bold ph-lightning"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Technology</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">Charging Ports</span>
                             </div>
                         </div>
+
+                        <!-- Air Conditioning -->
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph ph-snowflake"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Comfort</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">Air Conditioning</span>
+                            </div>
+                        </div>
+
+                        <!-- Glass Walls if glass-room -->
+                        @if($roomId === 'glass-room')
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph ph-bounding-box"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Furniture</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">Glass Walls</span>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Presentation Support if conference-hall -->
+                        @if($roomId === 'conference-hall')
+                        <div class="amenity-card">
+                            <div class="icon-box">
+                                <i class="ph-bold ph-presentation-chart"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; min-width: 0;">
+                                <span style="font-size: 11px; font-weight: 800; color: #850f0f; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">Technology</span>
+                                <span style="font-size: 15px; font-weight: 700; color: #0f172a;">Presentation Support</span>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
+
 
                 <div id="location" class="tab-pane">
                     <h2 class="section-title"><i class="ph-fill ph-map-pin"></i> Getting There</h2>
@@ -893,15 +1586,35 @@
                 <div id="reviews" class="tab-pane">
                     <h2 class="section-title"><i class="ph-fill ph-star"></i> Guest Experiences</h2>
                     <div class="reviews-list" style="display: flex; flex-direction: column; gap: 20px; max-width: 800px;">
-                        @foreach([['name' => 'Rahul S.', 'rating' => 5, 'text' => "Excellent facility and remarkably clean environment. The staff was very professional."], ['name' => 'Priya K.', 'rating' => 4, 'text' => "Wonderful space for workshops. High speed internet was very helpful."], ['name' => 'Arjun M.', 'rating' => 5, 'text' => "Best guest house in the campus. Easy booking process and very convenient location."]] as $review)
-                        <div class="review-item" style="background: white; border: 1px solid var(--border-light); padding: 25px; border-radius: 16px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                <div style="font-weight: 700; color: var(--text-dark);">{{ $review['name'] }}</div>
-                                <div class="rating-stars" style="color: #fbbf24; font-size: 0.9rem;">
-                                    @for($i=0; $i<$review['rating']; $i++) <i class="ph-fill ph-star"></i> @endfor
-                                </div>
+                        @foreach([
+                            ['name' => 'Rahul S.', 'rating' => 5, 'text' => "Excellent facility and remarkably clean environment. The staff was very professional.", 'date' => 'Verified Guest • June 2026'],
+                            ['name' => 'Priya K.', 'rating' => 4, 'text' => "Wonderful space for workshops. High speed internet was very helpful.", 'date' => 'Verified Guest • May 2026'],
+                            ['name' => 'Arjun M.', 'rating' => 5, 'text' => "Best guest house in the campus. Easy booking process and very convenient location.", 'date' => 'Verified Guest • April 2026']
+                        ] as $review)
+                        @php
+                            $parts = explode(' ', $review['name']);
+                            $initials = (count($parts) > 1) ? ($parts[0][0] . $parts[1][0]) : $parts[0][0];
+                        @endphp
+                        <div class="review-card">
+                            <div class="review-avatar">
+                                {{ $initials }}
                             </div>
-                            <p style="color: var(--text-medium); font-style: italic; font-size: 1rem; line-height: 1.6; margin: 0;">"{{ $review['text'] }}"</p>
+                            <div class="review-content-wrapper">
+                                <div class="review-header-row">
+                                    <div class="review-author-info">
+                                        <span class="review-author-name">{{ $review['name'] }}</span>
+                                        <span class="review-date-badge">
+                                            <i class="ph-fill ph-shield-check" style="color: #059669; font-size: 13px;"></i>
+                                            {{ $review['date'] }}
+                                        </span>
+                                    </div>
+                                    <div class="review-rating-stars">
+                                        @for($i=0; $i<$review['rating']; $i++) <i class="ph-fill ph-star"></i> @endfor
+                                        @for($i=$review['rating']; $i<5; $i++) <i class="ph ph-star" style="color: #e2e8f0;"></i> @endfor
+                                    </div>
+                                </div>
+                                <p class="review-quote-text">"{{ $review['text'] }}"</p>
+                            </div>
                         </div>
                         @endforeach
                     </div>
@@ -931,150 +1644,217 @@
                         @endforeach
                     </div>
                 </div>
+
+                <!-- Related Rooms -->
+                <section class="related-section" style="border-top: 1px solid var(--border-light); margin-top: 40px !important;">
+                    <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-dark);">Related Rooms</h2>
+                    
+                    @php 
+                        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+                    @endphp
+                    
+                    <div class="rooms-grid dashboard-rooms-grid">
+                        <!-- Related Standard Room -->
+                        @if(!str_contains($roomId, 'standard'))
+                        <div class="card premium-card">
+                            <div class="card-image-wrapper">
+                                <span class="badge standard-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Standard</span>
+                                <img src="{{ asset('assets/standard/standardroom.JPG') }}" alt="Standard Room">
+                            </div>
+                            <div class="card-content">
+                                <h2>Standard Guest Room</h2>
+                                <p class="description">Thoughtfully designed for efficiency and comfort, providing a restful haven for short-term visitors with essential modern amenities.</p>
+                                <p class="gst-text" style="margin-top: 0.25rem; margin-bottom: 1rem !important;"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST applicable</p>
+                                <div class="card-btn-wrapper" style="margin-top: auto !important;">
+                                    <a href="{{ route('standard.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- Related Advance Room -->
+                        @if(!str_contains($roomId, 'advance'))
+                        <div class="card premium-card">
+                            <div class="card-image-wrapper">
+                                <span class="badge premium-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Premium</span>
+                                <img src="{{ asset('assets/room1.JPG') }}" alt="Advance Room">
+                            </div>
+                            <div class="card-content">
+                                <h2>Advance Executive Room</h2>
+                                <p class="description">Experience elevated hospitality curated for guests seeking enhanced privacy and premium comfort during longer stays.</p>
+                                <p class="gst-text" style="margin-top: 0.25rem; margin-bottom: 1rem !important;"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST applicable</p>
+                                <div class="card-btn-wrapper" style="margin-top: auto !important;">
+                                    <a href="{{ route('advance.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+        
+                        <!-- Related Suite Room -->
+                        @if($roomId !== 'suite-room')
+                        <div class="card premium-card">
+                            <div class="card-image-wrapper">
+                                <span class="badge suite-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Luxury</span>
+                                <img src="{{ asset('assets/suite.JPG') }}" alt="Suite Room">
+                            </div>
+                            <div class="card-content">
+                                <h2>Luxury Suite Room</h2>
+                                <p class="description">Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries for ultimate relaxation.</p>
+                                <p class="gst-text" style="margin-top: 0.25rem; margin-bottom: 1rem !important;"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST applicable</p>
+                                <div class="card-btn-wrapper" style="margin-top: auto !important;">
+                                    <a href="{{ route('room.details', ['id' => 'suite-room']) }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </section>
                 </div>
 
             <!-- Right Column (Sidebar) -->
             <aside class="sidebar-section">
-                <div class="sidebar-card" style="padding: 24px; background: #fff; border-radius: 12px; border: 1px solid #eef2f6; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-                    <div class="price-box" style="padding: 24px 16px; margin-bottom: 20px; background: #fff8f3; border: 1px solid rgba(255,122,0,0.15); border-radius: 16px; text-align: center;">
-                        <span class="price-val" style="font-size: 28px; font-weight: 800; color: var(--primary-color);">{{ $room['price'] }}</span>
-                        <span class="price-unit" style="font-size: 16px; color: #475569; font-weight: 600;">{{ $room['time'] }}</span>
-                        <p style="margin: 8px 0 0 0; font-size: 13px; color: #64748b; font-weight: 500;">+ {{ $gstRate }}% GST applicable</p>
+                <div class="sidebar-card">
+                    <div class="luxury-price-box">
+                        <div style="display: flex; align-items: baseline; justify-content: center; gap: 4px;">
+                            <span class="price-val" style="font-size: 38px; font-weight: 900; color: #850f0f; letter-spacing: -1px; line-height: 1;">{!! str_replace('₹', '<span class="rupee-symbol" style="font-size: 32px; font-weight: 800;">₹</span>', $room['price']) !!}</span>
+                            <span class="price-unit" style="font-size: 15px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">{{ $room['time'] }}</span>
+                        </div>
+                        <div style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 14px; padding: 6px 14px; background: rgba(133,15,15,0.08); border: 1px solid rgba(133,15,15,0.2); border-radius: 50px; color: #850f0f; font-size: 12px; font-weight: 700;">
+                            <i class="ph-fill ph-shield-check" style="color: #850f0f; font-size: 15px;"></i> + {{ $gstRate }}% GST Applicable on Booking
+                        </div>
                     </div>
 
-                    <a href="{{ route('booking.form.full', ['room' => $roomId]) }}" class="btn" style="width: 100%; padding: 16px !important; border-radius: 12px !important; font-size: 15px !important; margin-bottom: 24px; font-weight: 800; background: var(--primary-color); color: #fff; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(255,122,0,0.2);">
-                        Book Now <i class="ph-bold ph-arrow-right"></i>
+                    <a href="{{ route('booking.form.full', ['room' => $roomId]) }}" class="btn book-now-btn" style="width: 100%; padding: 18px !important; border-radius: 16px !important; font-size: 16px !important; margin-bottom: 26px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
+                        Book Now <i class="ph-bold ph-arrow-right" style="font-size: 18px;"></i>
                     </a>
 
-                    <!-- Sidebar Content with Improved Typography -->
-                    <div class="sidebar-section-box" style="background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h4 class="sidebar-section-title" style="font-size: 14px; font-weight: 800; color: #1a202c; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="ph-fill ph-sketch-logo" style="color: var(--primary-color);"></i> Key Highlights
-                        </h4>
-                        <div class="highlights-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            @foreach($room['highlights'] ?? [['text' => 'Clean & Modern', 'icon' => 'ph ph-sparkles'], ['text' => 'Prime Campus Spot', 'icon' => 'ph ph-map-pin']] as $highlight)
-                                <div class="highlight-item" style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #4a5568;">
-                                    <i class="ph-bold ph-check" style="color: #2f855a; font-size: 14px;"></i>
-                                    <span style="font-weight: 500;">{{ $highlight['text'] }}</span>
+                    <!-- Sidebar Content with Luxury Styling -->
+                    <div class="sidebar-feature-card" style="background: linear-gradient(180deg, #ffffff 0%, #fefcfc 100%); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 24px; padding: 22px; margin-bottom: 20px; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 180px;">
+                                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, rgba(133,15,15,0.08) 0%, rgba(133,15,15,0.15) 100%); border: 1px solid rgba(133,15,15,0.18); display: flex; align-items: center; justify-content: center; color: #850f0f; box-shadow: 0 4px 10px rgba(133,15,15,0.06); flex-shrink: 0;">
+                                    <i class="ph-fill ph-sketch-logo" style="font-size: 18px;"></i>
                                 </div>
-                            @endforeach
+                                <span style="font-size: 13.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; white-space: normal; word-break: break-word;">Key Highlights</span>
+                            </div>
+                            <span style="font-size: 10.5px; font-weight: 800; color: #850f0f; background: rgba(133,15,15,0.06); border: 1px solid rgba(133,15,15,0.12); padding: 4px 10px; border-radius: 50px; letter-spacing: 0.5px; text-transform: uppercase; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;">Premium</span>
                         </div>
-                    </div>
-
-                    <div class="sidebar-section-box" style="background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h4 class="sidebar-section-title" style="font-size: 14px; font-weight: 800; color: #1a202c; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="ph-fill ph-users" style="color: var(--primary-color);"></i> Room Capacity
-                        </h4>
-                        <div class="capacity-grid" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;">
-                            <i class="ph ph-users-three" style="font-size: 32px; color: #cbd5e0; margin-bottom: 4px;"></i>
-                            <div style="font-size: 32px; font-weight: 800; color: #1a202c; line-height: 1;">{{ explode(' ', $room['capacity'])[0] }}</div>
-                            <div style="font-size: 16px; font-weight: 700; color: #4a5568;">Members</div>
-                            <div style="font-size: 11px; font-weight: 800; color: #a0aec0; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">{{ $room['category'] }}</div>
-                        </div>
-                    </div>
-
-                    <div class="sidebar-section-box" style="background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h4 class="sidebar-section-title" style="font-size: 14px; font-weight: 800; color: #1a202c; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="ph-fill ph-grid-four" style="color: var(--primary-color);"></i> Performance
-                        </h4>
-                        <div class="amenity-mini-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            @foreach(array_slice($room['amenities'], 0, 2) as $amenity)
-                                <div class="amenity-mini-icon" style="background: #f8fafc; border: 1px solid #edf2f7; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
-                                    <div style="background: #fff8f3; border-radius: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-                                        <i class="ph {{ $amenity['icon'] }}" style="font-size: 20px; color: var(--primary-color);"></i>
+                        <div class="highlights-list" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                            @foreach($room['highlights'] ?? [['text' => 'Clean & Modern', 'icon' => 'ph ph-sparkle'], ['text' => 'Prime Campus Spot', 'icon' => 'ph ph-map-pin']] as $highlight)
+                                @php
+                                    $subtext = 'Guaranteed premium standard';
+                                    if(stripos($highlight['text'], 'Clean') !== false) $subtext = 'Sanitized & spotless ambiance';
+                                    elseif(stripos($highlight['text'], 'Campus') !== false || stripos($highlight['text'], 'Spot') !== false) $subtext = 'Central walking distance to venues';
+                                @endphp
+                                <div class="highlight-item-card" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 150px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #fef2f2 0%, #fff 100%); border: 1px solid #fee2e2; color: #850f0f; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(133,15,15,0.06);">
+                                            <i class="{{ $highlight['icon'] ?? 'ph ph-star' }}"></i>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto;">
+                                            <span style="font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.2;">{{ $highlight['text'] }}</span>
+                                            <span style="font-size: 11.5px; font-weight: 500; color: #64748b; margin-top: 2px;">{{ $subtext }}</span>
+                                        </div>
                                     </div>
-                                    <div class="amenity-mini-label" style="font-size: 12px; font-weight: 700; color: #4a5568;">{{ $amenity['name'] }}</div>
+                                    <div style="display: flex; align-items: center; gap: 4px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.22); color: #059669; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 50px; flex-shrink: 0; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;">
+                                        <i class="ph-fill ph-check-circle" style="font-size: 14px;"></i>
+                                        <span>Verified</span>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
-                        <a href="javascript:void(0)" onclick="scrollToAmenities()" style="font-size: 12px; color: var(--primary-color); font-weight: 800; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 6px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #edf2f7;">
-                            View More Services <i class="ph ph-arrow-right"></i>
+                    </div>                    <div class="sidebar-feature-card" style="background: linear-gradient(180deg, #ffffff 0%, #fefcfc 100%); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 24px; padding: 22px; margin-bottom: 20px; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 180px;">
+                                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, rgba(133,15,15,0.08) 0%, rgba(133,15,15,0.15) 100%); border: 1px solid rgba(133,15,15,0.18); display: flex; align-items: center; justify-content: center; color: #850f0f; box-shadow: 0 4px 10px rgba(133,15,15,0.06); flex-shrink: 0;">
+                                    <i class="ph-fill ph-users" style="font-size: 18px;"></i>
+                                </div>
+                                <span style="font-size: 13.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; white-space: normal; word-break: break-word;">Room Capacity</span>
+                            </div>
+                            <span style="font-size: 11px; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span> Instant Access</span>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fffafa 0%, #ffffff 100%); border: 1.5px solid rgba(133,15,15,0.15); border-radius: 20px; padding: 20px; position: relative; overflow: hidden; box-shadow: 0 8px 25px rgba(133,15,15,0.04); box-sizing: border-box; width: 100%;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; width: 100%;">
+                                <span style="background: linear-gradient(135deg, #850f0f, #b91c1c); color: #ffffff; font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.8px; white-space: normal; word-break: break-word; text-align: center; box-shadow: 0 4px 10px rgba(133,15,15,0.2);">{{ $room['category'] }} SUITE</span>
+                                <span style="font-size: 11px; font-weight: 700; color: #475569; display: inline-flex; align-items: center; gap: 4px; white-space: normal; word-break: break-word; margin-left: auto;"><i class="ph-fill ph-shield-check" style="color: #850f0f; font-size: 15px; flex-shrink: 0;"></i> Guaranteed Access</span>
+                            </div>
+                            <div style="height: 1px; background: linear-gradient(90deg, rgba(133,15,15,0.15) 0%, rgba(133,15,15,0.02) 100%); margin-bottom: 16px; width: 100%;"></div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1 1 180px;">
+                                    <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #850f0f, #b91c1c); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; box-shadow: 0 6px 16px rgba(133,15,15,0.25); flex-shrink: 0;">{{ explode(' ', $room['capacity'])[0] }}</div>
+                                    <div style="display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto;">
+                                        <span style="font-size: 16px; font-weight: 900; color: #0f172a; line-height: 1.2;">Guests Maximum</span>
+                                        <span style="font-size: 12px; font-weight: 500; color: #64748b; margin-top: 2px;">Spacious accommodation suite</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; color: rgba(133,15,15,0.15); font-size: 28px; flex-shrink: 0; margin-left: auto;">
+                                    <i class="ph-fill ph-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="sidebar-feature-card" style="background: linear-gradient(180deg, #ffffff 0%, #fefcfc 100%); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 24px; padding: 22px; margin-bottom: 20px; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 180px;">
+                                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, rgba(133,15,15,0.08) 0%, rgba(133,15,15,0.15) 100%); border: 1px solid rgba(133,15,15,0.18); display: flex; align-items: center; justify-content: center; color: #850f0f; box-shadow: 0 4px 10px rgba(133,15,15,0.06); flex-shrink: 0;">
+                                    <i class="ph-fill ph-sparkle" style="font-size: 18px;"></i>
+                                </div>
+                                <span style="font-size: 13.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; white-space: normal; word-break: break-word;">Core Amenities</span>
+                            </div>
+                            <span style="font-size: 10.5px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 50px; letter-spacing: 0.5px; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;">INCLUDED</span>
+                        </div>
+                        <div class="amenity-mini-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; width: 100%;">
+                            @foreach(array_slice($room['amenities'], 0, 2) as $amenity)
+                                <div class="amenity-mini-item" style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                                    <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #fef2f2 0%, #fff 100%); border: 1px solid #fee2e2; color: #850f0f; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(133,15,15,0.06);">
+                                        <i class="ph {{ $amenity['icon'] }}"></i>
+                                    </div>
+                                    <span style="font-size: 13.5px; font-weight: 800; color: #0f172a; line-height: 1.2; white-space: normal; word-break: break-word; text-align: center; max-width: 100%;">{{ $amenity['name'] }}</span>
+                                    <span style="font-size: 9px; font-weight: 700; color: #059669; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.22); padding: 3px 8px; border-radius: 50px; letter-spacing: 0.5px; white-space: normal; word-break: break-word; text-align: center; max-width: 100%;">COMPLIMENTARY</span>
+                                </div>
+                            @endforeach
+                        </div>
+                        <a href="javascript:void(0)" onclick="scrollToAmenities()" class="explore-services-btn" style="font-size: 13px; color: #ffffff; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 15px; background: linear-gradient(135deg, #850f0f, #b91c1c); border-radius: 14px; box-shadow: 0 8px 20px rgba(133,15,15,0.25); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; width: 100%;">
+                            <span>Explore All Services</span>
+                            <i class="ph-bold ph-arrow-right" style="color: #ffffff !important; font-size: 16px;"></i>
                         </a>
                     </div>
-
-                    <div class="sidebar-section-box footer-section" style="background: #f8fafc; border: 1px solid var(--border-light); padding: 12px; margin-bottom: 0;">
-                        <p style="font-size: 11px; color: var(--text-medium); margin-bottom: 12px; font-weight: 600;">Need assistance? We're here to help.</p>
-                        <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <a href="#" style="font-size: 12px; color: var(--text-dark); text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 700;">
-                                <i class="ph ph-file-text" style="color: var(--primary-color);"></i> Booking Policies
+ 
+ 
+                    <div class="sidebar-feature-card" style="background: linear-gradient(180deg, #ffffff 0%, #fefcfc 100%); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 24px; padding: 22px; margin-bottom: 0; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 180px;">
+                                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, rgba(133,15,15,0.08) 0%, rgba(133,15,15,0.15) 100%); border: 1px solid rgba(133,15,15,0.18); display: flex; align-items: center; justify-content: center; color: #850f0f; box-shadow: 0 4px 10px rgba(133,15,15,0.06); flex-shrink: 0;">
+                                    <i class="ph-fill ph-headset" style="font-size: 18px;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto;">
+                                    <span style="font-size: 13.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; white-space: normal; word-break: break-word;">VIP Concierge</span>
+                                    <span style="font-size: 11px; color: #64748b; font-weight: 600; white-space: normal; word-break: break-word; margin-top: 2px;">24/7 Dedicated Support</span>
+                                </div>
+                            </div>
+                            <span style="font-size: 10.5px; font-weight: 800; color: #850f0f; background: rgba(133,15,15,0.06); border: 1px solid rgba(133,15,15,0.12); padding: 4px 10px; border-radius: 50px; letter-spacing: 0.5px; text-transform: uppercase; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;">PRIORITY</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; width: 100%;">
+                            <a href="tel:+919876543210" style="background: #ffffff; border: 1px solid #fee2e2; padding: 12px 14px; border-radius: 14px; color: #0f172a; text-decoration: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 800; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(133,15,15,0.04); flex-wrap: wrap; box-sizing: border-box; width: 100%;">
+                                <span style="display: flex; align-items: center; gap: 8px; white-space: normal; word-break: break-word; flex: 1 1 150px;"><i class="ph-fill ph-phone-call" style="color: #850f0f; font-size: 16px; flex-shrink: 0;"></i> +91 98765 43210</span>
+                                <span style="font-size: 10px; background: linear-gradient(135deg, #850f0f, #b91c1c); color: #ffffff; padding: 3px 10px; border-radius: 50px; font-weight: 900; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 6px rgba(133,15,15,0.25); margin-left: auto;">CALL NOW</span>
                             </a>
-                            <a href="tel:+919876543210" style="font-size: 12px; color: var(--text-dark); text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 700;">
-                                <i class="ph ph-phone" style="color: var(--primary-color);"></i> +91 98765 43210
+                            <a href="#" style="background: #ffffff; border: 1px solid #f1f5f9; padding: 12px 14px; border-radius: 14px; color: #334155; text-decoration: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.01); flex-wrap: wrap; box-sizing: border-box; width: 100%;">
+                                <span style="display: flex; align-items: center; gap: 8px; white-space: normal; word-break: break-word; flex: 1 1 150px;"><i class="ph-fill ph-shield-check" style="color: #850f0f; font-size: 16px; flex-shrink: 0;"></i> Booking Policies</span>
+                                <i class="ph-bold ph-arrow-up-right" style="color: #64748b; font-size: 15px; flex-shrink: 0; margin-left: auto;"></i>
                             </a>
                         </div>
-                        <div style="margin-top: 14px; border-radius: 4px; background: #e8f5e9; padding: 10px 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 800; color: #1b5e20;">
-                            <i class="ph-fill ph-shield-check"></i> Safe & Secure Booking
+                        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 800; color: #059669; white-space: normal; word-break: break-word; text-align: center; box-sizing: border-box; width: 100%;">
+                            <i class="ph-fill ph-lock-key" style="font-size: 15px; color: #10b981; flex-shrink: 0;"></i> <span>100% Safe & Guaranteed Booking</span>
                         </div>
                     </div>
                 </div>
+            </aside>   </div>
             </aside>
             </div>
         </div>
 
-        <!-- Related Rooms -->
-        <section class="related-section" style="border-top: 1px solid var(--border-light); margin-top: 40px !important;">
-            <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-dark);">Related Rooms</h2>
-            
-            @php 
-                $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
-            @endphp
-            
-            <div class="rooms-grid dashboard-rooms-grid">
-                <!-- Related Standard Room -->
-                @if(!str_contains($roomId, 'standard'))
-                <div class="card premium-card">
-                    <div class="card-image-wrapper">
-                        <span class="badge standard-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Standard</span>
-                        <img src="{{ asset('assets/standard/standardroom.JPG') }}" alt="Standard Room">
-                    </div>
-                    <div class="card-content">
-                        <h2>Standard Guest Room</h2>
-                        <p class="description">Thoughtfully designed for efficiency and comfort, providing a restful haven for short-term visitors with essential modern amenities.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('standard.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-                
-                <!-- Related Advance Room -->
-                @if(!str_contains($roomId, 'advance'))
-                <div class="card premium-card">
-                    <div class="card-image-wrapper">
-                        <span class="badge premium-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Premium</span>
-                        <img src="{{ asset('assets/room1.JPG') }}" alt="Advance Room">
-                    </div>
-                    <div class="card-content">
-                        <h2>Advance Executive Room</h2>
-                        <p class="description">Experience elevated hospitality curated for guests seeking enhanced privacy and premium comfort during longer stays.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('advance.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                <!-- Related Suite Room -->
-                @if($roomId !== 'suite-room')
-                <div class="card premium-card">
-                    <div class="card-image-wrapper">
-                        <span class="badge suite-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Luxury</span>
-                        <img src="{{ asset('assets/suite.JPG') }}" alt="Suite Room">
-                    </div>
-                    <div class="card-content">
-                        <h2>Luxury Suite Room</h2>
-                        <p class="description">Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries for ultimate relaxation.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('room.details', ['id' => 'suite-room']) }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            </div>
-        </section>
     </main>
 
 
@@ -1153,7 +1933,24 @@
         let currentImgIndex = 0;
 
         function changeImage(src, thumb) {
-            document.getElementById('mainImage').src = src;
+            const mainImg = document.getElementById('mainImage');
+            mainImg.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            mainImg.style.opacity = '0.1';
+            mainImg.style.transform = 'scale(0.97)';
+            mainImg.style.filter = 'blur(6px)';
+            
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.onload = () => {
+                    mainImg.style.opacity = '1';
+                    mainImg.style.transform = 'scale(1)';
+                    mainImg.style.filter = 'blur(0px)';
+                    setTimeout(() => {
+                        mainImg.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, filter 0.3s ease';
+                    }, 300);
+                };
+            }, 180);
+
             document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
             currentImgIndex = galleryImages.indexOf(src);

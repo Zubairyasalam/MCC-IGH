@@ -1,5 +1,5 @@
 @php
-    $primaryColor = \App\Models\Setting::where('key', 'primary_color')->first()->value ?? '#ff7a00';
+    $primaryColor = \App\Models\Setting::where('key', 'primary_color')->first()->value ?? '#850f0f';
     $secondaryColor = \App\Models\Setting::where('key', 'secondary_color')->first()->value ?? '#001a33';
 
     function hexToRgb($hex)
@@ -21,6 +21,8 @@
     $useSecondary = \App\Models\Setting::where('key', 'use_secondary_color')->first()->value ?? '0';
 @endphp
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
     :root {
         --primary-color:
             {{ $primaryColor }}
@@ -39,48 +41,31 @@
         ;
     }
 
-    * {
-        font-family: 'Inter', sans-serif !important;
-    }
-
     body,
     input,
     select,
     textarea,
-    button,
+    button {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
     h1,
     h2,
     h3,
     h4,
     h5,
-    h6 {
-        font-family: 'Inter', sans-serif !important;
+    h6,
+    .welcome-title,
+    .slide-title,
+    .page-hero-card h1 {
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: -0.02em;
     }
 
     /* Secondary Style Overrides for Visual Balance */
     @if($useSecondary == '1')
         header:not(.auth-header) {
             border-bottom: 2px solid var(--secondary-color) !important;
-        }
-
-        .main-footer {
-            border-top: 2px solid var(--secondary-color) !important;
-            background: #fdfbf9 !important; /* Keep professional beige as requested */
-            color: #444 !important;
-        }
-
-        .main-footer .footer-column h4,
-        .main-footer .footer-column ul li,
-        .main-footer .footer-column ul li a,
-        .main-footer .footer-contact-link,
-        .main-footer .footer-column p {
-            color: #475569 !important;
-        }
-
-        .main-footer .footer-bottom {
-            background: transparent !important;
-            border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
-            color: #64748b !important;
         }
 
         .sidebar,
@@ -104,13 +89,153 @@
         color: #ffffff !important;
     }
 
+    /* Dynamic Theme Frame/Border Card & Box Styling */
+    .card,
+    .slider-card,
+    .room-card,
+    .premium-card,
+    .modal-card,
+    .help-modal-card,
+    .pricing-info-card,
+    .auth-card,
+    .success-wrapper,
+    .summary-cards-grid > div,
+    .guide-box,
+    .webhook-item,
+    .room-hero,
+    .timeline-card,
+    .modal-content,
+    .confirm-modal-content {
+        border: 1.5px solid var(--border, #e2e8f0) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease !important;
+    }
+
+    /* Permanent Brand Frame for Forms and Settings Cards */
+    .form-card,
+    .form-container,
+    .booking-form-container,
+    .login-card,
+    .settings-card,
+    .filter-card,
+    .details-card,
+    .payment-summary,
+    .content-card,
+    .report-table-container,
+    .stat-card,
+    .dashboard-section,
+    .summary-card {
+        border: 1.5px solid var(--primary-color) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+        transition: none !important;
+        transform: none !important;
+    }
+    .form-card:hover,
+    .form-container:hover,
+    .booking-form-container:hover,
+    .login-card:hover,
+    .settings-card:hover,
+    .filter-card:hover,
+    .details-card:hover,
+    .payment-summary:hover,
+    .content-card:hover,
+    .report-table-container:hover,
+    .stat-card:hover,
+    .dashboard-section:hover,
+    .summary-card:hover {
+        transform: none !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+        border-color: var(--primary-color) !important;
+    }
+
+    /* Permanent Brand Frame for Main Facilities Box */
+    .premium-facility-card {
+        border: 1.5px solid var(--primary-color) !important;
+        box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.04) !important;
+        transition: box-shadow 0.3s ease !important;
+    }
+    .premium-facility-card:hover {
+        box-shadow: 0 12px 40px rgba(var(--primary-rgb), 0.08) !important;
+    }
+    .card:hover,
+    .card:active,
+    .card:focus,
+    .card.active,
+    .slider-card:hover,
+    .slider-card:active,
+    .room-card:hover,
+    .room-card:active,
+    .room-card.active,
+    .premium-card:hover,
+    .premium-card:active,
+    .pricing-info-card:hover,
+    .pricing-info-card:active,
+    .auth-card:hover,
+    .auth-card:active,
+    .success-wrapper:hover,
+    .success-wrapper:active,
+    .summary-cards-grid > div:hover,
+    .summary-cards-grid > div:active,
+    .guide-box:hover,
+    .guide-box:active,
+    .webhook-item:hover,
+    .webhook-item:active,
+    .room-hero:hover,
+    .room-hero:active,
+    .timeline-card:hover,
+    .timeline-card:active {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 12px 32px rgba(var(--primary-rgb), 0.12) !important;
+        transform: translateY(-4px) !important;
+    }
+
+    /* Keep hover frame border highlight, but do not move/animate */
+    .modal-content:hover,
+    .modal-content:active,
+    .confirm-modal-content:hover,
+    .confirm-modal-content:active {
+        border-color: var(--primary-color) !important;
+    }
+
+    /* Dynamic Theme for Facility Cards */
+    .feature-grid .feature-item {
+        border: 1.5px solid var(--border, #e2e8f0) !important;
+        transition: all 0.3s ease !important;
+    }
+    .feature-grid .feature-item:hover,
+    .feature-grid .feature-item:active,
+    .feature-grid .feature-item.active {
+        background-color: rgba(var(--primary-rgb), 0.05) !important;
+        border-color: var(--primary-color) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.08) !important;
+    }
+    .feature-grid .feature-item:hover i,
+    .feature-grid .feature-item:active i,
+    .feature-grid .feature-item.active i {
+        color: var(--primary-color) !important;
+    }
+
+    /* Dynamic Outline Buttons */
+    .btn-outline {
+        background-color: transparent !important;
+        border: 1.5px solid var(--primary-color) !important;
+        color: var(--primary-color) !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-outline:hover,
+    .btn-outline:active {
+        background-color: var(--primary-color) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2) !important;
+    }
+
     .text-primary,
     .primary-text,
     .welcome-title span,
     .price-highlight span,
     .modal-price-line span:first-child,
     .breadcrumb a,
-    .footer-column h4::after,
     .header-logo i,
     .hero-prev:hover,
     .hero-next:hover,
@@ -118,10 +243,62 @@
         color: var(--primary-color) !important;
     }
 
+    .rupee-symbol {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 0.82em !important;
+        margin-right: 0.05em !important;
+        display: inline-block !important;
+        vertical-align: baseline !important;
+        position: relative !important;
+        top: -0.04em !important;
+    }
+
     .room-highlights i,
     .facility-item i,
     .ph-list {
         color: var(--primary-color) !important;
+    }
+
+    /* Premium Carousel & Slider Arrow Buttons styling */
+    .hero-prev,
+    .hero-next,
+    .room-nav-btn {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1.5px solid rgba(0, 0, 0, 0.05) !important;
+        color: var(--primary-color) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        font-family: inherit !important;
+    }
+
+    .hero-prev:hover,
+    .hero-next:hover,
+    .room-nav-btn:hover {
+        background: #ffffff !important;
+        color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 10px 30px rgba({{ $primaryRgb }}, 0.25) !important;
+        transform: translateY(-50%) scale(1.1) !important;
+    }
+
+    .hero-prev:active,
+    .hero-next:active,
+    .room-nav-btn:active {
+        transform: translateY(-50%) scale(0.95) !important;
+    }
+
+    .room-nav-btn.left {
+        left: 20px !important;
+    }
+
+    .room-nav-btn.right {
+        right: 20px !important;
     }
 
     .header-container,
@@ -151,16 +328,21 @@
     .mcc-text {
         font-weight: 800 !important;
         color: var(--primary-color) !important;
-        font-size: 1.5rem !important;
-        letter-spacing: 1px !important;
+        font-size: 2.2rem !important;
+        letter-spacing: 2px !important;
+        line-height: 1.0 !important;
+        margin-bottom: 2px !important;
+        text-shadow: 0px 1px 2px rgba(0,0,0,0.05) !important;
     }
 
     .igh-text {
-        font-family: 'Inter', sans-serif !important;
+        font-family: 'Outfit', sans-serif !important;
         color: var(--primary-color) !important;
-        font-weight: 700 !important;
-        font-size: 0.85rem !important;
-        letter-spacing: 0.5px !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 4px !important;
+        line-height: 1.2 !important;
+        text-shadow: 0px 1px 2px rgba(0,0,0,0.05) !important;
     }
 
     /* Standardized Breadcrumb Spacing for Category Pages */
@@ -184,24 +366,134 @@
     }
 
     .help-btn {
-        background: rgba({{ $primaryRgb }}, 0.08) !important;
-        color: var(--primary-color) !important;
-        border: 1px solid rgba({{ $primaryRgb }}, 0.2) !important;
-        padding: 0.5rem 1.25rem !important;
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--primary-color) !important;
+        padding: 0.55rem 1.35rem !important;
         border-radius: 50px !important;
         font-weight: 700 !important;
         font-size: 0.85rem !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        transition: all 0.3s ease !important;
+        letter-spacing: 0.8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         cursor: pointer !important;
+        box-shadow: 0 4px 10px rgba({{ $primaryRgb }}, 0.15) !important;
     }
 
-    .help-btn:hover {
+    .help-btn i,
+    .help-btn span {
+        color: #ffffff !important;
+    }
+
+    .help-btn:hover,
+    .help-btn:active,
+    .help-btn:focus,
+    .help-btn:focus-within {
         background: var(--primary-color) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 15px rgba({{ $primaryRgb }}, 0.3) !important;
+        border-color: var(--primary-color) !important;
+        filter: brightness(0.9) !important;
+        box-shadow: 0 4px 15px rgba({{ $primaryRgb }}, 0.25) !important;
+    }
+
+    .help-btn:hover i,
+    .help-btn:hover span,
+    .help-btn:active i,
+    .help-btn:active span,
+    .help-btn:focus i,
+    .help-btn:focus span,
+    .help-btn:focus-within i,
+    .help-btn:focus-within span {
+        color: #ffffff !important;
+    }
+
+    /* Premium Header Back Button */
+    .btn-header-back {
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--primary-color) !important;
+        padding: 0.55rem 1.35rem !important;
+        border-radius: 50px !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.8px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 10px rgba({{ $primaryRgb }}, 0.15) !important;
+    }
+
+    .btn-header-back i,
+    .btn-header-back span {
+        color: #ffffff !important;
+    }
+
+    .btn-header-back:hover,
+    .btn-header-back:active,
+    .btn-header-back:focus,
+    .btn-header-back:focus-within {
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border-color: var(--primary-color) !important;
+        filter: brightness(0.9) !important;
+        box-shadow: 0 4px 15px rgba({{ $primaryRgb }}, 0.25) !important;
+    }
+
+    .btn-header-back:hover i,
+    .btn-header-back:hover span,
+    .btn-header-back:active i,
+    .btn-header-back:active span,
+    .btn-header-back:focus i,
+    .btn-header-back:focus span,
+    .btn-header-back:focus-within i,
+    .btn-header-back:focus-within span {
+        color: #ffffff !important;
+    }
+
+    /* Premium Profile Dropdown Button */
+    .profile-btn {
+        background: rgba({{ $primaryRgb }}, 0.05) !important;
+        color: var(--primary-color) !important;
+        border: 1px solid rgba({{ $primaryRgb }}, 0.15) !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        padding: 0 !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+    }
+
+    .profile-btn i {
+        font-size: 1.55rem !important;
+        color: var(--primary-color) !important;
+        transition: transform 0.25s ease !important;
+    }
+
+    .profile-btn:hover {
+        background: rgba({{ $primaryRgb }}, 0.1) !important;
+        border-color: rgba({{ $primaryRgb }}, 0.35) !important;
         transform: translateY(-1px) !important;
+        box-shadow: 0 3px 10px rgba({{ $primaryRgb }}, 0.12) !important;
+    }
+
+    .profile-btn:hover i {
+        transform: scale(1.05) !important;
+    }
+
+    .profile-btn:active {
+        transform: translateY(0) !important;
     }
 
     /* Header center: only visible on large screens (1280px+) */
@@ -272,31 +564,58 @@
     @media (max-width: 767px) {
         .header-container {
             padding: 0 1rem !important;
-            height: 75px !important;
+            height: 65px !important;
         }
 
         .header-logo {
-            height: 55px !important;
+            height: 46px !important;
             mix-blend-mode: multiply !important;
             filter: brightness(1.08) contrast(1.08) saturate(1.1);
         }
 
-        .help-btn {
-            padding: 0.4rem 0.8rem !important;
-            font-size: 0.75rem !important;
-            letter-spacing: 0 !important;
-            display: flex !important;
+        .help-btn,
+        .btn-header-back {
+            padding: 0 !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 50% !important;
+            display: inline-flex !important;
             align-items: center !important;
-            gap: 4px !important;
+            justify-content: center !important;
+            box-sizing: border-box !important;
+            flex-shrink: 0 !important;
         }
 
-        .help-btn span {
-            display: inline !important;
+        .help-btn span,
+        .btn-header-back span {
+            display: none !important;
+        }
+
+        .help-btn i,
+        .btn-header-back i {
+            font-size: 1.1rem !important;
+            margin: 0 !important;
+            color: #ffffff !important;
+        }
+
+        .profile-btn {
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        .profile-btn i {
+            font-size: 1.35rem !important;
         }
 
         .header-left,
         .header-right {
             gap: 0.5rem !important;
+        }
+
+        .room-nav-btn,
+        .hero-prev,
+        .hero-next {
+            display: none !important;
         }
     }
 
@@ -529,33 +848,58 @@
         max-width: 800px;
     }
 
-    /* 5. "BOOK NOW" Button Style */
+    @keyframes cta-pulse {
+        0% {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), 0 0 0 0px rgba({{ $primaryRgb }}, 0.85);
+            transform: scale(1) translate3d(0, 0, 0);
+            filter: brightness(1);
+        }
+        50% {
+            box-shadow: 0 6px 22px rgba(0, 0, 0, 0.2), 0 0 0 14px rgba({{ $primaryRgb }}, 0);
+            transform: scale(1.04) translate3d(0, 0, 0);
+            filter: brightness(1.25); /* Flashes brighter like a light */
+        }
+        100% {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), 0 0 0 0px rgba({{ $primaryRgb }}, 0);
+            transform: scale(1) translate3d(0, 0, 0);
+            filter: brightness(1);
+        }
+    }
+
     .banner-cta {
         margin-top: 2rem !important;
-        padding: 0.5rem 1.5rem !important;
-        /* Smaller rounded button */
-        background: var(--primary-color) !important;
+        padding: 0.8rem 2.5rem !important;
+        background: var(--primary-color) !important; /* Solid theme color */
         color: #fff !important;
-        font-size: 0.8rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
         border-radius: 50px !important;
-        letter-spacing: 0.5px !important;
+        letter-spacing: 1px !important;
         text-transform: uppercase !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        text-decoration: none !important;
+        position: relative !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         pointer-events: auto !important;
+        text-decoration: none !important;
+        border: none !important;
+        z-index: 1 !important;
+        
+        /* Active beacon click blinking animation */
+        animation: cta-pulse 1.2s infinite ease-in-out !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        
+        /* Smooth anti-aliasing */
+        transform: translate3d(0, 0, 0) !important;
+        -webkit-backface-visibility: hidden !important;
+        backface-visibility: hidden !important;
     }
 
     .banner-cta:hover {
-        transform: scale(1.05) !important;
-        /* Slight scale */
-        background: var(--primary-color) !important;
-        box-shadow: 0 6px 20px rgba({{ $primaryRgb }}, 0.4) !important;
-        /* Shadow */
+        transform: scale(1.06) translateY(-2px) translate3d(0, 0, 0) !important;
+        filter: brightness(1.1) !important;
+        animation: none !important; /* Lock glow on hover */
+        box-shadow: 0 8px 25px rgba({{ $primaryRgb }}, 0.65) !important;
         color: #fff !important;
     }
 
@@ -663,6 +1007,11 @@
         box-sizing: border-box !important;
     }
 
+    .premium-facility-card .desc-content p {
+        font-family: 'Inter', sans-serif !important;
+        text-align: left !important;
+    }
+
     /* 7. Footer Spacing */
     .main-footer {
         margin-top: 0 !important;
@@ -730,7 +1079,7 @@
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: space-between !important;
+        justify-content: flex-start !important;
         padding: 20px !important;
         /* Standardized deep padding */
     }
@@ -751,8 +1100,9 @@
         line-height: 1.5 !important;
         min-height: 60px !important;
         /* Description alignment */
-        margin-bottom: 16px !important;
+        margin-bottom: 8px !important;
         color: #64748b !important;
+        flex: none !important;
     }
 
     .premium-card .card-btn-wrapper {
@@ -780,6 +1130,270 @@
         font-size: 1.8rem !important;
         color: var(--primary-color) !important;
     }
+
+    /* Premium footer headers style */
+    .main-footer .footer-column h4 {
+        color: #0f172a !important; /* Darker and more premium slate-900 */
+        font-weight: 700 !important;
+        margin-bottom: 1.2rem !important; /* Give more breathing space */
+        padding-bottom: 0.5rem !important;
+        position: relative;
+        display: inline-block;
+        font-size: 1.15rem !important;
+        letter-spacing: -0.2px !important;
+    }
+
+    .main-footer .footer-column h4::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 32px !important;
+        height: 3px !important;
+        background: var(--primary-color) !important;
+        border-radius: 4px !important;
+        z-index: 2;
+    }
+
+    /* Elegant longer backing line for the header border */
+    .main-footer .footer-column h4::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100% !important;
+        height: 1px !important;
+        background: #e2e8f0 !important; /* slate-200 border */
+        border-radius: 4px !important;
+        z-index: 1;
+    }
+
+    /* Premium dynamic footer social hover shadow */
+    .footer-social-icons a:hover {
+        box-shadow: 0 5px 15px rgba({{ $primaryRgb }}, 0.3) !important;
+    }
+
+    /* Premium dynamic theme footer background and border */
+    .main-footer {
+        @if($useSecondary == '1')
+            background: var(--secondary-color) !important;
+        @else
+            background: var(--primary-color) !important;
+        @endif
+        border-top: 3px solid rgba(255, 255, 255, 0.2) !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .main-footer .footer-column h4 {
+        color: #ffffff !important; /* Pure white headers */
+    }
+
+    .main-footer .footer-column h4::after {
+        background: #ffffff !important; /* White accent bar */
+    }
+
+    .main-footer .footer-column h4::before {
+        background: rgba(255, 255, 255, 0.2) !important; /* White divider line */
+    }
+
+    .main-footer .footer-column ul li a {
+        color: rgba(255, 255, 255, 0.9) !important; /* Light white links */
+    }
+
+    .main-footer .footer-column ul li a:hover {
+        color: #ffffff !important;
+        transform: translateX(4px);
+    }
+
+    .main-footer .footer-contact-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .main-footer .footer-contact-link:hover {
+        color: #ffffff !important;
+    }
+
+    .main-footer .footer-column p {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .main-footer .footer-column i {
+        color: #ffffff !important; /* White icons for high contrast */
+    }
+
+    .main-footer .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .main-footer .footer-bottom p {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    .main-footer .mcc-text {
+        color: #ffffff !important;
+    }
+
+    .main-footer .igh-text {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    /* Social icons on themed background */
+    .footer-social-icons a {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
+
+    .footer-social-icons a:hover {
+        background: #ffffff !important;
+        @if($useSecondary == '1')
+            color: var(--secondary-color) !important;
+        @else
+            color: var(--primary-color) !important;
+        @endif
+        box-shadow: 0 5px 15px rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .footer-social-icons a i {
+        color: #ffffff !important;
+        transition: color 0.3s ease !important;
+    }
+
+    .footer-social-icons a:hover i {
+        @if($useSecondary == '1')
+            color: var(--secondary-color) !important;
+        @else
+            color: var(--primary-color) !important;
+        @endif
+    }
+
+    /* =============================================================
+       MOBILE RESPONSIVE OVERRIDES FOR ADMIN INTERFACE
+       ============================================================= */
+    .admin-main {
+        margin-left: var(--sidebar-width, 240px) !important;
+        width: calc(100% - var(--sidebar-width, 240px)) !important;
+        max-width: calc(100% - var(--sidebar-width, 240px)) !important;
+        box-sizing: border-box !important;
+        transition: all 0.3s ease !important;
+    }
+
+    @media (max-width: 1024px) {
+        .admin-main {
+            margin-left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .sidebar.open {
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.15) !important;
+            transform: translateX(0) !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .data-table th, .data-table td,
+        .mini-table th, .mini-table td,
+        .report-table-container table th, .report-table-container table td,
+        table th, table td {
+            padding: 0.6rem 0.75rem !important;
+            font-size: 0.8rem !important;
+            white-space: nowrap !important;
+        }
+        .admin-body {
+            padding: 1rem !important;
+        }
+    }
+
+    @media (max-width: 640px) {
+        /* Hide text inside action links in top navbar, leaving only icon */
+        .nav-btn-text {
+            display: none !important;
+        }
+
+        .top-navbar a[href*="college-guest"],
+        .top-navbar a[href*="export"],
+        .top-navbar a[href*="reports/download"],
+        .top-navbar a[href*="bookings/export"],
+        .top-navbar .btn-outline {
+            font-size: 0 !important;
+            padding: 0 !important;
+            width: 38px !important;
+            height: 38px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0 !important;
+            border-radius: 10px !important;
+            flex-shrink: 0 !important;
+        }
+        .top-navbar a[href*="college-guest"] i,
+        .top-navbar a[href*="export"] i,
+        .top-navbar a[href*="reports/download"] i,
+        .top-navbar a[href*="bookings/export"] i,
+        .top-navbar .btn-outline i {
+            font-size: 1.25rem !important;
+            margin: 0 !important;
+        }
+        
+        .top-navbar {
+            padding: 0 1rem !important;
+            gap: 0.5rem !important;
+        }
+        
+        /* Make form elements stack nicely */
+        .filter-form, .filter-section {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        .filter-form > div, .filter-section > div {
+            width: 100% !important;
+        }
+    }
+
+    /* GLOBAL MOBILE OVERRIDES FOR STABILITY */
+    @media (max-width: 767px) {
+        .rooms-grid, .dashboard-rooms-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .card {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            box-sizing: border-box !important;
+        }
+        .card-content {
+            height: auto !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .room-highlights, .room-features-box {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    }
+
+    /* Highlighted GST Badge style */
+    .gst-text {
+        background-color: #f0fdf4 !important;
+        color: #15803d !important;
+        border: 1px solid #bbf7d0 !important;
+        padding: 4px 10px !important;
+        border-radius: 8px !important;
+        font-size: 0.74rem !important;
+        font-weight: 700 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: fit-content !important;
+        margin-top: 8px !important;
+        margin-bottom: 16px !important;
+        min-height: auto !important;
+        box-shadow: 0 1px 2px rgba(22, 163, 74, 0.05) !important;
+    }
 </style>
 
 <script>
@@ -789,16 +1403,16 @@
     // "Nuclear" fix: Scan the DOM for hardcoded orange and replace it
     function applyDynamicTheme() {
         const orangeShades = [
-            "rgb(255, 122, 0)",   // #ff7a00 (Main)
+            "rgb(133, 15, 15)",   // #850f0f (Main)
             "rgb(255, 106, 0)",   // #ff6a00
             "rgb(230, 109, 0)",   // #e66d00
             "rgb(204, 94, 0)",    // #cc5e00
-            "rgb(255, 122, 0)",   // Repeated for safety
+            "rgb(133, 15, 15)",   // Repeated for safety
             "rgb(255, 121, 0)",   // slight variant
-            "rgba(255, 122, 0, 0.85)",
-            "rgba(255, 122, 0, 0.3)",
-            "rgba(255, 122, 0, 0.15)",
-            "rgba(255, 122, 0, 0.1)",
+            "rgba(133, 15, 15, 0.85)",
+            "rgba(133, 15, 15, 0.3)",
+            "rgba(133, 15, 15, 0.15)",
+            "rgba(133, 15, 15, 0.1)",
             "rgb(255, 154, 0)",
             "rgb(255, 165, 0)"
         ];
@@ -816,7 +1430,7 @@
                 el.style.setProperty('background-color', window.primaryColor, 'important');
             }
             // Transition rgba backgrounds
-            if (style.backgroundColor.startsWith('rgba(255, 122, 0')) {
+            if (style.backgroundColor.startsWith('rgba(133, 15, 15')) {
                 const alpha = style.backgroundColor.split(',').pop().replace(')', '').trim();
                 el.style.setProperty('background-color', `rgba(${window.primaryColorRGB}, ${alpha})`, 'important');
             }
@@ -826,7 +1440,7 @@
                 el.style.setProperty('border-color', window.primaryColor, 'important');
             }
             // Border color starts with rgba
-            if (style.borderColor.startsWith('rgba(255, 122, 0')) {
+            if (style.borderColor.startsWith('rgba(133, 15, 15')) {
                 const alpha = style.borderColor.split(',').pop().replace(')', '').trim();
                 el.style.setProperty('border-color', `rgba(${window.primaryColorRGB}, ${alpha})`, 'important');
             }

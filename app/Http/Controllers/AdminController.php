@@ -27,12 +27,12 @@ class AdminController extends Controller
         // Status Counts
         $completedBookings = Booking::where('approval_status', 'Approved')->count();
         $pendingApprovals = Booking::where('approval_status', 'Pending')->count();
-        $principalApprovals = Booking::where('approval_status', 'Principal Approved')->count();
+        $principalApprovals = Booking::whereIn('approval_status', ['Principal Approved', 'Approved by Principal'])->count();
         $pendingPayments = Booking::where('payment_status', 'Pending')->count();
         $cancelledBookings = Booking::where('payment_status', 'Failed')->count();
 
         // Feed for the Notification Center (Only Unread)
-        $notificationBookings = Booking::whereIn('approval_status', ['Pending', 'Principal Approved'])
+        $notificationBookings = Booking::whereIn('approval_status', ['Pending', 'Principal Approved', 'Approved by Principal'])
             ->where('is_admin_read', false)
             ->orderBy('updated_at', 'desc')
             ->limit(10)
@@ -172,7 +172,7 @@ class AdminController extends Controller
 
             // CSV Header Row
             fputcsv($handle, [
-                'Booking ID', 'Guest Name', 'Email', 'Phone',
+                'Booking ID', 'Guest Name', 'Email', 'Phone', 'Nationality', 'Passport Number', 'Visa Number',
                 'Room / Space', 'Booking Date', 'Start Time', 'End Time',
                 'No. of Persons', 'User Type', 'Approval Status', 'Payment Status',
                 'Total Price (₹)', 'Payment ID', 'Submitted At'
@@ -184,6 +184,9 @@ class AdminController extends Controller
                     $b->name,
                     $b->email,
                     $b->phone ?? '',
+                    $b->nationality ?? 'Indian',
+                    $b->passport_number ?? '',
+                    $b->visa_number ?? '',
                     $b->room_name,
                     \Carbon\Carbon::parse($b->booking_date)->format('d M Y'),
                     \Carbon\Carbon::parse($b->start_time)->format('H:i'),
@@ -221,7 +224,7 @@ class AdminController extends Controller
         $booking = Booking::findOrFail($id);
         
         if ($booking->approval_status === 'Pending') {
-            $booking->update(['approval_status' => 'Principal Approved']);
+            $booking->update(['approval_status' => 'Approved by Principal']);
             return redirect()->route('approval.status')->with('success', 'Booking approved by Principal. Admin has been notified for final confirmation.');
         } 
         
@@ -232,7 +235,7 @@ class AdminController extends Controller
     {
         $booking = Booking::findOrFail($id);
         
-        if ($booking->approval_status !== 'Principal Approved' && $booking->approval_status !== 'Approved') {
+        if ($booking->approval_status !== 'Principal Approved' && $booking->approval_status !== 'Approved by Principal' && $booking->approval_status !== 'Approved') {
             return back()->with('error', 'Strict Enforced: This booking must be approved by the Principal first.');
         }
 
@@ -307,7 +310,7 @@ class AdminController extends Controller
             'mail.mailers.smtp.encryption' => $mailEncryption,
             'mail.mailers.smtp.username' => $senderEmail,
             'mail.mailers.smtp.password' => $mailPassword,
-            'mail.from.address' => $senderEmail,
+            'mail.from.address' => 'noreply@mccigh.com',
             'mail.from.name' => 'MCC IGH System'
         ]);
 
@@ -373,7 +376,7 @@ class AdminController extends Controller
 
     public function markNotificationsRead()
     {
-        Booking::whereIn('approval_status', ['Pending', 'Principal Approved'])
+        Booking::whereIn('approval_status', ['Pending', 'Principal Approved', 'Approved by Principal'])
             ->where('is_admin_read', false)
             ->update(['is_admin_read' => true]);
             
@@ -403,11 +406,159 @@ class AdminController extends Controller
         
         $startDate = $request->start_date;
         $endDate = $request->end_date;
-        $primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#ff7a00';
+        $primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#850f0f';
 
         // Using the global 'Pdf' alias which is auto-discovered
         $pdf = \Pdf::loadView('admin.report_pdf', compact('bookings', 'startDate', 'endDate', 'primaryColor', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate'));
         
         return $pdf->download('Revenue_Report_'.now()->format('dM_Y').'.pdf');
+    }
+
+    public function showCollegeGuestForm()
+    {
+        $rooms = [
+            'Standard Rooms' => [
+                'Standard Room 1' => 'Standard Room 1',
+                'Standard Room 2' => 'Standard Room 2',
+                'Standard Room 3' => 'Standard Room 3',
+                'Standard Room 4' => 'Standard Room 4',
+                'Standard Room 5' => 'Standard Room 5',
+                'Standard Room 6' => 'Standard Room 6',
+                'Standard Room 7' => 'Standard Room 7',
+                'Standard Room 8' => 'Standard Room 8',
+            ],
+            'Advance Rooms' => [
+                '101' => 'Room 101 (College Guest Room)',
+                '102' => 'Room 102 (Premium Guest Room with Upgraded Interiors)',
+                '103' => 'Room 103 (Premium Guest Room with Upgraded Interiors)',
+                '104' => 'Room 104 (Premium Guest Room with Upgraded Interiors)',
+                '201' => 'Room 201 (Premium Guest Room with Upgraded Interiors)',
+                '203' => 'Room 203 (Premium Guest Room with Upgraded Interiors)',
+                '204' => 'Room 204 (Premium Guest Room with Upgraded Interiors)',
+                '205' => 'Room 205 (Premium Guest Room with Upgraded Interiors)',
+                '206' => 'Room 206 (Premium Guest Room with Upgraded Interiors)',
+                '207' => 'Room 207 (Premium Guest Room with Upgraded Interiors)',
+            ],
+            'Conference & Special Rooms' => [
+                'Conference Room' => 'Conference Room',
+                'Glass Room' => 'Glass Room',
+                'Suite Room' => 'Suite Room',
+            ],
+        ];
+
+        $bookedRooms = Booking::where('approval_status', '!=', 'Rejected')
+            ->whereDate('booking_date', '>=', now()->toDateString())
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->room_name => ['date' => $item->booking_date, 'time' => $item->end_time]];
+            })->toArray();
+
+        return view('admin.college_guest', compact('rooms', 'bookedRooms'));
+    }
+
+    public function checkAvailability(Request $request)
+    {
+        $request->validate([
+            'clock_in' => 'required|date',
+            'clock_out' => 'required|date|after:clock_in',
+        ]);
+
+        $clockIn = \Carbon\Carbon::parse($request->clock_in);
+        $clockOut = \Carbon\Carbon::parse($request->clock_out);
+
+        // Find all rooms booked during this period
+        $bookedRooms = Booking::where('approval_status', '!=', 'Rejected')
+            ->where('booking_date', $clockIn->toDateString())
+            ->where(function ($query) use ($clockIn, $clockOut) {
+                $query->where(function ($q) use ($clockIn, $clockOut) {
+                    $q->where('start_time', '<', $clockOut->toTimeString())
+                      ->where('end_time', '>', $clockIn->toTimeString());
+                });
+            })
+            ->pluck('room_name')
+            ->toArray();
+
+        return response()->json([
+            'booked_rooms' => $bookedRooms
+        ]);
+    }
+
+    public function storeCollegeGuestBooking(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'room_name' => 'required|string|max:255',
+            'clock_in' => 'required|date',
+            'clock_out' => 'required|date|after:clock_in',
+            'no_of_persons' => 'required|integer|min:1',
+            'booking_reason' => 'nullable|string',
+        ]);
+
+        $clockIn = \Carbon\Carbon::parse($request->clock_in);
+        $clockOut = \Carbon\Carbon::parse($request->clock_out);
+
+        // Enforce maximum capacity based on selected room
+        $maxCapacity = 4;
+        $roomVal = strtolower($request->room_name);
+        if (str_contains($roomVal, 'standard')) {
+            $maxCapacity = 2;
+        } elseif (str_contains($roomVal, 'conference')) {
+            $maxCapacity = 60;
+        } elseif (str_contains($roomVal, 'glass')) {
+            $maxCapacity = 20;
+        } elseif (str_contains($roomVal, 'suite')) {
+            $maxCapacity = 4;
+        } elseif (is_numeric($roomVal) || str_contains($roomVal, 'advance')) {
+            $maxCapacity = 4;
+        }
+
+        if ($request->no_of_persons > $maxCapacity) {
+            return back()->withInput()->with('error', "Number of guests exceeds the maximum capacity of {$maxCapacity} for this room.");
+        }
+
+        // Check availability
+        $exists = Booking::where('room_name', $request->room_name)
+            ->where('booking_date', $clockIn->toDateString())
+            ->where('approval_status', '!=', 'Rejected')
+            ->where(function ($query) use ($clockIn, $clockOut) {
+                $query->where(function ($q) use ($clockIn, $clockOut) {
+                    $q->where('start_time', '<', $clockOut->toTimeString())
+                      ->where('end_time', '>', $clockIn->toTimeString());
+                });
+            })->exists();
+
+        if ($exists) {
+            return back()->withInput()->with('error', 'The selected room is already booked for this date and time slot.');
+        }
+
+        // Create booking
+        $booking = new Booking();
+        $booking->name = $request->name;
+        $booking->email = $request->email;
+        $booking->phone = $request->phone;
+        $booking->nationality = 'Indian';
+        $booking->user_type = 'College Guest';
+        $booking->stream = 'College';
+        $booking->level = 'N/A';
+        $booking->department = $request->designation;
+        $booking->primary_guest_name = $request->name;
+        $booking->no_of_persons = $request->no_of_persons;
+        $booking->room_name = $request->room_name;
+        $booking->booking_date = $clockIn->toDateString();
+        $booking->start_time = $clockIn->toTimeString();
+        $booking->end_time = $clockOut->toTimeString();
+        $booking->total_price = 0;
+        $booking->payment_status = 'Paid';
+        $booking->approval_status = 'Approved';
+        $booking->razorpay_order_id = 'COLLEGE_GUEST';
+        $booking->razorpay_payment_id = 'FREE_EXEMPT';
+        $booking->is_admin_read = true;
+        $booking->booking_reason = $request->booking_reason;
+        $booking->save();
+
+        return redirect()->route('admin.bookings')->with('success', 'College guest booking created successfully.');
     }
 }

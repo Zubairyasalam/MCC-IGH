@@ -147,7 +147,7 @@
                 <table class="info-table">
                     <tr>
                         <th>Name</th>
-                        <td>{{ $booking->name }}</td>
+                        <td>{{ ucwords(strtolower($booking->name)) }}</td>
                     </tr>
                     <tr>
                         <th>Email</th>
@@ -157,6 +157,16 @@
                         <th>Phone</th>
                         <td>{{ $booking->phone }}</td>
                     </tr>
+                    @if($booking->nationality === 'Non-Indian')
+                    <tr>
+                        <th>Passport</th>
+                        <td>{{ $booking->passport_number ?: 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Visa No</th>
+                        <td>{{ $booking->visa_number ?: 'N/A' }}</td>
+                    </tr>
+                    @endif
                 </table>
             </td>
             <td style="vertical-align: top; padding-left: 15px;">
@@ -203,6 +213,12 @@
             <th style="width: 25%;">Check-Out</th>
             <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d F, Y') }} | {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</td>
         </tr>
+        @if($booking->booking_reason)
+        <tr>
+            <th style="width: 25%;">Reason / Purpose</th>
+            <td>{{ $booking->booking_reason }}</td>
+        </tr>
+        @endif
     </table>
 
     @if(isset($payment))

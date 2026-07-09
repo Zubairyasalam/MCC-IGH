@@ -107,7 +107,7 @@
                 </tr>
             </table>
             
-            <h2 style="color: #1e293b; margin-top: 0;">Hello {{ $booking->name }},</h2>
+            <h2 style="color: #1e293b; margin-top: 0;">Hello {{ ucwords(strtolower($booking->name)) }},</h2>
             <p style="color: #64748b; line-height: 1.6; font-size: 16px;">Great news! Your booking request for <strong>{{ str_replace('-', ' ', ucwords($booking->room_name, '- ')) }}</strong> has been officially approved and confirmed.</p>
             <p style="color: #64748b; font-size: 14px; margin-top: -10px;">(Please find your official receipt attached to this email as a PDF)</p>
 
@@ -126,11 +126,11 @@
                     <td>{{ str_replace('-', ' ', ucwords($booking->room_name, '- ')) }}</td>
                 </tr>
                 <tr>
-                    <th>Clock In</th>
+                    <th>Check-In</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('M d, Y, h:i A') }}</td>
                 </tr>
                 <tr>
-                    <th>Clock Out</th>
+                    <th>Check-Out</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('M d, Y, h:i A') }}</td>
                 </tr>
                 <tr>

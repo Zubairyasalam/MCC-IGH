@@ -106,7 +106,7 @@
             <!-- Left: Form -->
             <div class="booking-form-container">
                 <div class="title-section" style="text-align: left; margin-bottom: 1.5rem;">
-                    <h2>Guest & Booking Details</h2>
+                    <h2>Guest & Booking <span class="primary-text">Details</span></h2>
                     <p>Please fill in the information below.</p>
                 </div>
 
@@ -241,21 +241,21 @@
                             <h4>Booking Summary</h4>
                             <div class="bill-row">
                                 <span>Rate</span>
-                                <span>₹<span id="displayRoomPrice">0</span> / hr</span>
+                                <span><span class="rupee-symbol">₹</span><span id="displayRoomPrice">0</span> / hr</span>
                             </div>
                             <div class="bill-row" id="durationRow" style="display:none;">
                                 <span>Duration (<span id="calcHours">0</span> hrs)</span>
-                                <span>₹<span id="calcBaseTotal">0</span></span>
+                                <span><span class="rupee-symbol">₹</span><span id="calcBaseTotal">0</span></span>
                             </div>
                             <div class="bill-row" id="taxRow" style="display:none;">
                                 <span>Taxes & Fees (18%)</span>
-                                <span>₹<span id="calcTax">0</span></span>
+                                <span><span class="rupee-symbol">₹</span><span id="calcTax">0</span></span>
                             </div>
                         </div>
 
                         <div class="total-box">
                             <span>Estimated Total</span>
-                            <span class="total-amount">₹<span id="displayTotalPrice">0.00</span></span>
+                            <span class="total-amount"><span class="rupee-symbol">₹</span><span id="displayTotalPrice">0.00</span></span>
                         </div>
                     </div>
                 </div>

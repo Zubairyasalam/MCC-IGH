@@ -9,8 +9,468 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
     <style>
-        /* Room grid base is in responsive.css, but we keep our specific gap/margin */
+        /* =============================================================
+           PREMIUM ROOMS PAGE DESIGN OVERRIDES
+        ============================================================= */
+        
+        /* Modern Header Hero Card */
+        .page-hero-card {
+            position: relative !important;
+            margin: 1.5rem 0 3rem 0 !important;
+            padding: 3.5rem 3rem !important;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.01) 100%) !important;
+            border: 1.5px solid rgba(var(--primary-rgb), 0.15) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 10px 30px rgba(var(--primary-rgb), 0.02) !important;
+            overflow: hidden !important;
+        }
 
+        .page-hero-card::before {
+            content: '' !important;
+            position: absolute !important;
+            right: -40px !important;
+            top: -40px !important;
+            width: 200px !important;
+            height: 200px !important;
+            border-radius: 50% !important;
+            border: 2px dashed rgba(var(--primary-rgb), 0.08) !important;
+            background: transparent !important;
+            left: auto !important;
+            bottom: auto !important;
+        }
+
+        .page-hero-card::after {
+            content: '' !important;
+            position: absolute !important;
+            right: -70px !important;
+            top: -70px !important;
+            width: 280px !important;
+            height: 280px !important;
+            border-radius: 50% !important;
+            border: 2px dashed rgba(var(--primary-rgb), 0.08) !important;
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+
+        .page-hero-card-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0.4rem 1rem !important;
+            border: 1.5px solid var(--primary-color) !important;
+            border-radius: 9999px !important;
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            background: rgba(var(--primary-rgb), 0.05) !important;
+            letter-spacing: 0.5px !important;
+            text-transform: uppercase !important;
+            margin-bottom: 0.8rem !important;
+            color: var(--primary-color) !important;
+        }
+
+        .page-hero-card h1 {
+            font-size: clamp(2rem, 5vw, 2.8rem) !important;
+            font-weight: 800 !important;
+            margin: 0.2rem 0 0.8rem 0 !important;
+            color: #0f172a !important;
+            letter-spacing: -1.2px !important;
+            line-height: 1.1 !important;
+        }
+
+        .page-hero-card p {
+            color: #475569 !important;
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            line-height: 1.65 !important;
+            max-width: 850px !important;
+            margin: 0 !important;
+        }
+
+        /* Modern Room Cards — Equal Height Grid */
+        .rooms-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 24px !important;
+            align-items: stretch !important;
+        }
+        @media (max-width: 1024px) {
+            .rooms-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 767px) {
+            .rooms-grid { grid-template-columns: 1fr !important; }
+        }
+
+        .card { 
+            display: flex !important; 
+            flex-direction: column !important; 
+            min-height: 0 !important; 
+            height: 100% !important; 
+            background: #ffffff !important;
+            border-radius: 24px !important;
+            border: 1px solid rgba(var(--primary-rgb), 0.08) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
+            overflow: hidden !important;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 20px 40px rgba(var(--primary-rgb), 0.08) !important;
+            border-color: rgba(var(--primary-rgb), 0.25) !important;
+        }
+
+        .card-image-wrapper {
+            position: relative !important;
+            overflow: hidden !important;
+            border-radius: 24px 24px 0 0 !important;
+        }
+
+        .card-image-wrapper img {
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+        }
+
+        .card:hover .card-image-wrapper img {
+            transform: scale(1.06) !important;
+        }
+
+        /* Status & Category Badges */
+        .card-image-wrapper .badge {
+            position: absolute !important;
+            top: 1rem !important;
+            left: 1rem;
+            z-index: 5 !important;
+            border-radius: 9999px !important;
+            padding: 0.4rem 1rem !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.2px !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+            border: 1px solid transparent !important;
+            text-transform: none !important;
+        }
+
+        .card-image-wrapper .badge.status-available {
+            background: rgba(5, 150, 105, 0.92) !important;
+            color: #ffffff !important;
+            border-color: rgba(5, 150, 105, 0.3) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15) !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+        }
+
+        .card-image-wrapper .badge[style*="background:#dc3545"] {
+            background: rgba(220, 53, 69, 0.92) !important;
+            color: #ffffff !important;
+            border-color: rgba(220, 53, 69, 0.3) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15) !important;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .card-image-wrapper .badge[style*="background: #e0e0e0"] {
+            top: 1rem !important;
+            left: auto !important;
+            right: 1rem !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(8px) !important;
+            color: #334155 !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .card-content { 
+            flex: 1 !important; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            padding: 1.5rem 1.5rem 1.25rem !important;
+        }
+
+        /* Card Header */
+        .card-header { 
+            min-height: auto !important; 
+            display: flex !important; 
+            flex-direction: row !important; 
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 0.5rem !important;
+            width: 100% !important;
+        }
+
+        .card h2 { 
+            color: #0f172a !important; 
+            font-weight: 800 !important; 
+            font-size: 1.3rem !important; 
+            margin: 0 !important; 
+            line-height: 1.2 !important; 
+            letter-spacing: -0.5px !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .card-header .rating {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            color: var(--primary-color) !important;
+            background: rgba(var(--primary-rgb), 0.08) !important;
+            padding: 0.25rem 0.65rem !important;
+            border-radius: 9999px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+
+        .card .description { 
+            color: #475569 !important; 
+            font-weight: 500 !important; 
+            margin-bottom: 0.75rem !important;
+            line-height: 1.5 !important;
+            font-size: 0.88rem !important;
+            flex: none !important;
+            min-height: 60px !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 3 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+        }
+
+        /* Room number badge (Suite) */
+        .room-number-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            background: var(--primary-color) !important;
+            color: #fff !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            padding: 3px 10px !important;
+            border-radius: 20px !important;
+            letter-spacing: 0.5px !important;
+            margin-bottom: 0.5rem !important;
+            width: fit-content !important;
+            align-self: flex-start !important;
+        }
+
+        /* Pricing Section */
+        .price-section {
+            min-height: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            margin-bottom: 1.25rem !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+        }
+
+        .price-highlight { 
+            min-height: auto !important; 
+            display: flex !important; 
+            align-items: baseline !important; 
+            gap: 6px !important;
+            margin-bottom: 0.15rem !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            color: var(--primary-color) !important;
+            letter-spacing: -0.5px !important;
+        }
+
+        .price-highlight span {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 800 !important;
+        }
+
+        .price-highlight .rupee-symbol {
+            font-size: 1.25rem !important;
+            margin-right: 1px !important;
+        }
+
+        .price-highlight span + span, 
+        .price-highlight .period-label {
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            color: #64748b !important;
+        }
+
+        .gst-text {
+            font-size: 0.76rem !important;
+            font-weight: 700 !important;
+            color: #15803d !important;
+            background-color: #f0fdf4 !important;
+            border: 1px solid #bbf7d0 !important;
+            padding: 4px 10px !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+        }
+
+        .price-section {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* Room Highlights Grid — Uniform Styling */
+        .room-highlights, .room-features-box {
+            margin-bottom: 0.75rem !important;
+            padding: 1rem !important;
+            background: rgba(var(--primary-rgb), 0.02) !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(var(--primary-rgb), 0.08) !important;
+            min-height: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .features-title {
+            font-size: 0.7rem !important;
+            font-weight: 800 !important;
+            color: var(--primary-color) !important;
+            margin-bottom: 0.8rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.08em !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .features-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            font-size: 0.75rem !important;
+            color: #666 !important;
+            flex-grow: 1 !important;
+        }
+
+        .features-grid > div,
+        .feature-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            color: #666 !important;
+            white-space: nowrap !important;
+            transition: all 0.2s ease !important;
+            font-family: inherit !important;
+        }
+
+        .features-grid > div:hover,
+        .feature-item:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .features-grid > div i,
+        .feature-item i {
+            color: var(--primary-color) !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .features-footer, .features-footer-text {
+            font-size: 0.72rem !important;
+            color: #64748b !important;
+            background: transparent !important;
+            border-left: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            font-weight: 600 !important;
+            margin-top: auto !important;
+            padding-top: 0.6rem !important;
+            margin-bottom: 0px !important;
+            font-style: italic !important;
+            opacity: 0.8 !important;
+        }
+
+        /* Booking Status Banner */
+        .next-available {
+            margin-top: 0.25rem !important;
+            margin-bottom: 1rem !important;
+            padding: 0.75rem !important;
+            background: rgba(var(--primary-rgb), 0.05) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(var(--primary-rgb), 0.1) !important;
+            text-align: center !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: var(--primary-color) !important;
+            font-size: 0.82rem !important;
+            font-weight: 600 !important;
+        }
+
+        .next-available p {
+            margin: 0 !important;
+            line-height: 1.4 !important;
+        }
+
+        .next-available-placeholder {
+            height: 0px !important;
+            margin: 0 !important;
+        }
+
+        /* Card Actions */
+        .card-actions { 
+            margin-top: auto !important; 
+            display: flex !important; 
+            gap: 12px !important; 
+            width: 100% !important;
+            padding-top: 1rem !important;
+        }
+
+        .card-actions .btn,
+        .card-actions .btn-outline {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 46px !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            font-size: 0.88rem !important;
+            transition: all 0.3s ease !important;
+            flex: 1 !important;
+            text-decoration: none !important;
+        }
+
+        .card-actions .btn-outline {
+            border: 1.5px solid rgba(var(--primary-rgb), 0.25) !important;
+            color: var(--primary-color) !important;
+            background: transparent !important;
+        }
+
+        .card-actions .btn-outline:hover,
+        .card-actions .btn-outline:active {
+            background: var(--primary-color) !important;
+            color: #ffffff !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15) !important;
+        }
+
+        .card-actions .btn:not(.btn-outline) {
+            background: var(--primary-color) !important;
+            border: 1.5px solid var(--primary-color) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15) !important;
+        }
+
+        .card-actions .btn:not(.btn-outline):hover {
+            filter: brightness(0.9) !important;
+            box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.25) !important;
+        }
+
+        /* Booked Button Disabled Style Override */
+        .card-actions .btn[style*="background: #bc8e8e"],
+        .card-actions .btn[style*="background:#bc8e8e"] {
+            background: #e2e8f0 !important;
+            border-color: #e2e8f0 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important;
+            box-shadow: none !important;
+        }
+
+        /* Detail Modal & Help Modal Styles (Local Preserves) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
             background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(6px) !important;
@@ -46,9 +506,6 @@
         .facility-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 2px; }
         .facility-item { background: #f8f9fa; color: #444; padding: 6px 4px; border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; border: 1px solid #eee; font-weight: 500; text-align: center; justify-content: center; flex-direction: column; }
         .facility-item i { font-size: 0.9rem; color: var(--primary-color); }
-
-        /* Help Modal Styles */
-
 
         .help-modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -87,7 +544,7 @@
             width: 100% !important; display: block !important; box-sizing: border-box !important;
         }
         .help-input-group input:focus, .help-input-group select:focus, .help-input-group textarea:focus {
-            border-color: var(--primary-color) !important; outline: none !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.1) !important;
+            border-color: var(--primary-color) !important; outline: none !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(133, 15, 15, 0.1) !important;
         }
 
         .custom-dropdown { position: relative; width: 100%; }
@@ -127,176 +584,83 @@
             width: 100% !important;
             display: block !important;
             transform: none !important;
-            box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(var(--primary-rgb, 133, 15, 15), 0.35) !important;
             transition: background 0.2s ease, box-shadow 0.2s ease !important;
         }
         .help-send-btn:hover {
-            background: var(--primary-color) !important;
-            box-shadow: 0 4px 18px rgba(255, 122, 0, 0.45) !important;
+            filter: brightness(90%) !important;
+            box-shadow: 0 4px 18px rgba(var(--primary-rgb, 133, 15, 15), 0.45) !important;
             transform: none !important;
-            width: 100% !important;
-            padding: 0.9rem 1.5rem !important;
         }
         .help-send-btn:focus,
         .help-send-btn:active {
             background: var(--primary-color) !important;
             transform: none !important;
-            box-shadow: 0 4px 14px rgba(255, 122, 0, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(var(--primary-rgb, 133, 15, 15), 0.35) !important;
         }
-        .help-modal-card button:active { transform: none !important; scale: 1 !important; }
-        
-
-        /* View Details button hover/active fix */
-        .card-actions .btn-outline:hover,
-        .card-actions .btn-outline:focus {
-            background-color: var(--primary-color) !important;
-            color: #ffffff !important;
-            border-color: var(--primary-color) !important;
-        }
-        .card-actions .btn-outline:active {
-            background-color: var(--primary-color) !important;
-            color: #ffffff !important;
-            border-color: var(--primary-color) !important;
-            filter: brightness(80%) !important;
+        .help-modal-card button:active {
+            transform: none !important;
+            scale: 1 !important;
         }
 
-        /* Card Alignment Fixes */
-        .card { 
-            display: flex !important; 
-            flex-direction: column !important; 
-            height: 100% !important; 
-            background: #fff !important;
-            border-radius: 16px !important;
-            border: 1px solid #e2e8f0 !important;
-            transition: all 0.3s ease !important;
-            padding: 0 !important; /* Padding moved to content */
-        }
-        .card:hover {
-            transform: translateY(-5px) !important;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1) !important;
-        }
-        .card-content { 
-            flex: 1 !important; 
-            display: flex !important; 
-            flex-direction: column !important; 
-            padding: 1.5rem !important;
-        }
-        .card-header { 
-            min-height: 52px !important; 
-            display: flex !important; 
-            flex-direction: column !important; 
-            justify-content: flex-start !important;
-            align-items: flex-start !important;
-            margin-bottom: 0.25rem !important;
-        }
-        .card h2 { 
-            color: #0f172a !important; 
-            font-weight: 800 !important; 
-            margin-bottom: 0 !important; 
-            font-size: 1.3rem !important;
-        }
-        .card-header .rating {
-            margin-bottom: 0.2rem !important;
-            font-size: 0.8rem !important;
-            color: #64748b !important;
-        }
-        .card .description { 
-            color: #475569 !important; 
-            font-weight: 500 !important; 
-            min-height: 85px !important; 
-            margin-bottom: 0.75rem !important;
-            line-height: 1.4 !important;
-            font-size: 0.9rem !important;
-        }
-        .price-section {
-            min-height: 60px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            margin-bottom: 1rem !important;
-            justify-content: center !important;
-            align-items: flex-start !important;
-        }
-        .price-highlight { 
-            display: flex !important; 
-            align-items: baseline !important; 
-            gap: 5px !important;
-            margin-bottom: 0 !important;
-            font-size: 1.35rem !important;
-            font-weight: 800 !important;
-            color: var(--primary-color) !important;
-        }
-        .card .gst-text { 
-            color: #64748b !important; 
-            font-weight: 600 !important; 
-            margin-bottom: 0 !important;
-            font-size: 0.8rem !important;
-            min-height: 18px !important;
-        }
-        .room-features-box {
-            margin-bottom: 0.5rem !important;
-            padding: 0.75rem !important;
-            background: #f8fafc !important;
-            border-radius: 12px !important;
-            border: 1px dashed #cbd5e1 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            min-height: 140px !important;
-        }
-        .features-title {
-            font-size: 0.7rem !important;
-            font-weight: 700 !important;
-            color: #64748b !important;
-            margin-bottom: 0.6rem !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.8px !important;
-        }
-        .features-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-            font-size: 0.75rem !important;
-            color: #475569 !important;
-            margin-bottom: 0.5rem !important;
-        }
-        .features-footer-text {
-            font-size: 0.7rem !important;
-            color: #94a3b8 !important;
-            font-style: italic !important;
-            border-top: 1px solid rgba(0,0,0,0.05) !important;
-            padding-top: 0.4rem !important;
-            margin-bottom: 1.5rem !important; /* Breathing room before buttons */
-        }
-        .card-actions { 
-            margin-top: auto !important; /* Pushes buttons to the absolute bottom */
-            display: flex !important; 
-            gap: 10px !important; 
-            width: 100% !important;
-            padding-top: 1rem !important;
-        }
-        .btn-outline { border-width: 2px !important; font-weight: 700 !important; }
-
-        .card .description { 
-            color: #475569 !important; 
-            font-weight: 500 !important; 
-            margin-bottom: 0.5rem !important;
-            line-height: 1.4 !important;
-            font-size: 0.95rem !important;
-            min-height: 48px !important;
-        }
-
-        /* Header Centering */
-        .header-container { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; }
-        .header-title {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            white-space: nowrap;
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
+        @media (max-width: 767px) {
+            .page-hero-card {
+                padding: 2.25rem 1.5rem !important;
+                margin-bottom: 2rem !important;
+            }
+            .card-content {
+                padding: 1.25rem !important;
+            }
+            .card h2 {
+                font-size: 1.25rem !important;
+            }
+            .price-highlight {
+                font-size: 1.35rem !important;
+            }
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .features-grid > div,
+            .feature-item {
+                white-space: normal !important;
+            }
+            .card-actions {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+            .card-actions .btn, .card-actions .btn-outline {
+                height: 44px !important;
+                font-size: 0.9rem !important;
+                width: 100% !important;
+            }
+            .card-header {
+                display: grid !important;
+                grid-template-columns: auto auto !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                gap: 6px 10px !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .card-header > div {
+                display: contents !important;
+            }
+            .card-header h2 {
+                grid-column: span 2 !important;
+                font-size: 1.25rem !important;
+                margin-bottom: 2px !important;
+            }
+            .card-header .room-number-badge,
+            .card-header .rating {
+                margin: 0 !important;
+                font-size: 0.75rem !important;
+                padding: 4px 10px !important;
+                height: auto !important;
+                line-height: 1 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+            }
         }
     </style>
     @include('partials.dynamic-styles')
@@ -307,15 +671,19 @@
     <main>
         <div style="max-width: 1200px; margin: 0 auto; padding: 0 1.25rem;">
             <!-- Breadcrumbs -->
-            <div class="breadcrumb" style="font-size: 1rem; margin-bottom: 1.5rem;">
-                <a href="{{ route('home') }}" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Home</a> 
-                <span style="color: #333; margin: 0 8px;">></span> 
-                <span style="color: var(--text-color); font-weight: 500;">Conference & Glass Rooms</span>
+            <div class="breadcrumb">
+                <a href="{{ route('home') }}">
+                    <i class="ph ph-house"></i>
+                    Home
+                </a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current">Conference & Glass Rooms</span>
             </div>
 
-            <div class="title-section" style="margin: 0rem 0 3.5rem 0; text-align: left;">
-                <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.6rem; color: #222; letter-spacing: -1px;">Conference & Glass Rooms</h1>
-                <p style="color: #666; font-size: 1rem; font-weight: 400; line-height: 1.5; max-width: 600px;">A versatile and professionally equipped venue designed for large-scale gatherings, corporate events, and interactive workshops with HD projection.</p>
+            <div class="page-hero-card">
+                <span class="page-hero-card-badge">Events &amp; Meetings</span>
+                <h1>Conference & Glass <span class="primary-text">Rooms</span></h1>
+                <p>A versatile and professionally equipped venue designed for large-scale gatherings, corporate events, and interactive workshops with HD projection.</p>
             </div>
 
             @php
@@ -325,43 +693,48 @@
                         'capacity' => 60, 
                         'img' => asset('assets/standard/conference.JPG'), 
                         'desc' => 'Professional hall featuring HD projection, high-grade acoustics, and seating for 60 members.',
+                        'room_no' => null,
                         'amenities' => [
                             ['name' => 'High-Speed WiFi', 'icon' => 'ph-wifi-high'],
                             ['name' => 'Projector / Screen', 'icon' => 'ph-projector-screen'],
                             ['name' => 'AC Space', 'icon' => 'ph-snowflake'],
-                            ['name' => '60 Members', 'icon' => 'ph-users'],
+                            ['name' => '60 Capacity', 'icon' => 'ph-users'],
                             ['name' => 'Presentation Setup', 'icon' => 'ph-chalkboard'],
+                            ['name' => 'Sound System', 'icon' => 'ph-speaker-high'],
                         ],
-                        'theme' => ['bg' => '#f0f4ff', 'border' => '#4e73df', 'icon' => '#4e73df', 'title' => 'Facility Features']
+                        'theme' => ['title' => 'Facility Features']
                     ],
                     [
                         'name' => 'Glass Room', 
                         'capacity' => 15, 
                         'img' => asset('assets/standard/glass.JPG'), 
-                        'desc' => 'Modern transparent facility designed for collaborative brainstorming and focused team sessions with ample natural light.',
+                        'desc' => 'Modern transparent facility designed for collaborative brainstorming and focused team sessions with natural light.',
+                        'room_no' => null,
                         'amenities' => [
                             ['name' => 'Modern Furniture', 'icon' => 'ph-armchair'],
                             ['name' => 'High Speed WiFi', 'icon' => 'ph-wifi-high'],
                             ['name' => 'Charging Ports', 'icon' => 'ph-plug-connected'],
                             ['name' => 'Glass Walls', 'icon' => 'ph-squares-four'],
                             ['name' => 'AC', 'icon' => 'ph-snowflake'],
-                            ['name' => 'Presentation Support', 'icon' => 'ph-presentation-chart'],
+                            ['name' => 'Presentation Setup', 'icon' => 'ph-presentation-chart'],
                         ],
-                        'theme' => ['bg' => '#fff8f3', 'border' => 'var(--primary-color)', 'icon' => 'var(--primary-color)', 'title' => 'Premium Features']
+                        'theme' => ['title' => 'Premium Features']
                     ],
                     [
                         'name' => 'Suite Room', 
                         'capacity' => 2, 
                         'img' => asset('assets/suite.JPG'), 
-                        'desc' => 'Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries for ultimate relaxation. <br><span style="display:inline-flex; align-items:center; gap:5px; margin-top:6px; background: var(--primary-color); color:#fff; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:0.5px;"><i class=\"ph-bold ph-door\"></i> Room No: 202</span>',
+                        'desc' => 'Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries.',
+                        'room_no' => '202',
                         'amenities' => [
                             ['name' => 'King Size Bed', 'icon' => 'ph-bed'],
                             ['name' => 'Smart TV', 'icon' => 'ph-television'],
                             ['name' => 'Mini Fridge', 'icon' => 'ph-snowflake'],
                             ['name' => 'Premium Toiletries', 'icon' => 'ph-spray-bottle'],
                             ['name' => 'Spacious Interior', 'icon' => 'ph-arrows-out'],
+                            ['name' => 'Luxury Bathroom', 'icon' => 'ph-shower'],
                         ],
-                        'theme' => ['bg' => '#fff9e6', 'border' => '#d4af37', 'icon' => '#d4af37', 'title' => 'Luxury Features']
+                        'theme' => ['title' => 'Luxury Features']
                     ],
                 ];
             @endphp
@@ -382,30 +755,35 @@
                     </div>
                     <div class="card-content">
                         <div class="card-header">
-                            <h2>{{ $room['name'] }}</h2>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <h2>{{ $room['name'] }}</h2>
+                                @if($room['room_no'])
+                                    <span class="room-number-badge" style="margin-bottom: 0 !important; background: linear-gradient(135deg, #850f0f, #b91c1c) !important; box-shadow: 0 2px 4px rgba(133, 15, 15, 0.2);"><i class="ph-fill ph-crown" style="color: #fbbf24; font-size: 0.9rem;"></i> Room {{ $room['room_no'] }}</span>
+                                @endif
+                            </div>
                             <div class="rating"><i class="ph-fill ph-users"></i> {{ $room['capacity'] }} Members</div>
                         </div>
                         
                         <!-- 1. Description -->
-                        <p class="description" style="margin-top: 0 !important; margin-bottom: 2px !important; line-height: 1.4 !important;">{!! $room['desc'] !!}</p>
+                        <p class="description">{{ $room['desc'] }}</p>
                         
-                        <!-- 2. Pricing Section (Zero Gap) -->
+                        <!-- 2. Pricing Section -->
                         <div class="price-section">
                             <div class="price-highlight">
-                                <span id="price-{{ $roomId }}">₹2000</span> 
+                                <span id="price-{{ $roomId }}"><span class="rupee-symbol">₹</span>2000</span> 
                                 <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-light);">for </span>
                                 <span id="time-text-{{ $roomId }}" style="font-size: 0.85rem; font-weight: 500; color: var(--text-light);">4 hours</span>
                             </div>
-                            <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
+                            <p class="gst-text"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST applicable</p>
                         </div>
                         
-                        <!-- 3. Room Features (Tight Spacing) -->
-                        <div class="room-features-box" style="background: {{ $room['theme']['bg'] }}; border-color: {{ $room['theme']['border'] }};">
+                        <!-- 3. Room Features (Uniform) -->
+                        <div class="room-features-box">
                             <h3 class="features-title">{{ $room['theme']['title'] }}</h3>
                             <div class="features-grid">
                                 @foreach($room['amenities'] as $amenity)
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <i class="ph {{ $amenity['icon'] }}" style="color: {{ $room['theme']['icon'] }};"></i> 
+                                <div>
+                                    <i class="ph {{ $amenity['icon'] }}"></i> 
                                     {{ $amenity['name'] }}
                                 </div>
                                 @endforeach
@@ -425,7 +803,7 @@
                                 </p>
                             </div>
                         @else
-                            <div class="next-available-placeholder" style="margin-bottom: 0.5rem; height: 60px;"></div> <!-- Spacer for breathing room if not booked -->
+                            <div class="next-available-placeholder" style="display: none;"></div>
                         @endif
 
                         <div class="card-actions" style="margin-top: auto;">
@@ -455,7 +833,7 @@
                 <div class="modal-price-line">
                     <span id="modalRoomPrice">₹0</span> 
                     <span style="font-size: 0.95rem; color: #666; font-weight: 600;" id="modalRoomTime">/ period</span>
-                    <span style="font-size: 0.85rem; color: #999; font-weight: 500;">+ {{ $gstRate }}% GST</span>
+                    <span class="gst-text" style="margin-left: 8px;"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST</span>
                 </div>
 
                 <p style="color: #666; line-height: 1.4; font-size: 0.85rem; margin: 0.25rem 0;" id="modalRoomDesc"></p>
@@ -486,7 +864,7 @@
         function calcSpecialPrice(id) {
             const h = document.getElementById('hours-' + id).value || 4;
             const price = h * 500;
-            document.getElementById('price-' + id).innerText = '₹' + price;
+            document.getElementById('price-' + id).innerHTML = '<span class="rupee-symbol">₹</span>' + price;
             document.getElementById('time-text-' + id).innerText = h + ' hours';
             
             // Update button data if needed, but the button stays fixed at original price for View Details usually

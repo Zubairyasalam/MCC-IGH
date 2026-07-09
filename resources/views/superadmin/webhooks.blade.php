@@ -22,11 +22,11 @@
 
         .sidebar { width: var(--sidebar-width); background: white; height: 100vh; border-right: 1px solid var(--border); position: fixed; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); }
-        .sidebar-logo { font-weight: 800; color: var(--primary-color); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-        .sidebar-logo span { color: #1e293b; }
+        .sidebar-logo { display: flex; align-items: center; padding: 0.25rem 0; }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
         .sidebar-menu { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; }
         .menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.9rem; transition: all 0.2s; margin-bottom: 0.25rem; }
-        .menu-item:hover, .menu-item.active { background: rgba(255, 122, 0, 0.08); color: var(--primary-color); }
+        .menu-item:hover, .menu-item.active { background: rgba(133, 15, 15, 0.08); color: var(--primary-color); }
         .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); }
         .logout-btn { width: 100%; display: flex; align-items: center; gap: 0.75rem; background: none; border: none; padding: 0.75rem 1rem; color: var(--danger); cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 0.9rem; transition: background 0.2s; }
         .logout-btn:hover { background: #fef2f2; }
@@ -116,8 +116,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <i class="ph-bold ph-rocket-launch"></i>
-                <span>Space</span>Admin
+                <img src="/assets/logo.png" alt="MCC-MRF Innovation Park" style="height:80px; width:auto; object-fit:contain;">
             </div>
             <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; font-weight: 600;">SUPERADMIN PANEL</div>
         </div>

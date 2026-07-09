@@ -31,16 +31,37 @@ class BookingController extends Controller
             'primary_guest_name' => 'nullable|string',
             'no_of_persons' => 'required|integer|min:1',
             'passport_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
+            'visa_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
             'gst_id' => 'nullable|string|max:50',
             'room_name' => 'required|string',
             'clock_in' => 'required|date',
             'clock_out' => 'required|date|after:clock_in',
             'department_other' => 'nullable|string',
             'referral_attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Max 5MB
+            'booking_reason' => 'required|string',
         ]);
 
         if ($request->department === 'Other' && $request->filled('department_other')) {
             $validated['department'] = $request->department_other;
+        }
+
+        // Dynamic capacity check
+        $maxCapacity = 4;
+        $normalizedRoom = strtolower($validated['room_name']);
+        if (str_contains($normalizedRoom, 'conference-hall') || str_contains($normalizedRoom, 'conference-room')) {
+            $maxCapacity = 60;
+        } elseif (str_contains($normalizedRoom, 'glass-room')) {
+            $maxCapacity = 20;
+        } elseif (str_contains($normalizedRoom, 'suite-room')) {
+            $maxCapacity = 4;
+        } elseif (str_contains($normalizedRoom, 'advance')) {
+            $maxCapacity = 4;
+        } elseif (str_contains($normalizedRoom, 'standard')) {
+            $maxCapacity = 2;
+        }
+
+        if ($validated['no_of_persons'] > $maxCapacity) {
+            return back()->withInput()->with('error', "Number of persons exceeds the maximum capacity of {$maxCapacity} for this room.");
         }
 
         $clockIn = \Carbon\Carbon::parse($validated['clock_in']);
@@ -131,7 +152,7 @@ class BookingController extends Controller
                 'mail.mailers.smtp.encryption' => $mailEncryption,
                 'mail.mailers.smtp.username' => $senderEmail,
                 'mail.mailers.smtp.password' => $mailPassword,
-                'mail.from.address' => $senderEmail,
+                'mail.from.address' => 'noreply@mccigh.com',
                 'mail.from.name' => 'MCC IGH System'
             ]);
 
@@ -139,6 +160,13 @@ class BookingController extends Controller
 
             Mail::to($principalEmail)->send(new BookingNotification($booking));
             Log::info('Booking notification sent successfully for ID: ' . $booking->id);
+
+            // Send WhatsApp Notification to the Principal
+            try {
+                app(\App\Services\WhatsAppService::class)->sendBookingNotification($booking);
+            } catch (\Exception $e) {
+                Log::error('Failed to send WhatsApp notification for ID ' . $booking->id . ': ' . $e->getMessage());
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send booking notification for ID ' . $booking->id . ': ' . $e->getMessage());
         }

@@ -23,7 +23,7 @@ class BookingNotification extends Mailable
     public function __construct(Booking $booking)
     {
         $this->booking = $booking;
-        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#ff7a00';
+        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#850f0f';
     }
 
     /**
@@ -32,6 +32,10 @@ class BookingNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address(
+                'noreply@mccigh.com',
+                'MCC IGH System'
+            ),
             subject: 'New Booking Request: ' . $this->booking->room_name,
         );
     }

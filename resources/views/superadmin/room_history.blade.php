@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -25,11 +25,11 @@
 
         .sidebar { width: var(--sidebar-width); background: white; height: 100vh; border-right: 1px solid var(--border); position: fixed; display: flex; flex-direction: column; z-index: 100; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); }
-        .sidebar-logo { font-weight: 800; color: var(--primary-color); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-        .sidebar-logo span { color: #1e293b; }
+        .sidebar-logo { display: flex; align-items: center; padding: 0.25rem 0; }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
         .sidebar-menu { flex: 1; padding: 1rem 0.75rem; }
         .menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.85rem; transition: all 0.2s; margin-bottom: 0.25rem; }
-        .menu-item:hover, .menu-item.active { background: rgba(255, 122, 0, 0.08); color: var(--primary-color); }
+        .menu-item:hover, .menu-item.active { background: rgba(133, 15, 15, 0.08); color: var(--primary-color); }
         .sidebar-footer { padding: 1rem; border-top: 1px solid var(--border); }
         .logout-btn { width: 100%; display: flex; align-items: center; gap: 0.75rem; background: none; border: none; padding: 0.75rem 1rem; color: #ef4444; cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 0.85rem; }
 
@@ -77,7 +77,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> <span>Space</span>Admin</div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item">
@@ -166,7 +166,7 @@
                                     <div style="font-size: 0.75rem; color: var(--primary-color); font-weight: 700;">{{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 700; color: var(--text-main);">₹{{ number_format($booking->total_price, 2) }}</div>
+                                    <div style="font-weight: 700; color: var(--text-main);">?{{ number_format($booking->total_price, 2) }}</div>
                                 </td>
                                 <td>
                                     @if($booking->payments->count() > 0)

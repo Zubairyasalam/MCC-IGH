@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - SpaceAdmin</title>
+    <title>Admin Login - MCC-MRF Innovation Park</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --bg-color: #f8fafc;
             --border: #e2e8f0;
         }
@@ -38,13 +38,10 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            color: var(--primary-color);
-            font-weight: 800;
-            font-size: 1.75rem;
             justify-content: center;
             margin-bottom: 2rem;
         }
+        .logo img { height: 150px; width: auto; object-fit: contain; }
 
         .form-title {
             text-align: center;
@@ -81,7 +78,7 @@
             outline: none;
             border-color: var(--primary-color);
             background: white;
-            box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.1);
+            box-shadow: 0 0 0 4px rgba(133, 15, 15, 0.1);
         }
 
         .btn-login {
@@ -96,12 +93,12 @@
             font-size: 1rem;
             margin-top: 1rem;
             transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(133, 15, 15, 0.2);
         }
 
         .btn-login:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(255, 122, 0, 0.3);
+            box-shadow: 0 6px 15px rgba(133, 15, 15, 0.3);
         }
 
         .alert-error {
@@ -127,7 +124,7 @@
 <body>
     <div class="login-card">
         <div class="logo">
-            <i class="ph-bold ph-rocket-launch"></i> SpaceAdmin
+            <img src="/assets/logo.png" alt="MCC-MRF Innovation Park">
         </div>
         <h2 class="form-title">Admin Access</h2>
 
@@ -143,7 +140,7 @@
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" required placeholder="••••••••">
+                <input type="password" name="password" required placeholder="        ">
             </div>
             <button type="submit" class="btn-login">Login to Dashboard</button>
         </form>

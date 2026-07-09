@@ -12,7 +12,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -60,7 +60,7 @@
             gap: 0.5rem;
         }
 
-        .sidebar-logo span { color: var(--primary-color); }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         .sidebar-menu {
             padding: 1.5rem 0.75rem;
@@ -83,12 +83,12 @@
         }
 
         .menu-item:hover {
-            background: rgba(255, 122, 0, 0.08);
+            background: rgba(133, 15, 15, 0.08);
             color: var(--primary-color);
         }
 
         .menu-item.active {
-            background: rgba(255, 122, 0, 0.1);
+            background: rgba(133, 15, 15, 0.1);
             color: var(--primary-color);
             font-weight: 600;
             border-left: 3px solid var(--primary-color);
@@ -265,19 +265,24 @@
         }
 
         .status-pill {
-            padding: 0.25rem 0.75rem;
+            padding: 0.35rem 0.75rem;
             border-radius: 999px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             white-space: nowrap;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .pill-paid { background: #dcfce7; color: #166534; }
-        .pill-pending { background: #fef9c3; color: #854d0e; }
+        .pill-pending { background: #ffedd5; color: #9a3412; }
         .pill-failed { background: #fee2e2; color: #991b1b; }
         .pill-approved { background: #dcfce7; color: #166534; }
         .pill-principal-approved { background: #d1fae5; color: #065f46; border: 1px solid #059669; }
+        .pill-approved-by-principal { background: #d1fae5; color: #065f46; border: 1px solid #059669; }
         .pill-rejected { background: #fee2e2; color: #991b1b; }
 
         .btn-approve {
@@ -393,7 +398,7 @@
         }
         .page-item.active .page-link {
             background: var(--primary-color); border-color: var(--primary-color); color: white;
-            box-shadow: 0 4px 10px rgba(255, 122, 0, 0.25);
+            box-shadow: 0 4px 10px rgba(133, 15, 15, 0.25);
         }
         .page-item.disabled .page-link { opacity: 0.5; cursor: not-allowed; background: #f8fafc; }
         .page-item:not(.active):not(.disabled) .page-link:hover {
@@ -403,13 +408,31 @@
         @media (max-width: 640px) {
             .pagination-container {
                 flex-direction: column !important;
-                align-items: flex-start !important;
+                align-items: center !important;
+                text-align: center !important;
                 padding: 1rem !important;
                 gap: 0.75rem !important;
             }
-            .pagination-links { width: 100% !important; }
-            .pagination { flex-wrap: wrap !important; gap: 4px !important; }
-            .page-item .page-link { min-width: 32px !important; height: 32px !important; font-size: 0.8rem !important; }
+            .pagination-links {
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                display: block !important;
+                text-align: center !important;
+                padding-bottom: 4px !important;
+            }
+            .pagination {
+                display: inline-flex !important;
+                flex-wrap: nowrap !important;
+                gap: 3px !important;
+                margin: 0 auto !important;
+            }
+            .page-item .page-link {
+                min-width: 30px !important;
+                height: 30px !important;
+                padding: 0 8px !important;
+                font-size: 0.75rem !important;
+            }
         }
 
         /* Confirmation Modal */
@@ -503,7 +526,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><i class="ph-bold ph-rocket-launch"></i> Space<span>Admin</span></div>
+            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <div class="sidebar-menu">
             <a href="{{ route('admin.dashboard') }}" class="menu-item">
@@ -511,6 +534,9 @@
             </a>
             <a href="{{ route('admin.bookings') }}" class="menu-item active">
                 <i class="ph ph-calendar-check"></i> Bookings
+            </a>
+            <a href="{{ route('admin.college-guest') }}" class="menu-item">
+                <i class="ph ph-user-gear"></i> College Guests
             </a>
             <a href="{{ route('admin.reports') }}" class="menu-item">
                 <i class="ph ph-file-text"></i> Reports
@@ -541,7 +567,19 @@
                     Bookings
                 </div>
             </div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="display: flex; gap: 0.5rem; align-items: center;" class="topbar-actions-wrap">
+                <a href="{{ route('admin.college-guest') }}"
+                   style="display: inline-flex; align-items: center; gap: 0.5rem;
+                          background: var(--primary-color); color: #ffffff;
+                          padding: 0.6rem 1.25rem;
+                          border-radius: 10px;
+                          font-weight: 600; font-size: 0.85rem;
+                          text-decoration: none;
+                          box-shadow: 0 2px 8px rgba(133, 15, 15,0.25);
+                          transition: background 0.2s ease;">
+                    <i class="ph-bold ph-user-plus" style="font-size: 1rem; color:#fff !important;"></i>
+                    <span class="nav-btn-text">Book College Guest</span>
+                </a>
                 <a href="{{ route('admin.bookings.export', request()->only(['search','date','status','workspace'])) }}"
                    style="display: inline-flex; align-items: center; gap: 0.5rem;
                           background: #16a34a; color: #ffffff;
@@ -552,7 +590,7 @@
                           box-shadow: 0 2px 8px rgba(22,163,74,0.25);
                           transition: background 0.2s ease;">
                     <i class="ph-bold ph-file-arrow-down" style="font-size: 1rem; color:#fff !important;"></i>
-                    Export CSV
+                    <span class="nav-btn-text">Export CSV</span>
                 </a>
                 <div class="admin-profile-wrap">
                     <button class="admin-profile-btn" id="adminProfileBtn" aria-label="Account menu">
@@ -659,20 +697,36 @@
                             </td>
                             <td>
                                 <span class="status-pill pill-{{ str_replace(' ', '-', strtolower($booking->approval_status)) }}">
-                                    {{ $booking->approval_status }}
+                                    @if(strtolower($booking->approval_status) === 'pending')
+                                        <i class="ph-fill ph-clock"></i> PENDING APPROVAL
+                                    @elseif(strtolower($booking->approval_status) === 'approved' || str_contains(strtolower($booking->approval_status), 'principal'))
+                                        <i class="ph-fill ph-check-circle"></i> {{ $booking->approval_status }}
+                                    @elseif(strtolower($booking->approval_status) === 'rejected')
+                                        <i class="ph-fill ph-x-circle"></i> {{ $booking->approval_status }}
+                                    @else
+                                        <i class="ph-fill ph-info"></i> {{ $booking->approval_status }}
+                                    @endif
                                 </span>
                             </td>
                             <td>
                                 <span class="status-pill pill-{{ strtolower($booking->payment_status) }}">
-                                    {{ $booking->payment_status }}
+                                    @if(strtolower($booking->payment_status) === 'paid')
+                                        <i class="ph-fill ph-check-circle"></i> {{ $booking->payment_status }}
+                                    @elseif(strtolower($booking->payment_status) === 'pending')
+                                        <i class="ph-fill ph-clock"></i> {{ $booking->payment_status }}
+                                    @elseif(strtolower($booking->payment_status) === 'failed')
+                                        <i class="ph-fill ph-x-circle"></i> {{ $booking->payment_status }}
+                                    @else
+                                        {{ $booking->payment_status }}
+                                    @endif
                                 </span>
                             </td>
                             <td>
                                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    @if($booking->approval_status === 'Pending' || $booking->approval_status === 'Principal Approved')
+                                    @if($booking->approval_status === 'Pending' || $booking->approval_status === 'Principal Approved' || $booking->approval_status === 'Approved by Principal')
                                         <form action="{{ route('admin.bookings.approve', $booking->id) }}" method="POST" style="display: inline;" onsubmit="event.preventDefault(); showConfirmModal('approve', this);">
                                             @csrf
-                                            <button type="submit" class="btn-approve" title="{{ $booking->approval_status === 'Principal Approved' ? 'Final Approve' : 'Approve' }}">
+                                            <button type="submit" class="btn-approve" title="{{ ($booking->approval_status === 'Principal Approved' || $booking->approval_status === 'Approved by Principal') ? 'Final Approve' : 'Approve' }}">
                                                 <i class="ph-bold ph-check" style="color: #ffffff !important;"></i>
                                             </button>
                                         </form>

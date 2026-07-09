@@ -11,7 +11,7 @@ class Booking extends Model
         'start_time', 'end_time', 'total_price', 'razorpay_order_id', 
         'razorpay_payment_id', 'payment_status', 'approval_status',
         'nationality', 'user_type', 'stream', 'level', 'department',
-        'primary_guest_name', 'no_of_persons', 'passport_number', 'referral_attachment', 'is_admin_read'
+        'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'is_admin_read', 'booking_reason'
     ];
 
     public function payments()

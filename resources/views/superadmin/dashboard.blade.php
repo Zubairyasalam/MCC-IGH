@@ -13,7 +13,7 @@
         :root {
             --sidebar-width: 260px;
             --bg-color: #f8fafc;
-            --primary-color: #ff7a00;
+            --primary-color: #850f0f;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -32,7 +32,7 @@
             padding: 0;
         }
 
-        /* ── Sidebar ── */
+        /* -- Sidebar -- */
         .sidebar {
             width: var(--sidebar-width);
             background: white;
@@ -50,15 +50,12 @@
         }
 
         .sidebar-logo {
-            font-weight: 800;
-            color: var(--primary-color);
-            font-size: 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            padding: 0.25rem 0;
         }
 
-        .sidebar-logo span { color: #1e293b; }
+        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
 
         .sidebar-menu {
             flex: 1;
@@ -82,7 +79,7 @@
         }
 
         .menu-item:hover, .menu-item.active {
-            background: rgba(255, 122, 0, 0.08);
+            background: rgba(133, 15, 15, 0.08);
             color: var(--primary-color);
         }
 
@@ -110,7 +107,7 @@
 
         .logout-btn:hover { background: #fef2f2; }
 
-        /* ── Main ── */
+        /* -- Main -- */
         .main-content {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
@@ -141,7 +138,7 @@
 
         .page-body { padding: 2.5rem; padding-bottom: 1rem; max-width: 1500px; width: 100%; margin: 0 auto; box-sizing: border-box; }
 
-        /* ── Welcome Banner ── */
+        /* -- Welcome Banner -- */
         .welcome-banner {
             background: linear-gradient(135deg, #ff8a00 0%, #e65c00 100%);
             border-radius: 16px;
@@ -168,7 +165,7 @@
         .welcome-stat .val { font-size: 1.5rem; font-weight: 800; }
         .welcome-stat .lbl { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* ── Stat Cards ── */
+        /* -- Stat Cards -- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -212,11 +209,11 @@
         .icon-red     { background: #fef2f2; color: #ef4444; }
         .icon-yellow  { background: #fffbeb; color: #d97706; }
 
-        /* ── Grid Layout ── */
+        /* -- Grid Layout -- */
         .row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
         .row-2-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
 
-        /* ── Card ── */
+        /* -- Card -- */
         .card {
             background: white;
             border: 1px solid var(--border);
@@ -241,10 +238,10 @@
             gap: 0.5rem;
         }
 
-        /* ── Chart ── */
+        /* -- Chart -- */
         .chart-wrap { height: 220px; position: relative; }
 
-        /* ── Table ── */
+        /* -- Table -- */
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th {
             font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;
@@ -258,14 +255,16 @@
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: #fafafa; }
 
-        /* ── Status Pills ── */
+        /* -- Status Pills -- */
         .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.65rem; font-weight: 700; }
         .pill-paid     { background: #dcfce7; color: #15803d; }
         .pill-pending  { background: #fef9c3; color: #a16207; }
-        .pill-approved { background: #dbeafe; color: #1d4ed8; }
+        .pill-approved { background: #dcfce7; color: #15803d; }
+        .pill-approved-by-principal { background: #dbeafe; color: #1d4ed8; }
+        .pill-principal-approved { background: #dbeafe; color: #1d4ed8; }
         .pill-rejected { background: #fee2e2; color: #b91c1c; }
 
-        /* ── Alerts ── */
+        /* -- Alerts -- */
         .alert-item {
             display: flex;
             align-items: flex-start;
@@ -280,13 +279,13 @@
         .alert-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
         .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
 
-        /* ── Progress Bar ── */
+        /* -- Progress Bar -- */
         .progress-bg   { height: 6px; background: #f1f5f9; border-radius: 999px; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; background: var(--primary); border-radius: 999px; }
 
         #sidebarToggle { display: none; }
 
-        /* ── RESPONSIVE ── */
+        /* -- RESPONSIVE -- */
         @media (max-width: 1024px) {
             .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
             .sidebar.open { transform: translateX(0); }
@@ -359,8 +358,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <i class="ph-bold ph-rocket-launch"></i>
-                <span>Space</span>Admin
+                <img src="/assets/logo.png" alt="MCC-MRF Innovation Park" style="height:80px; width:auto; object-fit:contain;">
             </div>
             <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; font-weight: 600;">SUPERADMIN PANEL</div>
         </div>
@@ -441,7 +439,7 @@
                         <span class="stat-label">Total Revenue</span>
                         <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
                     </div>
-                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
+                    <div class="stat-value">?{{ number_format($totalRevenue) }}</div>
                     <div class="stat-sub">All paid bookings</div>
                 </div>
                 <div class="stat-card">
@@ -449,7 +447,7 @@
                         <span class="stat-label">This Month</span>
                         <div class="stat-icon icon-orange"><i class="ph ph-trend-up"></i></div>
                     </div>
-                    <div class="stat-value">₹{{ number_format($monthRevenue) }}</div>
+                    <div class="stat-value">?{{ number_format($monthRevenue) }}</div>
                     <div class="stat-sub">
                         @if($revenueGrowth !== null)
                             <span style="color: {{ $revenueGrowth >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 700;">
@@ -465,7 +463,7 @@
                         <span class="stat-label">Today Revenue</span>
                         <div class="stat-icon icon-blue"><i class="ph ph-coins"></i></div>
                     </div>
-                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
+                    <div class="stat-value">?{{ number_format($todayRevenue) }}</div>
                     <div class="stat-sub">Paid today</div>
                 </div>
                 <div class="stat-card">
@@ -486,7 +484,7 @@
                 </div>
                 <div class="stat-card" style="border-left: 3px solid var(--info);">
                     <div class="stat-card-header">
-                        <span class="stat-label">Principal Approved</span>
+                        <span class="stat-label">Approved by Principal</span>
                         <div class="stat-icon icon-blue"><i class="ph ph-check-square"></i></div>
                     </div>
                     <div class="stat-value">{{ $principalApprovals }}</div>
@@ -569,7 +567,7 @@
                                     <td style="color: var(--muted);">{{ $i + 1 }}</td>
                                     <td style="font-weight: 600;">{{ $room->room_name }}</td>
                                     <td>{{ $room->total }}</td>
-                                    <td style="font-weight: 700; color: var(--primary);">₹{{ number_format($room->revenue) }}</td>
+                                    <td style="font-weight: 700; color: var(--primary);">?{{ number_format($room->revenue) }}</td>
                                 </tr>
                                 @empty
                                 <tr><td colspan="4" style="text-align:center; padding:1.5rem; color:var(--muted);">No data yet</td></tr>
@@ -610,7 +608,7 @@
                         <i class="ph-bold ph-clock-counter-clockwise" style="color: var(--primary);"></i>
                         Recent Bookings
                     </div>
-                    <a href="{{ route('admin.bookings') }}" style="font-size: 0.78rem; color: var(--primary); text-decoration: none; font-weight: 700;">View All →</a>
+                    <a href="{{ route('admin.bookings') }}" style="font-size: 0.78rem; color: var(--primary); text-decoration: none; font-weight: 700;">View All ?</a>
                 </div>
                 <div style="overflow-x: auto;">
                     <table class="data-table">
@@ -630,7 +628,7 @@
                                 <td style="font-weight: 600;">{{ $b->name }}</td>
                                 <td>{{ $b->room_name }}</td>
                                 <td style="color: var(--muted);">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</td>
-                                <td style="font-weight: 700;">₹{{ number_format($b->total_price, 2) }}</td>
+                                <td style="font-weight: 700;">?{{ number_format($b->total_price, 2) }}</td>
                                 <td>
                                     <span class="pill pill-{{ strtolower(str_replace(' ', '-', $b->approval_status)) }}
                                         {{ $b->approval_status === 'Approved' ? 'pill-approved' : ($b->approval_status === 'Rejected' ? 'pill-rejected' : 'pill-pending') }}">
@@ -696,7 +694,7 @@
             data: {
                 labels: {!! json_encode($monthlyRevenue->pluck('month')->map(fn($m) => \Carbon\Carbon::parse($m)->format('M Y'))) !!},
                 datasets: [{
-                    label: 'Revenue (₹)',
+                    label: 'Revenue (?)',
                     data: {!! json_encode($monthlyRevenue->pluck('revenue')) !!},
                     backgroundColor: 'rgba(59, 130, 246, 0.75)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -726,7 +724,7 @@
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 10 }, callback: v => '₹' + v.toLocaleString() }
+                        ticks: { font: { size: 10 }, callback: v => '?' + v.toLocaleString() }
                     },
                     y2: {
                         beginAtZero: true,
