@@ -613,8 +613,7 @@ body {
     color: #475569 !important;
     text-decoration: none;
     transition: color 0.3s ease;
-    word-break: break-word !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
 }
 
 .main-footer .footer-contact-link:hover {
@@ -657,6 +656,13 @@ body {
     color: #64748b !important;
     font-size: 0.9rem;
     font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+    .main-footer .footer-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
 }
 
 /* Footer Mobile Alignment Fix */
