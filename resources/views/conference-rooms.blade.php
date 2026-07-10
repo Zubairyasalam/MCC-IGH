@@ -662,6 +662,27 @@
                 gap: 4px !important;
             }
         }
+
+        /* Pulse Highlight for Anchored Room Cards */
+        @keyframes pulseHighlight {
+            0% {
+                border-color: rgba(133, 15, 15, 0.15) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
+            }
+            50% {
+                border-color: #850f0f !important;
+                box-shadow: 0 0 25px rgba(133, 15, 15, 0.35) !important;
+                transform: scale(1.02) !important;
+            }
+            100% {
+                border-color: rgba(133, 15, 15, 0.15) !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
+            }
+        }
+        .highlight-pulse {
+            animation: pulseHighlight 2s ease-in-out 2 !important;
+            z-index: 10 !important;
+        }
     </style>
     @include('partials.dynamic-styles')
 </head>
@@ -743,7 +764,7 @@
             <div class="rooms-grid">
                 @foreach ($specialRooms as $room)
                 @php $roomId = Str::slug($room['name']); @endphp
-                <div class="card" data-name="{{ $room['name'] }}">
+                <div class="card" id="{{ $roomId }}" data-name="{{ $room['name'] }}">
                     <div class="card-image-wrapper">
                         <img src="{{ $room['img'] }}" alt="{{ $room['name'] }}">
                         @if(isset($bookedRooms[$room['name']]) || isset($bookedRooms[$roomId]))
@@ -924,6 +945,21 @@
             window.onclick = function(event) {
                 if (event.target == detailsModal) closeModal('detailsModal');
                 if (event.target == helpModal) closeHelpModal();
+            }
+
+            // Scroll to anchored room card and highlight
+            if (window.location.hash) {
+                const targetId = window.location.hash.substring(1);
+                const targetCard = document.getElementById(targetId);
+                if (targetCard) {
+                    setTimeout(() => {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetCard.classList.add('highlight-pulse');
+                        setTimeout(() => {
+                            targetCard.classList.remove('highlight-pulse');
+                        }, 4000);
+                    }, 600);
+                }
             }
         });
     </script>

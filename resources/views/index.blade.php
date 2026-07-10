@@ -977,10 +977,10 @@
                     <label class="bw-label">Room Type</label>
                     <select id="bw_roomtype" class="bw-input">
                         <option value="" disabled selected>Select room</option>
-                        <option value="standard">Standard</option>
-                        <option value="advance">Advance</option>
-                        <option value="suite">Suite</option>
-                        <option value="conference">Conference</option>
+                        <option value="standard" data-url="{{ route('standard.rooms') }}">Standard</option>
+                        <option value="advance" data-url="{{ route('advance.rooms') }}">Advance</option>
+                        <option value="suite" data-url="{{ route('conference.rooms') }}#suite-room">Suite</option>
+                        <option value="conference" data-url="{{ route('conference.rooms') }}">Conference</option>
                     </select>
                 </div>
 
@@ -993,7 +993,7 @@
 
             <div class="bw-footer">
                 <div class="bw-info">+ 5.8% GST applicable on all bookings</div>
-                <a href="{{ route('standard.rooms') }}" class="bw-btn">Check availability &rarr;</a>
+                <a href="#" class="bw-btn">Check availability &rarr;</a>
             </div>
         </div>
     </div>
@@ -1462,7 +1462,30 @@
 
     <script src="{{ asset('js/script.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', initIndexPage);
+        document.addEventListener('DOMContentLoaded', () => {
+            initIndexPage();
+
+            // Dynamic Room Category Redirection
+            const roomTypeSelect = document.getElementById('bw_roomtype');
+            const checkAvailabilityBtn = document.querySelector('.bw-footer .bw-btn');
+
+            if (roomTypeSelect && checkAvailabilityBtn) {
+                roomTypeSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const targetUrl = selectedOption.getAttribute('data-url');
+                    if (targetUrl) {
+                        checkAvailabilityBtn.setAttribute('href', targetUrl);
+                    }
+                });
+
+                checkAvailabilityBtn.addEventListener('click', function(e) {
+                    if (!roomTypeSelect.value) {
+                        e.preventDefault();
+                        alert('Please select a Room Type first.');
+                    }
+                });
+            }
+        });
 
         function showAmenityTooltip(el, text) {
             document.querySelectorAll('.custom-amenity-tooltip').forEach(t => t.remove());
