@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -439,7 +439,7 @@
                         <span class="stat-label">Total Revenue</span>
                         <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
                     </div>
-                    <div class="stat-value">?{{ number_format($totalRevenue) }}</div>
+                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
                     <div class="stat-sub">All paid bookings</div>
                 </div>
                 <div class="stat-card">
@@ -447,7 +447,7 @@
                         <span class="stat-label">This Month</span>
                         <div class="stat-icon icon-orange"><i class="ph ph-trend-up"></i></div>
                     </div>
-                    <div class="stat-value">?{{ number_format($monthRevenue) }}</div>
+                    <div class="stat-value">₹{{ number_format($monthRevenue) }}</div>
                     <div class="stat-sub">
                         @if($revenueGrowth !== null)
                             <span style="color: {{ $revenueGrowth >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 700;">
@@ -463,7 +463,7 @@
                         <span class="stat-label">Today Revenue</span>
                         <div class="stat-icon icon-blue"><i class="ph ph-coins"></i></div>
                     </div>
-                    <div class="stat-value">?{{ number_format($todayRevenue) }}</div>
+                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
                     <div class="stat-sub">Paid today</div>
                 </div>
                 <div class="stat-card">
@@ -567,7 +567,7 @@
                                     <td style="color: var(--muted);">{{ $i + 1 }}</td>
                                     <td style="font-weight: 600;">{{ $room->room_name }}</td>
                                     <td>{{ $room->total }}</td>
-                                    <td style="font-weight: 700; color: var(--primary);">?{{ number_format($room->revenue) }}</td>
+                                    <td style="font-weight: 700; color: var(--primary);">₹{{ number_format($room->revenue) }}</td>
                                 </tr>
                                 @empty
                                 <tr><td colspan="4" style="text-align:center; padding:1.5rem; color:var(--muted);">No data yet</td></tr>
@@ -628,7 +628,7 @@
                                 <td style="font-weight: 600;">{{ $b->name }}</td>
                                 <td>{{ $b->room_name }}</td>
                                 <td style="color: var(--muted);">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</td>
-                                <td style="font-weight: 700;">?{{ number_format($b->total_price, 2) }}</td>
+                                <td style="font-weight: 700;">₹{{ number_format($b->total_price, 2) }}</td>
                                 <td>
                                     <span class="pill pill-{{ strtolower(str_replace(' ', '-', $b->approval_status)) }}
                                         {{ $b->approval_status === 'Approved' ? 'pill-approved' : ($b->approval_status === 'Rejected' ? 'pill-rejected' : 'pill-pending') }}">
@@ -694,7 +694,7 @@
             data: {
                 labels: {!! json_encode($monthlyRevenue->pluck('month')->map(fn($m) => \Carbon\Carbon::parse($m)->format('M Y'))) !!},
                 datasets: [{
-                    label: 'Revenue (?)',
+                    label: 'Revenue (₹)',
                     data: {!! json_encode($monthlyRevenue->pluck('revenue')) !!},
                     backgroundColor: 'rgba(59, 130, 246, 0.75)',
                     borderColor: 'rgba(59, 130, 246, 1)',
@@ -742,3 +742,4 @@
     </script>
 </body>
 </html>
+

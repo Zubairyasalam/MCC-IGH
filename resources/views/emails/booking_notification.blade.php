@@ -123,9 +123,49 @@
                     <td>{{ $booking->email }}</td>
                 </tr>
                 <tr>
+                    <th>Nationality</th>
+                    <td>{{ $booking->nationality ?: 'Indian' }}</td>
+                </tr>
+                @if($booking->nationality === 'Non-Indian')
+                <tr>
+                    <th>Passport Number</th>
+                    <td>{{ $booking->passport_number }}</td>
+                </tr>
+                <tr>
+                    <th>Visa Number</th>
+                    <td>{{ $booking->visa_number }}</td>
+                </tr>
+                @endif
+                <tr>
                     <th>Phone</th>
                     <td>{{ $booking->phone }}</td>
                 </tr>
+                <tr>
+                    <th>User Type</th>
+                    <td>{{ $booking->user_type }}</td>
+                </tr>
+                @if($booking->user_type === 'Student')
+                <tr>
+                    <th>Academic Details</th>
+                    <td>{{ $booking->level }} | {{ $booking->stream }} | {{ $booking->department }}</td>
+                </tr>
+                @if($booking->residence_status)
+                <tr>
+                    <th>Residence Status</th>
+                    <td>{{ ucwords($booking->residence_status) }}</td>
+                </tr>
+                @endif
+                @elseif($booking->user_type === 'Staff')
+                <tr>
+                    <th>Staff Details</th>
+                    <td>{{ $booking->level }} ({{ $booking->department }})</td>
+                </tr>
+                @else
+                <tr>
+                    <th>Department/Unit</th>
+                    <td>{{ $booking->department ?: 'N/A' }}</td>
+                </tr>
+                @endif
                 <tr>
                     <th>Workspace</th>
                     <td>{{ ucwords(str_replace('-', ' ', $booking->room_name)) }}</td>
@@ -138,6 +178,12 @@
                     <th>Check-Out</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A') }}</td>
                 </tr>
+                @if($booking->booking_reason)
+                <tr>
+                    <th>Purpose</th>
+                    <td>{{ $booking->booking_reason }}</td>
+                </tr>
+                @endif
                 <tr>
                     <th>Persons</th>
                     <td>{{ $booking->no_of_persons }}</td>
@@ -152,6 +198,12 @@
                     <td><span class="badge">Attached</span></td>
                 </tr>
                 @endif
+                @if($booking->passport_visa_attachment)
+                <tr>
+                    <th>Passport & Visa Doc</th>
+                    <td><span class="badge">Attached</span></td>
+                </tr>
+                @endif
             </table>
 
             <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">
@@ -162,9 +214,9 @@
                 <table width="100%" cellspacing="0" cellpadding="0">
                     <tr>
                         <td align="center">
-                            <a href="{{ route('admin.bookings.approve.get', $booking->id) }}" class="btn btn-approve" style="color: #ffffff !important;">APPROVE</a>
+                            <a href="{{ $approveUrl }}" class="btn btn-approve" style="color: #ffffff !important;">APPROVE</a>
                             &nbsp;&nbsp;
-                            <a href="{{ route('admin.bookings.reject.get', $booking->id) }}" class="btn btn-reject" style="color: #ffffff !important;">REJECT</a>
+                            <a href="{{ $rejectUrl }}" class="btn btn-reject" style="color: #ffffff !important;">REJECT</a>
                         </td>
                     </tr>
                 </table>

@@ -734,7 +734,7 @@
                         'amenities' => [
                             ['name' => 'Modern Furniture', 'icon' => 'ph-armchair'],
                             ['name' => 'High Speed WiFi', 'icon' => 'ph-wifi-high'],
-                            ['name' => 'Charging Ports', 'icon' => 'ph-plug-connected'],
+                            ['name' => 'Charging Ports', 'icon' => 'ph-plug'],
                             ['name' => 'Glass Walls', 'icon' => 'ph-squares-four'],
                             ['name' => 'AC', 'icon' => 'ph-snowflake'],
                             ['name' => 'Presentation Setup', 'icon' => 'ph-presentation-chart'],

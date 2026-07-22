@@ -84,15 +84,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
-            align-items: end;
+            align-items: start;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
             position: relative;
-            justify-content: flex-end;
-            height: 100%;
         }
 
         .form-group.full-width {
@@ -103,7 +101,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
-            align-items: end;
+            align-items: start;
             grid-column: 1 / -1;
             width: 100%;
         }
@@ -278,11 +276,11 @@
         }
 
         .dynamic-field {
-            display: none;
+            display: none !important;
         }
 
         .dynamic-field.show {
-            display: flex;
+            display: flex !important;
         }
 
         /* Booking Summary Card */
@@ -842,6 +840,56 @@
                             </div>
                         </div>
 
+                        <!-- DYNAMIC: Non-Indian Fields (Passport & Visa) -->
+                        <div class="paired-row dynamic-field non-indian-field" id="nonIndianRow">
+                            <div class="form-group" id="passportFieldGroup">
+                                <label class="form-label">Passport Number <span>*</span></label>
+                                <input type="text" name="passport_number" class="form-input"
+                                    placeholder="Required for Non-Indian guests" id="passportInput" value="{{ old('passport_number') }}">
+                            </div>
+
+                            <div class="form-group" id="visaFieldGroup">
+                                <label class="form-label">Visa Number <span>*</span></label>
+                                <input type="text" name="visa_number" class="form-input"
+                                    placeholder="Required for Non-Indian guests" id="visaInput" value="{{ old('visa_number') }}">
+                            </div>
+                        </div>
+
+                        <!-- Passport/Visa Document Upload -->
+                        <div class="form-group dynamic-field non-indian-field full-width" id="passportVisaUploadGroup">
+                            <label class="form-label">Passport & Visa Scanned Copy <span>*</span></label>
+                            <div id="passportVisaUploadZone" class="custom-file-zone" onclick="document.getElementById('passportVisaFileInput').click()">
+                                <div class="file-icon-box">
+                                    <i class="ph-bold ph-file-arrow-up"></i>
+                                </div>
+                                <div class="file-text-group">
+                                    <div id="passportVisaFileNameDisplay" class="file-main-text">Click to attach Passport & Visa scanned document</div>
+                                    <div class="file-sub-text">PDF, JPG, PNG supported (Max 5MB)</div>
+                                </div>
+                                <div class="browse-btn-mobile" style="flex-shrink: 0; background: var(--primary-color); color: #fff; padding: 7px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3px;">Browse</div>
+                            </div>
+                            <input type="file" id="passportVisaFileInput" name="passport_visa_attachment" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="updatePassportVisaFileName(this)">
+                            <div class="form-helper" style="margin-top: 6px;">Upload a copy of your Passport and Visa (PDF or Image)</div>
+                        </div>
+                        <script>
+                            function updatePassportVisaFileName(input) {
+                                const display = document.getElementById('passportVisaFileNameDisplay');
+                                if (input.files && input.files[0]) {
+                                    display.textContent = input.files[0].name;
+                                    display.style.color = 'var(--primary-color)';
+                                } else {
+                                    display.textContent = 'Click to attach Passport & Visa scanned document';
+                                    display.style.color = '#475569';
+                                }
+                            }
+                        </script>
+
+                        <div class="form-group dynamic-field non-indian-field full-width" id="gstFieldGroup">
+                            <label class="form-label">GST Number</label>
+                            <input type="text" name="gst_id" class="form-input"
+                                placeholder="If applicable for corporate booking (Optional)">
+                        </div>
+
                         <!-- ISOLATED ROW 1: User Type (Left) | Applicant Name (Right) -->
                         <div class="paired-row">
                             <!-- User Type -->
@@ -863,6 +911,15 @@
                                 <input type="text" name="name" class="form-input"
                                     placeholder="Your full name as per official ID" value="{{ old('name') }}" required>
                             </div>
+                        </div>
+
+                        <div class="form-group dynamic-field student-field full-width" id="residenceStatusFieldGroup">
+                            <label class="form-label">Residence Status <span>*</span></label>
+                            <div class="form-radio-group">
+                                <label class="radio-label"><input type="radio" name="residence_status" value="residence"> Residence</label>
+                                <label class="radio-label"><input type="radio" name="residence_status" value="non residence"> Non Residence</label>
+                            </div>
+                            <div class="form-helper">Select your residential status in college</div>
                         </div>
 
                         <div class="form-group dynamic-field student-field full-width" id="streamFieldGroup">
@@ -902,7 +959,26 @@
                             </div>
                         </div>
 
-                        <!-- SECTION: CONTACT & GUEST -->
+                        <!-- Dynamic Staff Fields -->
+                        <div class="paired-row">
+                            <div class="form-group dynamic-field staff-field" id="staffTypeFieldGroup" style="display: none;">
+                                <label class="form-label">Staff Category <span>*</span></label>
+                                <div class="form-radio-group">
+                                    <label class="radio-label"><input type="radio" name="staff_type" value="Teaching"
+                                            onchange="toggleStaffCategoryFields()"> Teaching Staff</label>
+                                    <label class="radio-label"><input type="radio" name="staff_type" value="Non-Teaching"
+                                            onchange="toggleStaffCategoryFields()"> Non-Teaching Staff</label>
+                                </div>
+                                <div class="form-helper">Select staff association type</div>
+                            </div>
+
+                            <div class="form-group dynamic-field staff-teaching-field" id="staffDepartmentFieldGroup" style="display: none;">
+                                <label class="form-label">Department <span>*</span></label>
+                                <select class="form-select" id="staffDepartmentSelect" name="department">
+                                    <option value="" disabled selected>Select Department</option>
+                                </select>
+                            </div>
+                        </div>
                         <!-- SECTION: CONTACT DETAILS -->
                         <div class="section-divider"></div>
                         <div class="form-section-title full-width"><i class="ph-bold ph-address-book"></i> Contact
@@ -920,8 +996,8 @@
 
                             <!-- Contact -->
                             <div class="form-group">
-                                <label class="form-label">Contact Number <span>*</span></label>
-                                <input type="tel" name="phone" class="form-input" placeholder="+91 xxxxx xxxxx"
+                                <label class="form-label">Contact Number <span id="phoneRequiredAsterisk">*</span></label>
+                                <input type="tel" name="phone" id="phoneInput" class="form-input" placeholder="+91 xxxxx xxxxx"
                                     value="{{ old('phone') }}" required>
                                 <div class="form-helper">For booking updates</div>
                             </div>
@@ -940,28 +1016,6 @@
                             <input type="number" name="no_of_persons" min="1" max="{{ $maxCapacity }}" class="form-input"
                                 placeholder="e.g. 2 (Maximum: {{ $maxCapacity }} persons)" required>
                             <div class="form-helper">Maximum capacity for this room is {{ $maxCapacity }} {{ Str::plural('person', $maxCapacity) }}</div>
-                        </div>
-
-                        <!-- DYNAMIC: Non-Indian Fields -->
-                        <div class="form-group dynamic-field non-indian-field full-width" id="passportFieldGroup"
-                            style="grid-column: 1/-1;">
-                            <label class="form-label">Passport Number <span>*</span></label>
-                            <input type="text" name="passport_number" class="form-input"
-                                placeholder="Required for Non-Indian guests" id="passportInput" value="{{ old('passport_number') }}">
-                        </div>
-
-                        <div class="form-group dynamic-field non-indian-field full-width" id="visaFieldGroup"
-                            style="grid-column: 1/-1;">
-                            <label class="form-label">Visa Number <span>*</span></label>
-                            <input type="text" name="visa_number" class="form-input"
-                                placeholder="Required for Non-Indian guests" id="visaInput" value="{{ old('visa_number') }}">
-                        </div>
-
-                        <div class="form-group dynamic-field non-indian-field full-width" id="gstFieldGroup"
-                            style="grid-column: 1/-1;">
-                            <label class="form-label">GST Number</label>
-                            <input type="text" name="gst_id" class="form-input"
-                                placeholder="If applicable for corporate booking (Optional)">
                         </div>
 
                         <!-- SECTION: STAY DETAILS -->
@@ -988,11 +1042,11 @@
                             </div>
                         </div>
 
-                        <!-- Reason for Booking -->
+                        <!-- Purpose -->
                         <div class="form-group full-width" style="margin-top: 0.5rem;">
-                            <label class="form-label">Reason for Booking <span>*</span></label>
+                            <label class="form-label">Purpose <span>*</span></label>
                             <textarea name="booking_reason" class="form-input" style="height: auto; min-height: 80px; padding: 0.75rem 1rem; resize: vertical;" placeholder="Briefly explain the purpose of this booking (e.g. guest lecture, official visit, internship, academic conference)" required>{{ old('booking_reason') }}</textarea>
-                            <div class="form-helper">Purpose/Reason for reserving the accommodation</div>
+                            <div class="form-helper">Purpose for reserving the accommodation</div>
                         </div>
 
                         <!-- Referral Attachment -->
@@ -1095,22 +1149,52 @@
         function toggleStudentFields() {
             const userType = document.getElementById('userTypeSelect').value;
             const studentFields = document.querySelectorAll('.student-field');
+            const staffFields = document.querySelectorAll('.staff-field');
 
             studentFields.forEach(field => {
                 if (userType === 'Student') {
                     field.classList.add('show');
-                    field.style.display = ''; // Reset display style
+                    field.style.setProperty('display', 'flex', 'important');
                     // Add required securely to dynamic inputs, explicitly excluding "Other" handler
                     const inputs = field.querySelectorAll('input:not(#otherDepartmentInput), select');
                     inputs.forEach(input => input.setAttribute('required', 'true'));
                 } else {
                     field.classList.remove('show');
-                    field.style.display = 'none'; // Hide completely
+                    field.style.setProperty('display', 'none', 'important');
                     // Remove required
                     const inputs = field.querySelectorAll('input, select');
                     inputs.forEach(input => input.removeAttribute('required'));
                 }
             });
+
+            // Staff logic
+            staffFields.forEach(field => {
+                if (userType === 'Staff') {
+                    field.classList.add('show');
+                    field.style.setProperty('display', 'flex', 'important');
+                    const inputs = field.querySelectorAll('input, select');
+                    inputs.forEach(input => input.setAttribute('required', 'true'));
+                } else {
+                    field.classList.remove('show');
+                    field.style.setProperty('display', 'none', 'important');
+                    const inputs = field.querySelectorAll('input, select');
+                    inputs.forEach(input => input.removeAttribute('required'));
+                }
+            });
+
+            // If not staff, hide the staff department section too
+            if (userType !== 'Staff') {
+                const staffDeptField = document.getElementById('staffDepartmentFieldGroup');
+                if (staffDeptField) {
+                    staffDeptField.style.setProperty('display', 'none', 'important');
+                    staffDeptField.classList.remove('show');
+                }
+                const staffDeptSelect = document.getElementById('staffDepartmentSelect');
+                if (staffDeptSelect) staffDeptSelect.removeAttribute('required');
+                // Uncheck radio buttons
+                const radios = document.querySelectorAll('input[name="staff_type"]');
+                radios.forEach(r => r.checked = false);
+            }
 
             // Refresh Other Dept and Level logic on toggle
             if (userType === 'Student') {
@@ -1118,7 +1202,40 @@
                 handleLevelChange();
             }
         }
+        function toggleStaffCategoryFields() {
+            const staffType = document.querySelector('input[name="staff_type"]:checked');
+            const staffDeptField = document.getElementById('staffDepartmentFieldGroup');
+            const staffDeptSelect = document.getElementById('staffDepartmentSelect');
 
+            if (staffType && staffType.value === 'Teaching') {
+                if (staffDeptField) {
+                    staffDeptField.classList.add('show');
+                    staffDeptField.style.setProperty('display', 'flex', 'important');
+                }
+                if (staffDeptSelect) {
+                    staffDeptSelect.setAttribute('required', 'true');
+                    
+                    // Populate departments combining aided and sfs departments
+                    staffDeptSelect.innerHTML = '<option value="" disabled selected>Select Department</option>';
+                    const allDepts = [...new Set([...aidedDepartments, ...sfsDepartments])].sort();
+                    allDepts.forEach(dept => {
+                        let opt = document.createElement('option');
+                        opt.value = dept;
+                        opt.innerHTML = dept;
+                        staffDeptSelect.appendChild(opt);
+                    });
+                }
+            } else {
+                if (staffDeptField) {
+                    staffDeptField.classList.remove('show');
+                    staffDeptField.style.setProperty('display', 'none', 'important');
+                }
+                if (staffDeptSelect) {
+                    staffDeptSelect.removeAttribute('required');
+                    staffDeptSelect.value = '';
+                }
+            }
+        }
         const aidedDepartments = [
             "English", "Tamil", "Languages", "History", "Political Science",
             "Public Administration", "Economics", "Philosophy", "Commerce",
@@ -1158,21 +1275,14 @@
                     streamInputs.forEach(input => input.removeAttribute('required'));
                 }
                 
-                // Populate departments directly with research departments
+                // Hide Department field group for research levels
+                const deptFieldGroup = document.getElementById('departmentFieldGroup');
+                if (deptFieldGroup) {
+                    deptFieldGroup.style.setProperty('display', 'none', 'important');
+                }
                 if (deptSelect) {
-                    deptSelect.innerHTML = '<option value="" disabled selected>Select Department</option>';
-                    researchDepartments.forEach(dept => {
-                        let opt = document.createElement('option');
-                        opt.value = dept;
-                        opt.innerHTML = dept;
-                        deptSelect.appendChild(opt);
-                    });
-                    
-                    // Attach "Other" option
-                    let otherOpt = document.createElement('option');
-                    otherOpt.value = 'Other';
-                    otherOpt.innerHTML = 'Other';
-                    deptSelect.appendChild(otherOpt);
+                    deptSelect.removeAttribute('required');
+                    deptSelect.value = '';
                 }
                 
                 toggleOtherDepartment();
@@ -1187,7 +1297,17 @@
                         streamInputs.forEach(input => input.removeAttribute('required'));
                     }
                 }
-                
+
+                // Show Department field group
+                const deptFieldGroup = document.getElementById('departmentFieldGroup');
+                if (deptFieldGroup) {
+                    deptFieldGroup.style.display = '';
+                }
+                if (deptSelect && userType === 'Student') {
+                    deptSelect.setAttribute('required', 'true');
+                }
+
+                // Reset department options based on currently selected stream
                 // Reset department options based on currently selected stream
                 const selectedStream = document.querySelector('input[name="stream"]:checked');
                 if (deptSelect) {
@@ -1269,25 +1389,37 @@
         });
 
         function toggleNationalityFields() {
-            const isNonIndian = document.querySelector('input[name="nationality"][value="Non-Indian"]').checked;
+            const nonIndianRadio = document.querySelector('input[name="nationality"][value="Non-Indian"]');
+            const isNonIndian = nonIndianRadio ? nonIndianRadio.checked : false;
             const nonIndianFields = document.querySelectorAll('.non-indian-field');
             const passportInput = document.getElementById('passportInput');
             const visaInput = document.getElementById('visaInput');
+            const passportVisaFileInput = document.getElementById('passportVisaFileInput');
+            const phoneInput = document.getElementById('phoneInput');
+            const phoneAsterisk = document.getElementById('phoneRequiredAsterisk');
 
             nonIndianFields.forEach(field => {
                 if (isNonIndian) {
                     field.classList.add('show');
+                    field.style.setProperty('display', 'flex', 'important');
                 } else {
                     field.classList.remove('show');
+                    field.style.setProperty('display', 'none', 'important');
                 }
             });
 
             if (isNonIndian) {
                 if (passportInput) passportInput.setAttribute('required', 'true');
                 if (visaInput) visaInput.setAttribute('required', 'true');
+                if (passportVisaFileInput) passportVisaFileInput.setAttribute('required', 'true');
+                if (phoneInput) phoneInput.removeAttribute('required');
+                if (phoneAsterisk) phoneAsterisk.style.display = 'none';
             } else {
                 if (passportInput) passportInput.removeAttribute('required');
                 if (visaInput) visaInput.removeAttribute('required');
+                if (passportVisaFileInput) passportVisaFileInput.removeAttribute('required');
+                if (phoneInput) phoneInput.setAttribute('required', 'true');
+                if (phoneAsterisk) phoneAsterisk.style.display = '';
             }
         }
 
@@ -1352,6 +1484,7 @@
         // Initialize state natively on load to prevent glitch rendering
         document.addEventListener('DOMContentLoaded', () => {
             toggleStudentFields();
+            toggleStaffCategoryFields();
             toggleNationalityFields();
 
             const clockInEl = document.querySelector('input[name="clock_in"]');

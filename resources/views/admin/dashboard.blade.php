@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -547,14 +547,14 @@
                         <span class="stat-label">Total Rev</span>
                         <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
                     </div>
-                    <div class="stat-value">?{{ number_format($totalRevenue) }}</div>
+                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-label">Today's Rev</span>
                         <div class="stat-icon icon-orange"><i class="ph ph-coins"></i></div>
                     </div>
-                    <div class="stat-value">?{{ number_format($todayRevenue) }}</div>
+                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">
@@ -744,7 +744,7 @@
                                 <td style="font-weight: 600;">{{ $booking->name }}</td>
                                 <td>{{ $booking->room_name }}</td>
                                 <td style="color: #64748b;">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M') }} | {{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }}</td>
-                                <td style="font-weight: 700;">?{{ number_format($booking->total_price, 2) }}</td>
+                                <td style="font-weight: 700;">₹{{ number_format($booking->total_price, 2) }}</td>
                                 <td>
                                     <span class="status-pill pill-{{ strtolower($booking->payment_status) }}">
                                         {{ $booking->payment_status }}
@@ -810,7 +810,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Revenue (?)',
+                        label: 'Revenue (₹)',
                         data: data,
                         borderColor: window.primaryColor,
                         backgroundColor: `rgba(${window.primaryColorRGB}, 0.05)`,
@@ -907,3 +907,4 @@
     </script>
 </body>
 </html>
+

@@ -88,6 +88,7 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::get('/reports/download', [AdminController::class, 'downloadReport'])->name('admin.reports.download');
     Route::post('/bookings/{id}/approve', [AdminController::class, 'adminApprove'])->name('admin.bookings.approve');
     Route::post('/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject');
+    Route::post('/bookings/{id}/add-room', [AdminController::class, 'addRoomToBooking'])->name('admin.bookings.add_room');
     Route::post('/bookings/{id}/pay', [AdminController::class, 'markAsPaid'])->name('admin.bookings.pay');
     Route::post('/bookings/{id}/resend-link', [AdminController::class, 'resendPaymentLink'])->name('admin.bookings.resend');
     Route::post('/notifications/mark-read', [AdminController::class, 'markNotificationsRead'])->name('admin.notifications.read');
@@ -102,6 +103,11 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
 // These routes are now public for one-click approval from email
 Route::get('/admin/bookings/{id}/approve', [AdminController::class, 'principalApprove'])->name('admin.bookings.approve.get');
 Route::get('/admin/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject.get');
+
+Route::get('/admin/bookings/{id}/approve/hod', [BookingController::class, 'hodApprove'])->name('bookings.approve.hod');
+Route::get('/admin/bookings/{id}/approve/warden', [BookingController::class, 'wardenApprove'])->name('bookings.approve.warden');
+Route::get('/admin/bookings/{id}/reject/hod', [BookingController::class, 'hodReject'])->name('bookings.reject.hod');
+Route::get('/admin/bookings/{id}/reject/warden', [BookingController::class, 'wardenReject'])->name('bookings.reject.warden');
 
 // SuperAdmin Auth
 Route::get('/superadmin/login', [LoginController::class, 'showSuperAdminLogin'])->name('superadmin.login');

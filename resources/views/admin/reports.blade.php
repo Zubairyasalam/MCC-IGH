@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -359,15 +359,15 @@
             <div class="summary-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Total Revenue</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);">?{{ number_format($totalRevenue, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);">₹{{ number_format($totalRevenue, 2) }}</div>
                 </div>
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Net Revenue (Excl. GST)</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">?{{ number_format($netRevenue, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #1e293b;">₹{{ number_format($netRevenue, 2) }}</div>
                 </div>
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     <div style="color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.4rem;">Total GST Collected ({{ $gstRate }}%)</div>
-                    <div style="font-size: 1.5rem; font-weight: 800; color: #64748b;">?{{ number_format($totalGst, 2) }}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: #64748b;">₹{{ number_format($totalGst, 2) }}</div>
                 </div>
             </div>
 
@@ -427,9 +427,9 @@
                                 <div style="font-weight: 600;">{{ str_replace('-', ' ', ucwords($b->room_name, '- ')) }}</div>
                                 <div style="font-size: 0.75rem; color: var(--text-muted);">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</div>
                             </td>
-                            <td style="color: #64748b;">?{{ number_format($bSubtotal, 2) }}</td>
-                            <td style="color: #64748b;">?{{ number_format($bGstAmount, 2) }}</td>
-                            <td style="font-weight: 700; color: var(--text-main);">?{{ number_format($b->total_price, 2) }}</td>
+                            <td style="color: #64748b;">₹{{ number_format($bSubtotal, 2) }}</td>
+                            <td style="color: #64748b;">₹{{ number_format($bGstAmount, 2) }}</td>
+                            <td style="font-weight: 700; color: var(--text-main);">₹{{ number_format($b->total_price, 2) }}</td>
                         </tr>
                         @empty
                         <tr>
@@ -502,3 +502,4 @@
     </script>
 </body>
 </html>
+

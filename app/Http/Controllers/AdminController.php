@@ -26,13 +26,13 @@ class AdminController extends Controller
         
         // Status Counts
         $completedBookings = Booking::where('approval_status', 'Approved')->count();
-        $pendingApprovals = Booking::where('approval_status', 'Pending')->count();
+        $pendingApprovals = Booking::whereIn('approval_status', ['Pending', 'Pending HOD Approval', 'Pending Warden Approval', 'Pending Principal Approval'])->count();
         $principalApprovals = Booking::whereIn('approval_status', ['Principal Approved', 'Approved by Principal'])->count();
         $pendingPayments = Booking::where('payment_status', 'Pending')->count();
         $cancelledBookings = Booking::where('payment_status', 'Failed')->count();
 
         // Feed for the Notification Center (Only Unread)
-        $notificationBookings = Booking::whereIn('approval_status', ['Pending', 'Principal Approved', 'Approved by Principal'])
+        $notificationBookings = Booking::whereIn('approval_status', ['Pending', 'Pending HOD Approval', 'Pending Warden Approval', 'Pending Principal Approval', 'Principal Approved', 'Approved by Principal'])
             ->where('is_admin_read', false)
             ->orderBy('updated_at', 'desc')
             ->limit(10)
@@ -174,7 +174,7 @@ class AdminController extends Controller
             fputcsv($handle, [
                 'Booking ID', 'Guest Name', 'Email', 'Phone', 'Nationality', 'Passport Number', 'Visa Number',
                 'Room / Space', 'Booking Date', 'Start Time', 'End Time',
-                'No. of Persons', 'User Type', 'Approval Status', 'Payment Status',
+                'No. of Persons', 'User Type', 'Residence Status', 'Approval Status', 'Payment Status',
                 'Total Price (₹)', 'Payment ID', 'Submitted At'
             ]);
 
@@ -193,6 +193,7 @@ class AdminController extends Controller
                     \Carbon\Carbon::parse($b->end_time)->format('H:i'),
                     $b->no_of_persons ?? '',
                     $b->user_type ?? '',
+                    $b->residence_status ? ucwords($b->residence_status) : '',
                     $b->approval_status,
                     $b->payment_status,
                     number_format($b->total_price, 2),
@@ -215,15 +216,19 @@ class AdminController extends Controller
         if (!$booking->is_admin_read) {
             $booking->update(['is_admin_read' => true]);
         }
+
+        $relatedBookings = Booking::where('reference_id', $booking->reference_id)
+            ->where('id', '!=', $booking->id)
+            ->get();
         
-        return view('admin.booking_details', compact('booking'));
+        return view('admin.booking_details', compact('booking', 'relatedBookings'));
     }
 
     public function principalApprove($id)
     {
         $booking = Booking::findOrFail($id);
         
-        if ($booking->approval_status === 'Pending') {
+        if ($booking->approval_status === 'Pending' || $booking->approval_status === 'Pending Principal Approval') {
             $booking->update(['approval_status' => 'Approved by Principal']);
             return redirect()->route('approval.status')->with('success', 'Booking approved by Principal. Admin has been notified for final confirmation.');
         } 
@@ -376,7 +381,7 @@ class AdminController extends Controller
 
     public function markNotificationsRead()
     {
-        Booking::whereIn('approval_status', ['Pending', 'Principal Approved', 'Approved by Principal'])
+        Booking::whereIn('approval_status', ['Pending', 'Pending HOD Approval', 'Pending Warden Approval', 'Pending Principal Approval', 'Principal Approved', 'Approved by Principal'])
             ->where('is_admin_read', false)
             ->update(['is_admin_read' => true]);
             
@@ -560,5 +565,111 @@ class AdminController extends Controller
         $booking->save();
 
         return redirect()->route('admin.bookings')->with('success', 'College guest booking created successfully.');
+    }
+
+    public function addRoomToBooking(Request $request, $id)
+    {
+        $originalBooking = Booking::findOrFail($id);
+        
+        $request->validate([
+            'room_name' => 'required|string',
+            'clock_in' => 'required|date',
+            'clock_out' => 'required|date|after:clock_in',
+            'no_of_persons' => 'required|integer|min:1',
+        ]);
+
+        $clockIn = Carbon::parse($request->clock_in);
+        $clockOut = Carbon::parse($request->clock_out);
+        
+        // Double booking check
+        $exists = Booking::where('room_name', $request->room_name)
+            ->where('booking_date', $clockIn->toDateString())
+            ->where('approval_status', '!=', 'Rejected')
+            ->where(function ($query) use ($clockIn, $clockOut) {
+                $query->where(function ($q) use ($clockIn, $clockOut) {
+                    $q->where('start_time', '<', $clockOut->toTimeString())
+                        ->where('end_time', '>', $clockIn->toTimeString());
+                });
+            })->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Selected room is already booked for this time slot.');
+        }
+
+        // Calculate duration in hours
+        $durationHours = $clockIn->diffInHours($clockOut);
+        if ($durationHours == 0) $durationHours = 1;
+        
+        $basePrice = 0;
+        $roomName = $request->room_name;
+        
+        // Dynamic Pricing Logic based on Category
+        if (str_contains(strtolower($roomName), 'standard')) {
+            $twelveHourBlocks = ceil($durationHours / 12);
+            $basePrice = $twelveHourBlocks * 1400;
+        } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4)) {
+            $days = ceil($durationHours / 24);
+            $basePrice = $days * 2500;
+        } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
+            $billableHours = max(4, $durationHours);
+            $basePrice = $billableHours * 500;
+        } else {
+            $basePrice = $durationHours > 4 ? 5000 : 2000;
+        }
+        
+        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+        $totalPrice = $basePrice * (1 + ($gstRate / 100));
+
+        // Create the new booking record
+        $newBooking = Booking::create([
+            'reference_id' => $originalBooking->reference_id,
+            'name' => $originalBooking->name,
+            'email' => $originalBooking->email,
+            'phone' => $originalBooking->phone,
+            'nationality' => $originalBooking->nationality,
+            'user_type' => $originalBooking->user_type,
+            'stream' => $originalBooking->stream,
+            'level' => $originalBooking->level,
+            'department' => $originalBooking->department,
+            'primary_guest_name' => $originalBooking->primary_guest_name,
+            'no_of_persons' => $request->no_of_persons,
+            'passport_number' => $originalBooking->passport_number,
+            'visa_number' => $originalBooking->visa_number,
+            'gst_id' => $originalBooking->gst_id,
+            'room_name' => $request->room_name,
+            'booking_date' => $clockIn->toDateString(),
+            'start_time' => $clockIn->toTimeString(),
+            'end_time' => $clockOut->toTimeString(),
+            'total_price' => $totalPrice,
+            'payment_status' => 'Pending',
+            'approval_status' => 'Approved',
+            'referral_attachment' => $originalBooking->referral_attachment,
+            'is_admin_read' => true,
+            'booking_reason' => $originalBooking->booking_reason,
+            'residence_status' => $originalBooking->residence_status
+        ]);
+
+        // Trigger Webhook
+        app(\App\Services\WebhookService::class)->trigger('booking.created', $newBooking);
+        app(\App\Services\WebhookService::class)->trigger('booking.confirmed', $newBooking);
+
+        // Generate Secure Payment Token
+        $token = Str::random(32);
+        $paymentLink = PaymentLink::create([
+            'booking_id' => $newBooking->id,
+            'token' => $token,
+            'expires_at' => Carbon::now()->addHours(24),
+            'is_used' => false
+        ]);
+
+        // Notify Guest with Payment Link only for this new room
+        try {
+            $this->applyMailConfig();
+            Mail::to($newBooking->email)->send(new PaymentLinkMail($newBooking, $paymentLink));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send guest payment link for added room: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Additional room added successfully and payment link sent to the guest.');
     }
 }

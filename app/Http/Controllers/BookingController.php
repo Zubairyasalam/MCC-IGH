@@ -22,9 +22,10 @@ class BookingController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:255',
+            'phone' => $request->nationality === 'Non-Indian' ? 'nullable|string|max:255' : 'required|string|max:255',
             'nationality' => 'required|string',
             'user_type' => 'required|string',
+            'residence_status' => $request->user_type === 'Student' ? 'required|string|in:residence,non residence' : 'nullable|string',
             'stream' => 'nullable|string',
             'level' => 'nullable|string',
             'department' => 'nullable|string',
@@ -32,6 +33,7 @@ class BookingController extends Controller
             'no_of_persons' => 'required|integer|min:1',
             'passport_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
             'visa_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
+            'passport_visa_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
             'gst_id' => 'nullable|string|max:50',
             'room_name' => 'required|string',
             'clock_in' => 'required|date',
@@ -39,9 +41,17 @@ class BookingController extends Controller
             'department_other' => 'nullable|string',
             'referral_attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Max 5MB
             'booking_reason' => 'required|string',
+            'staff_type' => 'nullable|string|in:Teaching,Non-Teaching',
         ]);
 
-        if ($request->department === 'Other' && $request->filled('department_other')) {
+        if ($request->user_type === 'Staff') {
+            if ($request->staff_type === 'Teaching') {
+                $validated['level'] = 'Teaching Staff';
+            } else {
+                $validated['department'] = 'Non-Teaching';
+                $validated['level'] = 'Non-Teaching Staff';
+            }
+        } elseif ($request->department === 'Other' && $request->filled('department_other')) {
             $validated['department'] = $request->department_other;
         }
 
@@ -119,47 +129,58 @@ class BookingController extends Controller
             $attachmentPath = $file->storeAs('referrals', $fileName, 'public');
         }
 
+        $passportVisaPath = null;
+        if ($request->hasFile('passport_visa_attachment')) {
+            $file = $request->file('passport_visa_attachment');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $passportVisaPath = $file->storeAs('passport_visa', $fileName, 'public');
+        }
+
         // 2. Create the booking locally
+        $initialStatus = 'Pending';
+        if ($request->user_type === 'Student') {
+            if ($request->residence_status === 'residence') {
+                $initialStatus = 'Pending Warden Approval';
+            } elseif ($request->residence_status === 'non residence') {
+                $initialStatus = 'Pending HOD Approval';
+            }
+        }
+
         $booking = Booking::create(array_merge($validated, [
             'booking_date' => $clockIn->toDateString(),
             'start_time' => $clockIn->toTimeString(),
             'end_time' => $clockOut->toTimeString(),
             'total_price' => $totalPrice,
             'payment_status' => 'Pending',
-            'approval_status' => 'Pending',
-            'referral_attachment' => $attachmentPath
+            'approval_status' => $initialStatus,
+            'referral_attachment' => $attachmentPath,
+            'passport_visa_attachment' => $passportVisaPath
         ]));
 
         // Trigger Webhook
         app(\App\Services\WebhookService::class)->trigger('booking.created', $booking);
 
-        // 3. Send notification email to the Principal
+        // 3. Send notification email
         try {
-            // Get dynamic settings
-            $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
-            $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
-            $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
-            $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
-            $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
-            $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
-            $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
+            $this->setupMailConfig();
 
-            // Override config at runtime
-            config([
-                'mail.default' => $mailMailer,
-                'mail.mailers.smtp.host' => $mailHost,
-                'mail.mailers.smtp.port' => $mailPort,
-                'mail.mailers.smtp.encryption' => $mailEncryption,
-                'mail.mailers.smtp.username' => $senderEmail,
-                'mail.mailers.smtp.password' => $mailPassword,
-                'mail.from.address' => 'noreply@mccigh.com',
-                'mail.from.name' => 'MCC IGH System'
-            ]);
-
-            \Illuminate\Support\Facades\Mail::purge('smtp');
-
-            Mail::to($principalEmail)->send(new BookingNotification($booking));
-            Log::info('Booking notification sent successfully for ID: ' . $booking->id);
+            if ($booking->user_type === 'Student' && $booking->residence_status === 'residence') {
+                $wardenEmail = \App\Models\Setting::where('key', 'hall_warden_email')->value('value') ?? 'praveenrock2609@gmail.com';
+                $approveUrl = route('bookings.approve.warden', $booking->id);
+                $rejectUrl = route('bookings.reject.warden', $booking->id);
+                Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
+                Log::info('Booking notification sent to Hall Warden for ID: ' . $booking->id);
+            } elseif ($booking->user_type === 'Student' && $booking->residence_status === 'non residence') {
+                $hodEmail = \App\Models\Setting::where('key', 'hod_email')->value('value') ?? 'unfortunately2909@gmail.com';
+                $approveUrl = route('bookings.approve.hod', $booking->id);
+                $rejectUrl = route('bookings.reject.hod', $booking->id);
+                Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
+                Log::info('Booking notification sent to HOD for ID: ' . $booking->id);
+            } else {
+                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                Mail::to($principalEmail)->send(new BookingNotification($booking));
+                Log::info('Booking notification sent successfully to Principal for ID: ' . $booking->id);
+            }
 
             // Send WhatsApp Notification to the Principal
             try {
@@ -227,5 +248,90 @@ class BookingController extends Controller
                   ->setPaper('a4', 'portrait');
 
         return $pdf->download('MCC_Receipt_#'.str_pad($booking->id, 8, '0', STR_PAD_LEFT).'.pdf');
+    }
+
+    private function setupMailConfig()
+    {
+        $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
+        $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
+        $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
+        $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
+        $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
+        $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
+
+        config([
+            'mail.default' => $mailMailer,
+            'mail.mailers.smtp.host' => $mailHost,
+            'mail.mailers.smtp.port' => $mailPort,
+            'mail.mailers.smtp.encryption' => $mailEncryption,
+            'mail.mailers.smtp.username' => $senderEmail,
+            'mail.mailers.smtp.password' => $mailPassword,
+            'mail.from.address' => $senderEmail,
+            'mail.from.name' => 'MCC IGH System'
+        ]);
+
+        \Illuminate\Support\Facades\Mail::purge('smtp');
+    }
+
+    public function hodApprove($id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        if ($booking->approval_status === 'Pending HOD Approval') {
+            $booking->update(['approval_status' => 'Pending Principal Approval']);
+            
+            // Notify Principal
+            try {
+                $this->setupMailConfig();
+                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                Mail::to($principalEmail)->send(new BookingNotification($booking));
+                Log::info('Booking notification sent to Principal after HOD approval for ID: ' . $booking->id);
+            } catch (\Exception $e) {
+                Log::error('Failed to send Principal notification after HOD approval: ' . $e->getMessage());
+            }
+
+            return redirect()->route('approval.status')->with('success', 'Booking approved by HOD. Sent to Principal for final approval.');
+        }
+
+        return redirect()->route('approval.status')->with('info', 'This booking has already been processed.');
+    }
+
+    public function wardenApprove($id)
+    {
+        $booking = Booking::findOrFail($id);
+        
+        if ($booking->approval_status === 'Pending Warden Approval') {
+            $booking->update(['approval_status' => 'Pending Principal Approval']);
+            
+            // Notify Principal
+            try {
+                $this->setupMailConfig();
+                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                Mail::to($principalEmail)->send(new BookingNotification($booking));
+                Log::info('Booking notification sent to Principal after Warden approval for ID: ' . $booking->id);
+            } catch (\Exception $e) {
+                Log::error('Failed to send Principal notification after Warden approval: ' . $e->getMessage());
+            }
+
+            return redirect()->route('approval.status')->with('success', 'Booking approved by Hall Warden. Sent to Principal for final approval.');
+        }
+
+        return redirect()->route('approval.status')->with('info', 'This booking has already been processed.');
+    }
+
+    public function hodReject($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->update(['approval_status' => 'Rejected']);
+        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
+        return redirect()->route('approval.status')->with('error', 'Booking has been rejected.');
+    }
+
+    public function wardenReject($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->update(['approval_status' => 'Rejected']);
+        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
+        return redirect()->route('approval.status')->with('error', 'Booking has been rejected.');
     }
 }

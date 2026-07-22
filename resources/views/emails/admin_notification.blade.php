@@ -120,6 +120,26 @@
                     <td>{{ $booking->name }}</td>
                 </tr>
                 <tr>
+                    <th>User Type</th>
+                    <td>{{ $booking->user_type }}</td>
+                </tr>
+                @if($booking->user_type === 'Student')
+                <tr>
+                    <th>Academic Details</th>
+                    <td>{{ $booking->level }} | {{ $booking->stream }} | {{ $booking->department }}</td>
+                </tr>
+                @elseif($booking->user_type === 'Staff')
+                <tr>
+                    <th>Staff Details</th>
+                    <td>{{ $booking->level }} ({{ $booking->department }})</td>
+                </tr>
+                @else
+                <tr>
+                    <th>Department/Unit</th>
+                    <td>{{ $booking->department ?: 'N/A' }}</td>
+                </tr>
+                @endif
+                <tr>
                     <th>Workspace</th>
                     <td>{{ $booking->room_name }}</td>
                 </tr>
@@ -127,6 +147,12 @@
                     <th>Check-in</th>
                     <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A') }}</td>
                 </tr>
+                @if($booking->booking_reason)
+                <tr>
+                    <th>Purpose</th>
+                    <td>{{ $booking->booking_reason }}</td>
+                </tr>
+                @endif
                 <tr>
                     <th>Amount</th>
                     <td>₹{{ number_format($booking->total_price, 2) }}</td>

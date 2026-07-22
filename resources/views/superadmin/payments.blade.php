@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -266,7 +266,7 @@
                                     <div style="font-size: 0.75rem; font-weight: 600; margin-top: 4px;"><i class="ph ph-users"></i> {{ $booking->no_of_persons }} Guests</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 800; color: var(--primary-color);">?{{ number_format($booking->total_price, 2) }}</div>
+                                    <div style="font-weight: 800; color: var(--primary-color);">₹{{ number_format($booking->total_price, 2) }}</div>
                                     @if($booking->payments->count() > 0)
                                         @php $p = $booking->payments->first(); @endphp
                                         <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 5px; margin-top: 4px;">
@@ -358,3 +358,4 @@
     </script>
 </body>
 </html>
+

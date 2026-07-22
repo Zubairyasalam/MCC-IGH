@@ -379,8 +379,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>HOD Email Address</label>
+                    <input type="email" name="hod_email" value="{{ $settings['hod_email'] ?? 'unfortunately2909@gmail.com' }}" required placeholder="e.g. hod@domain.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Hall Warden Email Address</label>
+                    <input type="email" name="hall_warden_email" value="{{ $settings['hall_warden_email'] ?? 'praveenrock2609@gmail.com' }}" required placeholder="e.g. warden@domain.com">
+                </div>
+
+                <div class="form-group">
                     <label>Mail Password / App Password</label>
-                    <input type="password" name="mail_password" value="{{ $settings['mail_password'] ?? '' }}" required placeholder="•••• •••• •••• ••••">
+                    <input type="password" name="mail_password" value="{{ $settings['mail_password'] ?? '' }}" required placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
                     <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">
                         <i class="ph ph-shield-check"></i> This password is encrypted for security.
                     </div>
@@ -525,7 +535,7 @@
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label id="whatsappCredentialLabel2">API / Auth Token</label>
-                                    <input type="password" name="whatsapp_token" value="{{ $settings['whatsapp_token'] ?? '' }}" placeholder="••••••••••••••••">
+                                    <input type="password" name="whatsapp_token" value="{{ $settings['whatsapp_token'] ?? '' }}" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
                                 </div>
                             </div>
                         </div>

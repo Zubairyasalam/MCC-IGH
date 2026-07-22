@@ -140,7 +140,7 @@
             </div>
             <div class="form-group">
                 <label>System Password</label>
-                <input type="password" name="password" required placeholder="••••••••">
+                <input type="password" name="password" required placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
             </div>
             <button type="submit" class="btn-login">Login to Control Center</button>
         </form>

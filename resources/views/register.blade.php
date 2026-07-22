@@ -228,7 +228,7 @@
                     <label>Create Password</label>
                     <div class="input-wrapper">
                         <i class="ph ph-lock"></i>
-                        <input type="password" name="password" placeholder="••••••••" required>
+                        <input type="password" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
                     </div>
                 </div>
 
@@ -236,7 +236,7 @@
                     <label>Confirm Password</label>
                     <div class="input-wrapper">
                         <i class="ph ph-lock-key"></i>
-                        <input type="password" name="password_confirmation" placeholder="••••••••" required>
+                        <input type="password" name="password_confirmation" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
                     </div>
                 </div>
 

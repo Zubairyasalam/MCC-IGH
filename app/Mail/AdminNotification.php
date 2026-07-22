@@ -46,13 +46,20 @@ class AdminNotification extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+
+        if ($this->booking->referral_attachment) {
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->referral_attachment))
+                ->as('referral_document.' . pathinfo($this->booking->referral_attachment, PATHINFO_EXTENSION));
+        }
+
+        if ($this->booking->passport_visa_attachment) {
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->passport_visa_attachment))
+                ->as('passport_visa_document.' . pathinfo($this->booking->passport_visa_attachment, PATHINFO_EXTENSION));
+        }
+
+        return $attachments;
     }
 }

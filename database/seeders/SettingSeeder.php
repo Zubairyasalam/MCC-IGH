@@ -27,6 +27,16 @@ class SettingSeeder extends Seeder
                 'key' => 'sender_email',
                 'value' => 'prasathragul75@gmail.com',
                 'description' => 'The system email used for sending notifications.'
+            ],
+            [
+                'key' => 'hod_email',
+                'value' => 'unfortunately2909@gmail.com',
+                'description' => 'The HOD email address for student non-residence booking approvals.'
+            ],
+            [
+                'key' => 'hall_warden_email',
+                'value' => 'praveenrock2609@gmail.com',
+                'description' => 'The Hall Warden email address for student residence booking approvals.'
             ]
         ];
 

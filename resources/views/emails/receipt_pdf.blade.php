@@ -157,6 +157,36 @@
                         <th>Phone</th>
                         <td>{{ $booking->phone }}</td>
                     </tr>
+                    <tr>
+                        <th>Nationality</th>
+                        <td>{{ $booking->nationality ?: 'Indian' }}</td>
+                    </tr>
+                    <tr>
+                        <th>User Type</th>
+                        <td>{{ $booking->user_type }}</td>
+                    </tr>
+                    @if($booking->residence_status)
+                    <tr>
+                        <th>Residence</th>
+                        <td>{{ ucwords($booking->residence_status) }}</td>
+                    </tr>
+                    @endif
+                    @if($booking->user_type === 'Student')
+                    <tr>
+                        <th>Academic</th>
+                        <td style="font-size: 10px;">{{ $booking->level }} | {{ $booking->stream }} | {{ $booking->department }}</td>
+                    </tr>
+                    @elseif($booking->user_type === 'Staff')
+                    <tr>
+                        <th>Staff Details</th>
+                        <td style="font-size: 10px;">{{ $booking->level }} ({{ $booking->department }})</td>
+                    </tr>
+                    @else
+                    <tr>
+                        <th>Unit/Dept</th>
+                        <td>{{ $booking->department ?: 'N/A' }}</td>
+                    </tr>
+                    @endif
                     @if($booking->nationality === 'Non-Indian')
                     <tr>
                         <th>Passport</th>
@@ -166,6 +196,12 @@
                         <th>Visa No</th>
                         <td>{{ $booking->visa_number ?: 'N/A' }}</td>
                     </tr>
+                    @if($booking->passport_visa_attachment)
+                    <tr>
+                        <th>Visa/Passport Copy</th>
+                        <td>Attached</td>
+                    </tr>
+                    @endif
                     @endif
                 </table>
             </td>
@@ -215,7 +251,7 @@
         </tr>
         @if($booking->booking_reason)
         <tr>
-            <th style="width: 25%;">Reason / Purpose</th>
+            <th style="width: 25%;">Purpose</th>
             <td>{{ $booking->booking_reason }}</td>
         </tr>
         @endif

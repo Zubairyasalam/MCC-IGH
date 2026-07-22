@@ -240,7 +240,7 @@
                     <label>Password</label>
                     <div class="input-wrapper">
                         <i class="ph ph-lock"></i>
-                        <input type="password" name="password" placeholder="••••••••" required>
+                        <input type="password" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
                     </div>
                 </div>
 

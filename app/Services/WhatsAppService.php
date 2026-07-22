@@ -52,7 +52,7 @@ class WhatsAppService
                  . "*Check-Out:* {$checkOut}\n"
                  . "*Persons:* {$booking->no_of_persons}\n"
                  . "*Amount:* ₹" . number_format($booking->total_price, 2) . "\n"
-                 . "*Reason / Purpose:* {$reason}\n\n"
+                 . "*Purpose:* {$reason}\n\n"
                  . "*Quick Actions:*\n"
                  . "👉 *Approve:* {$approveUrl}\n"
                  . "👉 *Reject:* {$rejectUrl}";
@@ -170,8 +170,8 @@ class WhatsAppService
                                     'parameters' => [
                                         ['type' => 'text', 'text' => $booking->name],
                                         ['type' => 'text', 'text' => $roomName],
-                                        ['type' => 'text', 'text' => $clockIn],
-                                        ['type' => 'text', 'text' => $clockOut],
+                                        ['type' => 'text', 'text' => $checkIn],
+                                        ['type' => 'text', 'text' => $checkOut],
                                         ['type' => 'text', 'text' => '₹' . number_format($booking->total_price, 2)],
                                         ['type' => 'text', 'text' => $approveUrl],
                                         ['type' => 'text', 'text' => $rejectUrl]

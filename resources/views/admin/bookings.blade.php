@@ -679,6 +679,11 @@
                                     <div>
                                         <div class="customer-name">{{ $booking->name }}</div>
                                         <div class="customer-id">{{ $booking->email }}</div>
+                                        @if($booking->user_type)
+                                            <div style="font-size: 0.7rem; font-weight: 700; color: var(--primary-color); text-transform: uppercase; margin-top: 2px;">
+                                                {{ $booking->user_type }} ({{ $booking->department ?: 'N/A' }})
+                                            </div>
+                                        @endif
                                     </div>
                                     @if($booking->referral_attachment)
                                         <i class="ph-bold ph-paperclip" style="color: var(--primary-color);" title="Has Referral Attachment"></i>

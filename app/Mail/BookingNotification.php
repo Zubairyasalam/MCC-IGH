@@ -16,14 +16,18 @@ class BookingNotification extends Mailable
 
     public $booking;
     public $primaryColor;
+    public $approveUrl;
+    public $rejectUrl;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Booking $booking)
+    public function __construct(Booking $booking, $approveUrl = null, $rejectUrl = null)
     {
         $this->booking = $booking;
         $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#850f0f';
+        $this->approveUrl = $approveUrl ?: route('admin.bookings.approve.get', $booking->id);
+        $this->rejectUrl = $rejectUrl ?: route('admin.bookings.reject.get', $booking->id);
     }
 
     /**
@@ -62,6 +66,11 @@ class BookingNotification extends Mailable
         if ($this->booking->referral_attachment) {
             $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->referral_attachment))
                 ->as('referral_document.' . pathinfo($this->booking->referral_attachment, PATHINFO_EXTENSION));
+        }
+
+        if ($this->booking->passport_visa_attachment) {
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->passport_visa_attachment))
+                ->as('passport_visa_document.' . pathinfo($this->booking->passport_visa_attachment, PATHINFO_EXTENSION));
         }
 
         return $attachments;

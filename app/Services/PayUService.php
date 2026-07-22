@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Log;
 
 class PayUService
 {
-    protected string $key;
-    protected string $salt;
+    protected ?string $key;
+    protected ?string $salt;
     protected string $mode;
-    protected string $url;
+    protected ?string $url;
 
     public function __construct()
     {
@@ -23,6 +23,7 @@ class PayUService
             
         if (empty($this->key) || empty($this->salt)) {
             Log::error('PayU credentials are not set in the configuration.');
+            throw new \RuntimeException('PayU credentials (PAYU_KEY / PAYU_SALT) are not configured in .env.');
         }
     }
 

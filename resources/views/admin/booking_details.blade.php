@@ -660,7 +660,7 @@
             <div class="grid-left">
                 <div class="details-card">
                     <div class="details-section-header">
-                        <h3>Customer Information</h3>
+                        <h3>Customer Information (Reference: {{ $booking->reference_id }})</h3>
                         <div style="display: flex; gap: 0.75rem;">
                             <div class="status-badge badge-{{ str_replace(' ', '-', strtolower($booking->approval_status)) }}">
                                 <i class="ph-fill ph-{{ $booking->approval_status == 'Approved' || $booking->approval_status == 'Principal Approved' || $booking->approval_status == 'Approved by Principal' ? 'check-circle' : ($booking->approval_status == 'Pending' ? 'clock' : 'x-circle') }}"></i>
@@ -697,9 +697,20 @@
                             <span class="info-value">{{ $booking->user_type }}</span>
                         </div>
                         @if($booking->user_type === 'Student')
+                        @if($booking->residence_status)
+                        <div class="info-item">
+                            <span class="info-label">Residence Status</span>
+                            <span class="info-value">{{ ucwords($booking->residence_status) }}</span>
+                        </div>
+                        @endif
                         <div class="info-item">
                             <span class="info-label">Academic Details</span>
                             <span class="info-value">{{ $booking->level }} | {{ $booking->stream }} | {{ $booking->department }}</span>
+                        </div>
+                        @elseif($booking->user_type === 'Staff')
+                        <div class="info-item">
+                            <span class="info-label">Staff Details</span>
+                            <span class="info-value">{{ $booking->level }} ({{ $booking->department }})</span>
                         </div>
                         @else
                         <div class="info-item">
@@ -730,15 +741,94 @@
                             </span>
                         </div>
                         @endif
+                        @if($booking->passport_visa_attachment)
+                        <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
+                            <span class="info-label">Passport & Visa Scanned Copy</span>
+                            <span class="info-value">
+                                <a href="{{ asset('storage/' . $booking->passport_visa_attachment) }}" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #850f0f; font-weight: 700;">
+                                    <i class="ph-bold ph-file-arrow-down" style="font-size: 1.25rem;"></i>
+                                    View Passport & Visa copy
+                                </a>
+                            </span>
+                        </div>
+                        @endif
                         @if($booking->booking_reason)
                         <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
-                            <span class="info-label">Reason for Booking</span>
+                            <span class="info-label">Purpose</span>
                             <span class="info-value" style="background: #f8fafc; border: 1px solid var(--border); padding: 1rem; border-radius: 10px; font-weight: 500; display: block; line-height: 1.6; color: #334155;">
                                 {{ $booking->booking_reason }}
                             </span>
                         </div>
                         @endif
                     </div>
+                </div>
+
+                <!-- Grouped Rooms Section -->
+                <div class="details-card">
+                    <div class="details-section-header">
+                        <h3>Rooms under this booking (Group: {{ $booking->reference_id }})</h3>
+                        <button type="button" class="btn-download-pdf" style="margin-left: auto;" onclick="openAddRoomModal()">
+                            <i class="ph-bold ph-plus"></i> Add Room
+                        </button>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border); text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                <th style="padding: 10px 5px;">Room Name</th>
+                                <th style="padding: 10px 5px;">Schedule</th>
+                                <th style="padding: 10px 5px;">Price</th>
+                                <th style="padding: 10px 5px;">Status</th>
+                                <th style="padding: 10px 5px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- The current room -->
+                            <tr style="border-bottom: 1px solid var(--border); font-size: 0.9rem;">
+                                <td style="padding: 12px 5px; font-weight: 700;">{{ $booking->room_name }} <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">(Main)</span></td>
+                                <td style="padding: 12px 5px;">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') }}<br><span style="font-size: 0.75rem; color: #64748b;">{{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</span></td>
+                                <td style="padding: 12px 5px; font-weight: 600;">₹{{ number_format($booking->total_price, 2) }}</td>
+                                <td style="padding: 12px 5px;">
+                                    <span class="status-badge badge-{{ str_replace(' ', '-', strtolower($booking->approval_status)) }}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                        {{ $booking->approval_status }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 5px;">-</td>
+                            </tr>
+                            <!-- Other rooms under same reference_id -->
+                            @foreach($relatedBookings as $rel)
+                            <tr style="border-bottom: 1px solid var(--border); font-size: 0.9rem;">
+                                <td style="padding: 12px 5px; font-weight: 700;">
+                                    <a href="{{ route('admin.bookings.show', $rel->id) }}" style="color: var(--primary-color); text-decoration: none; hover: underline;">
+                                        {{ $rel->room_name }}
+                                    </a>
+                                </td>
+                                <td style="padding: 12px 5px;">{{ \Carbon\Carbon::parse($rel->booking_date)->format('d M, Y') }}<br><span style="font-size: 0.75rem; color: #64748b;">{{ \Carbon\Carbon::parse($rel->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($rel->end_time)->format('h:i A') }}</span></td>
+                                <td style="padding: 12px 5px; font-weight: 600;">₹{{ number_format($rel->total_price, 2) }}</td>
+                                <td style="padding: 12px 5px;">
+                                    <span class="status-badge badge-{{ str_replace(' ', '-', strtolower($rel->approval_status)) }}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                        {{ $rel->approval_status }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 5px;">
+                                    @if($rel->approval_status === 'Approved' && $rel->payment_status == 'Pending')
+                                        <form action="{{ route('admin.bookings.resend', $rel->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" style="background: none; border: none; color: #3b82f6; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: underline; padding: 0;">Send Link</button>
+                                        </form>
+                                    @elseif($rel->approval_status !== 'Approved' && !in_array($rel->approval_status, ['Rejected', 'Cancelled']))
+                                        <form action="{{ route('admin.bookings.approve', $rel->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            <button type="submit" style="background: none; border: none; color: #850f0f; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: underline; padding: 0;">Approve</button>
+                                        </form>
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="details-card">
@@ -824,15 +914,15 @@
                         @endphp
                         <div class="summary-row">
                             <span>Subtotal</span>
-                            <span>?{{ number_format($subtotal, 2) }}</span>
+                            <span>₹{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="summary-row">
                             <span>GST ({{ $gstRate }}%)</span>
-                            <span>?{{ number_format($gstAmount, 2) }}</span>
+                            <span>₹{{ number_format($gstAmount, 2) }}</span>
                         </div>
                         <div class="summary-row total">
                             <span>{{ $booking->payment_status === 'Paid' ? 'Amount Paid' : 'Amount to be Paid' }}</span>
-                            <span>?{{ number_format($booking->total_price, 2) }}</span>
+                            <span>₹{{ number_format($booking->total_price, 2) }}</span>
                         </div>
                     </div>
 
@@ -1024,5 +1114,84 @@
         });
 
     </script>
+
+<!-- Add Room Modal -->
+<div id="addRoomModal" class="confirm-modal-overlay" style="display: none;">
+    <div class="confirm-modal-content" style="max-width: 500px; text-align: left;">
+        <h3 style="margin-bottom: 1.5rem; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">Add Room to Booking</h3>
+        
+        <form action="{{ route('admin.bookings.add_room', $booking->id) }}" method="POST">
+            @csrf
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Select Room *</label>
+                <select name="room_name" required style="width: 100%; height: 42px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0 10px; font-weight: 600; background: white;">
+                    <option value="" disabled selected>Select Room</option>
+                    <optgroup label="Guest Wing (Standard)">
+                        <option value="standard-1">Standard Room 1</option>
+                        <option value="standard-2">Standard Room 2</option>
+                        <option value="standard-3">Standard Room 3</option>
+                        <option value="standard-4">Standard Room 4</option>
+                        <option value="standard-5">Standard Room 5</option>
+                        <option value="standard-6">Standard Room 6</option>
+                        <option value="standard-7">Standard Room 7</option>
+                        <option value="standard-8">Standard Room 8</option>
+                    </optgroup>
+                    <optgroup label="Executive Wing (Advance)">
+                        <option value="101">Executive Room 101</option>
+                        <option value="102">Executive Room 102</option>
+                        <option value="103">Executive Room 103</option>
+                        <option value="104">Executive Room 104</option>
+                        <option value="201">Executive Room 201</option>
+                        <option value="203">Executive Room 203</option>
+                        <option value="204">Executive Room 204</option>
+                        <option value="205">Executive Room 205</option>
+                        <option value="206">Executive Room 206</option>
+                        <option value="207">Executive Room 207</option>
+                    </optgroup>
+                    <optgroup label="Luxury Wing">
+                        <option value="suite-room">Luxury Suite Room</option>
+                    </optgroup>
+                    <optgroup label="Conference Wing">
+                        <option value="conference-hall">Conference Hall</option>
+                        <option value="conference-room">Conference Room</option>
+                        <option value="glass-room">Glass Room</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Check-In Date/Time *</label>
+                    <input type="datetime-local" name="clock_in" required style="width: 100%; height: 42px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0 10px; font-weight: 600;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Check-Out Date/Time *</label>
+                    <input type="datetime-local" name="clock_out" required style="width: 100%; height: 42px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0 10px; font-weight: 600;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Number of Persons *</label>
+                <input type="number" name="no_of_persons" value="1" min="1" max="60" required style="width: 100%; height: 42px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0 10px; font-weight: 600;">
+            </div>
+
+            <div class="confirm-modal-footer">
+                <button type="button" class="confirm-btn-cancel" onclick="closeAddRoomModal()">Cancel</button>
+                <button type="submit" class="confirm-btn-confirm" style="background: var(--primary-color);">Add Room</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddRoomModal() {
+    document.getElementById("addRoomModal").style.display = "flex";
+}
+function closeAddRoomModal() {
+    document.getElementById("addRoomModal").style.display = "none";
+}
+</script>
 </body>
 </html>
+

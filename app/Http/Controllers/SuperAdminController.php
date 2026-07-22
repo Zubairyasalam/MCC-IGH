@@ -26,7 +26,7 @@ class SuperAdminController extends Controller
                                     ->where('payment_status', 'Paid')->sum('total_price');
 
         // ── Booking Status Breakdown ───────────────────────────────────
-        $pendingApprovals     = Booking::where('approval_status', 'Pending')->count();
+        $pendingApprovals     = Booking::whereIn('approval_status', ['Pending', 'Pending HOD Approval', 'Pending Warden Approval', 'Pending Principal Approval'])->count();
         $principalApprovals   = Booking::whereIn('approval_status', ['Principal Approved', 'Approved by Principal'])->count();
         $approvedBookings     = Booking::where('approval_status', 'Approved')->count();
         $rejectedBookings     = Booking::where('approval_status', 'Rejected')->count();
@@ -95,6 +95,8 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'system_email'        => 'required|email',
+            'hod_email'           => 'required|email',
+            'hall_warden_email'   => 'required|email',
             'mail_password'       => 'required',
             'mail_host'           => 'required|string',
             'mail_port'           => 'required|integer',
@@ -113,6 +115,8 @@ class SuperAdminController extends Controller
         ]);
 
         Setting::updateOrCreate(['key' => 'principal_email'], ['value' => $request->system_email]);
+        Setting::updateOrCreate(['key' => 'hod_email'],        ['value' => $request->hod_email]);
+        Setting::updateOrCreate(['key' => 'hall_warden_email'], ['value' => $request->hall_warden_email]);
         Setting::updateOrCreate(['key' => 'mail_password'],   ['value' => $request->mail_password]);
         Setting::updateOrCreate(['key' => 'sender_email'],    ['value' => $request->system_email]);
         

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -166,7 +166,7 @@
                                     <div style="font-size: 0.75rem; color: var(--primary-color); font-weight: 700;">{{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 700; color: var(--text-main);">?{{ number_format($booking->total_price, 2) }}</div>
+                                    <div style="font-weight: 700; color: var(--text-main);">₹{{ number_format($booking->total_price, 2) }}</div>
                                 </td>
                                 <td>
                                     @if($booking->payments->count() > 0)
@@ -210,3 +210,4 @@
     </script>
 </body>
 </html>
+

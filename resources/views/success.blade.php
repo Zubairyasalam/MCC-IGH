@@ -256,9 +256,19 @@
                             <div class="info-block-label"><i class="ph-fill ph-user-circle" style="font-size:14px;"></i> Guest Details</div>
                             <div class="info-row"><span class="info-key">Name</span><span class="info-val">{{ ucwords(strtolower($booking->name)) }}</span></div>
                             <div class="info-row"><span class="info-key">Phone</span><span class="info-val bill-font">{{ $booking->phone }}</span></div>
+                            <div class="info-row"><span class="info-key">Nationality</span><span class="info-val">{{ $booking->nationality ?: 'Indian' }}</span></div>
+                            @if($booking->user_type)
+                            <div class="info-row"><span class="info-key">User Type</span><span class="info-val">{{ $booking->user_type }}</span></div>
+                            @endif
+                            @if($booking->residence_status)
+                            <div class="info-row"><span class="info-key">Residence</span><span class="info-val">{{ ucwords($booking->residence_status) }}</span></div>
+                            @endif
                             @if($booking->nationality === 'Non-Indian')
                             <div class="info-row"><span class="info-key">Passport</span><span class="info-val bill-font">{{ $booking->passport_number ?: '—' }}</span></div>
                             <div class="info-row"><span class="info-key">Visa No.</span><span class="info-val bill-font">{{ $booking->visa_number ?: '—' }}</span></div>
+                            @if($booking->passport_visa_attachment)
+                            <div class="info-row"><span class="info-key">Visa/Passport copy</span><span class="info-val"><a href="{{ asset('storage/' . $booking->passport_visa_attachment) }}" target="_blank" style="color: #850f0f; font-weight: 700; text-decoration: none;">View Document</a></span></div>
+                            @endif
                             @endif
                         </div>
                         <div>
