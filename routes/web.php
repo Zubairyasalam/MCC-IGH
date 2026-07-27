@@ -172,3 +172,25 @@ Route::get('/pay/{token}', [PaymentController::class, 'show'])->name('payment.sh
 Route::post('/pay/{token}/process', [PaymentController::class, 'process'])->name('payment.process');
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
+
+// Web Migration Trigger for Live Server Database Schema Sync
+Route::get('/run-migrations', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return "<div style='font-family:sans-serif; padding:40px; text-align:center;'>
+            <h1 style='color:#166534;'>✅ Database Migrations Successfully Executed</h1>
+            <p style='color:#374151;'>The server database schema has been synchronized with all latest columns (visa_number, passport_visa_attachment, residence_status, reference_id, etc.).</p>
+            <pre style='background:#f3f4f6; padding:20px; text-align:left; border-radius:8px; display:inline-block; max-width:800px; overflow:auto;'>".e($output ?: 'Database is up to date!')."</pre>
+            <br><br>
+            <a href='".route('home')."' style='background:#7f1d1d; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;'>Go to Home Page</a>
+        </div>";
+    } catch (\Throwable $e) {
+        return "<div style='font-family:sans-serif; padding:40px; text-align:center;'>
+            <h1 style='color:#991b1b;'>❌ Migration Executed with Warning</h1>
+            <p>".e($e->getMessage())."</p>
+            <a href='".route('home')."' style='background:#7f1d1d; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;'>Return to Home</a>
+        </div>";
+    }
+})->name('run.migrations');
+

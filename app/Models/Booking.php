@@ -28,6 +28,24 @@ class Booking extends Model
                 $booking->reference_id = $ref;
             }
         });
+
+        static::saving(function ($booking) {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable($booking->getTable())) {
+                    $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($booking->getTable());
+                    if (!empty($tableColumns)) {
+                        $attributes = $booking->getAttributes();
+                        foreach ($attributes as $key => $value) {
+                            if (!in_array($key, $tableColumns)) {
+                                unset($booking->attributes[$key]);
+                            }
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore errors if schema listing check fails
+            }
+        });
     }
 
     public function payments()
