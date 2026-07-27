@@ -18,18 +18,26 @@ class WebhookService
      */
     public function trigger($event, $data)
     {
-        $payload = $this->formatPayload($event, $data);
-        
-        $endpoints = WebhookEndpoint::where('is_active', true)
-            ->where(function ($query) use ($event) {
-                $query->whereJsonContains('events', $event)
-                      ->orWhereNull('events')
-                      ->orWhere('events', '[]');
-            })
-            ->get();
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('webhook_endpoints')) {
+                return;
+            }
 
-        foreach ($endpoints as $endpoint) {
-            DispatchWebhookJob::dispatch($endpoint, $event, $payload);
+            $payload = $this->formatPayload($event, $data);
+            
+            $endpoints = WebhookEndpoint::where('is_active', true)
+                ->where(function ($query) use ($event) {
+                    $query->whereJsonContains('events', $event)
+                          ->orWhereNull('events')
+                          ->orWhere('events', '[]');
+                })
+                ->get();
+
+            foreach ($endpoints as $endpoint) {
+                DispatchWebhookJob::dispatch($endpoint, $event, $payload);
+            }
+        } catch (\Throwable $e) {
+            Log::error('WebhookService trigger error: ' . $e->getMessage());
         }
     }
 

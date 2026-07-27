@@ -17,22 +17,34 @@ class WhatsAppService
      */
     public function sendBookingNotification(Booking $booking)
     {
-        $enabled = Setting::where('key', 'whatsapp_enabled')->value('value') === '1';
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                return false;
+            }
+            $enabled = Setting::where('key', 'whatsapp_enabled')->value('value') === '1';
+        } catch (\Throwable $e) {
+            $enabled = false;
+        }
+
         if (!$enabled) {
             Log::info("WhatsApp notifications are disabled.");
             return false;
         }
 
-        $principalPhone = Setting::where('key', 'principal_phone')->value('value');
-        if (empty($principalPhone)) {
-            Log::warning("WhatsApp notifications are enabled, but Principal phone number is not set.");
+        try {
+            $principalPhone = Setting::where('key', 'principal_phone')->value('value');
+            if (empty($principalPhone)) {
+                Log::warning("WhatsApp notifications are enabled, but Principal phone number is not set.");
+                return false;
+            }
+
+            $provider = Setting::where('key', 'whatsapp_provider')->value('value') ?? 'ultramsg';
+            $sender = Setting::where('key', 'whatsapp_sender')->value('value');
+            $sid = Setting::where('key', 'whatsapp_sid')->value('value');
+            $token = Setting::where('key', 'whatsapp_token')->value('value');
+        } catch (\Throwable $e) {
             return false;
         }
-
-        $provider = Setting::where('key', 'whatsapp_provider')->value('value') ?? 'ultramsg';
-        $sender = Setting::where('key', 'whatsapp_sender')->value('value');
-        $sid = Setting::where('key', 'whatsapp_sid')->value('value');
-        $token = Setting::where('key', 'whatsapp_token')->value('value');
 
         // Compile WhatsApp Message
         $roomName = ucwords(str_replace('-', ' ', $booking->room_name));

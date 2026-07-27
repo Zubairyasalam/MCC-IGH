@@ -18,182 +18,193 @@ class BookingController extends Controller
 
     public function storeBooking(Request $request)
     {
-        // 1. Validate the incoming request
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => $request->nationality === 'Non-Indian' ? 'nullable|string|max:255' : 'required|string|max:255',
-            'nationality' => 'required|string',
-            'user_type' => 'required|string',
-            'residence_status' => $request->user_type === 'Student' ? 'required|string|in:residence,non residence' : 'nullable|string',
-            'stream' => 'nullable|string',
-            'level' => 'nullable|string',
-            'department' => 'nullable|string',
-            'primary_guest_name' => 'nullable|string',
-            'no_of_persons' => 'required|integer|min:1',
-            'passport_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
-            'visa_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
-            'passport_visa_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
-            'gst_id' => 'nullable|string|max:50',
-            'room_name' => 'required|string',
-            'clock_in' => 'required|date',
-            'clock_out' => 'required|date|after:clock_in',
-            'department_other' => 'nullable|string',
-            'referral_attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Max 5MB
-            'booking_reason' => 'required|string',
-            'staff_type' => 'nullable|string|in:Teaching,Non-Teaching',
-        ]);
-
-        if ($request->user_type === 'Staff') {
-            if ($request->staff_type === 'Teaching') {
-                $validated['level'] = 'Teaching Staff';
-            } else {
-                $validated['department'] = 'Non-Teaching';
-                $validated['level'] = 'Non-Teaching Staff';
-            }
-        } elseif ($request->department === 'Other' && $request->filled('department_other')) {
-            $validated['department'] = $request->department_other;
-        }
-
-        // Dynamic capacity check
-        $maxCapacity = 4;
-        $normalizedRoom = strtolower($validated['room_name']);
-        if (str_contains($normalizedRoom, 'conference-hall') || str_contains($normalizedRoom, 'conference-room')) {
-            $maxCapacity = 60;
-        } elseif (str_contains($normalizedRoom, 'glass-room')) {
-            $maxCapacity = 20;
-        } elseif (str_contains($normalizedRoom, 'suite-room')) {
-            $maxCapacity = 4;
-        } elseif (str_contains($normalizedRoom, 'advance')) {
-            $maxCapacity = 4;
-        } elseif (str_contains($normalizedRoom, 'standard')) {
-            $maxCapacity = 2;
-        }
-
-        if ($validated['no_of_persons'] > $maxCapacity) {
-            return back()->withInput()->with('error', "Number of persons exceeds the maximum capacity of {$maxCapacity} for this room.");
-        }
-
-        $clockIn = \Carbon\Carbon::parse($validated['clock_in']);
-        $clockOut = \Carbon\Carbon::parse($validated['clock_out']);
-        
-        // Calculate duration in hours
-        $durationHours = $clockIn->diffInHours($clockOut);
-        if ($durationHours == 0) $durationHours = 1;
-        
-        $basePrice = 0;
-        $roomName = $validated['room_name'];
-        
-        // Dynamic Pricing Logic based on Category
-        if (str_contains(strtolower($roomName), 'standard')) {
-            // Standard Rooms: ₹1400 per 12-hour block (or fraction)
-            $twelveHourBlocks = ceil($durationHours / 12);
-            $basePrice = $twelveHourBlocks * 1400;
-        } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4)) {
-            // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day
-            $days = ceil($durationHours / 24);
-            $basePrice = $days * 2500;
-        } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
-            // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
-            $billableHours = max(4, $durationHours);
-            $basePrice = $billableHours * 500;
-        } else {
-            // Default Fallback (Previous logic)
-            $basePrice = $durationHours > 4 ? 5000 : 2000;
-        }
-        
-        // Apply Dynamic GST Rate from Settings
-        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
-        $totalPrice = $basePrice * (1 + ($gstRate / 100));
-
-        // Double booking check
-        $exists = Booking::where('room_name', $validated['room_name'])
-            ->where('booking_date', $clockIn->toDateString())
-            ->where('approval_status', '!=', 'Rejected')
-            ->where(function ($query) use ($clockIn, $clockOut) {
-                $query->where(function ($q) use ($clockIn, $clockOut) {
-                    $q->where('start_time', '<', $clockOut->toTimeString())
-                        ->where('end_time', '>', $clockIn->toTimeString());
-                });
-            })->exists();
-
-        if ($exists) {
-            return back()->withInput()->with('error', 'Selected workspace is already booked for this time slot.');
-        }
-
-        // Handle File Upload
-        $attachmentPath = null;
-        if ($request->hasFile('referral_attachment')) {
-            $file = $request->file('referral_attachment');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $attachmentPath = $file->storeAs('referrals', $fileName, 'public');
-        }
-
-        $passportVisaPath = null;
-        if ($request->hasFile('passport_visa_attachment')) {
-            $file = $request->file('passport_visa_attachment');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $passportVisaPath = $file->storeAs('passport_visa', $fileName, 'public');
-        }
-
-        // 2. Create the booking locally
-        $initialStatus = 'Pending';
-        if ($request->user_type === 'Student') {
-            if ($request->residence_status === 'residence') {
-                $initialStatus = 'Pending Warden Approval';
-            } elseif ($request->residence_status === 'non residence') {
-                $initialStatus = 'Pending HOD Approval';
-            }
-        }
-
-        $booking = Booking::create(array_merge($validated, [
-            'booking_date' => $clockIn->toDateString(),
-            'start_time' => $clockIn->toTimeString(),
-            'end_time' => $clockOut->toTimeString(),
-            'total_price' => $totalPrice,
-            'payment_status' => 'Pending',
-            'approval_status' => $initialStatus,
-            'referral_attachment' => $attachmentPath,
-            'passport_visa_attachment' => $passportVisaPath
-        ]));
-
-        // Trigger Webhook
-        app(\App\Services\WebhookService::class)->trigger('booking.created', $booking);
-
-        // 3. Send notification email
         try {
-            $this->setupMailConfig();
+            // 1. Validate the incoming request
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => $request->nationality === 'Non-Indian' ? 'nullable|string|max:255' : 'required|string|max:255',
+                'nationality' => 'required|string',
+                'user_type' => 'required|string',
+                'residence_status' => $request->user_type === 'Student' ? 'required|string|in:residence,non residence' : 'nullable|string',
+                'stream' => 'nullable|string',
+                'level' => 'nullable|string',
+                'department' => 'nullable|string',
+                'primary_guest_name' => 'nullable|string',
+                'no_of_persons' => 'required|integer|min:1',
+                'passport_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
+                'visa_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
+                'passport_visa_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+                'gst_id' => 'nullable|string|max:50',
+                'room_name' => 'required|string',
+                'clock_in' => 'required|date',
+                'clock_out' => 'required|date|after:clock_in',
+                'department_other' => 'nullable|string',
+                'referral_attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120', // Max 5MB
+                'booking_reason' => 'required|string',
+                'staff_type' => 'nullable|string|in:Teaching,Non-Teaching',
+            ]);
 
-            if ($booking->user_type === 'Student' && $booking->residence_status === 'residence') {
-                $wardenEmail = \App\Models\Setting::where('key', 'hall_warden_email')->value('value') ?? 'praveenrock2609@gmail.com';
-                $approveUrl = route('bookings.approve.warden', $booking->id);
-                $rejectUrl = route('bookings.reject.warden', $booking->id);
-                Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                Log::info('Booking notification sent to Hall Warden for ID: ' . $booking->id);
-            } elseif ($booking->user_type === 'Student' && $booking->residence_status === 'non residence') {
-                $hodEmail = \App\Models\Setting::where('key', 'hod_email')->value('value') ?? 'unfortunately2909@gmail.com';
-                $approveUrl = route('bookings.approve.hod', $booking->id);
-                $rejectUrl = route('bookings.reject.hod', $booking->id);
-                Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                Log::info('Booking notification sent to HOD for ID: ' . $booking->id);
+            if ($request->user_type === 'Staff') {
+                if ($request->staff_type === 'Teaching') {
+                    $validated['level'] = 'Teaching Staff';
+                } else {
+                    $validated['department'] = 'Non-Teaching';
+                    $validated['level'] = 'Non-Teaching Staff';
+                }
+            } elseif ($request->department === 'Other' && $request->filled('department_other')) {
+                $validated['department'] = $request->department_other;
+            }
+
+            // Dynamic capacity check
+            $maxCapacity = 4;
+            $normalizedRoom = strtolower($validated['room_name']);
+            if (str_contains($normalizedRoom, 'conference-hall') || str_contains($normalizedRoom, 'conference-room')) {
+                $maxCapacity = 60;
+            } elseif (str_contains($normalizedRoom, 'glass-room')) {
+                $maxCapacity = 20;
+            } elseif (str_contains($normalizedRoom, 'suite-room')) {
+                $maxCapacity = 4;
+            } elseif (str_contains($normalizedRoom, 'advance')) {
+                $maxCapacity = 4;
+            } elseif (str_contains($normalizedRoom, 'standard')) {
+                $maxCapacity = 2;
+            }
+
+            if ($validated['no_of_persons'] > $maxCapacity) {
+                return back()->withInput()->with('error', "Number of persons exceeds the maximum capacity of {$maxCapacity} for this room.");
+            }
+
+            $clockIn = \Carbon\Carbon::parse($validated['clock_in']);
+            $clockOut = \Carbon\Carbon::parse($validated['clock_out']);
+            
+            // Calculate duration in hours
+            $durationHours = $clockIn->diffInHours($clockOut);
+            if ($durationHours == 0) $durationHours = 1;
+            
+            $basePrice = 0;
+            $roomName = $validated['room_name'];
+            
+            // Dynamic Pricing Logic based on Category
+            if (str_contains(strtolower($roomName), 'standard')) {
+                // Standard Rooms: ₹1400 per 12-hour block (or fraction)
+                $twelveHourBlocks = ceil($durationHours / 12);
+                $basePrice = $twelveHourBlocks * 1400;
+            } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4)) {
+                // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day
+                $days = ceil($durationHours / 24);
+                $basePrice = $days * 2500;
+            } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
+                // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
+                $billableHours = max(4, $durationHours);
+                $basePrice = $billableHours * 500;
             } else {
-                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
-                Mail::to($principalEmail)->send(new BookingNotification($booking));
-                Log::info('Booking notification sent successfully to Principal for ID: ' . $booking->id);
+                // Default Fallback (Previous logic)
+                $basePrice = $durationHours > 4 ? 5000 : 2000;
             }
-
-            // Send WhatsApp Notification to the Principal
+            
+            // Apply Dynamic GST Rate from Settings
             try {
-                app(\App\Services\WhatsAppService::class)->sendBookingNotification($booking);
-            } catch (\Exception $e) {
-                Log::error('Failed to send WhatsApp notification for ID ' . $booking->id . ': ' . $e->getMessage());
+                $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+            } catch (\Throwable $e) {
+                $gstRate = 5;
             }
-        } catch (\Exception $e) {
-            Log::error('Failed to send booking notification for ID ' . $booking->id . ': ' . $e->getMessage());
-        }
+            $totalPrice = $basePrice * (1 + ($gstRate / 100));
 
-        // 4. Redirect directly to the success page
-        return redirect()->route('checkout.success', ['id' => $booking->id])->with('success', 'Booking submitted. Your request has been sent for approval.');
+            // Double booking check
+            $exists = Booking::where('room_name', $validated['room_name'])
+                ->where('booking_date', $clockIn->toDateString())
+                ->where('approval_status', '!=', 'Rejected')
+                ->where(function ($query) use ($clockIn, $clockOut) {
+                    $query->where(function ($q) use ($clockIn, $clockOut) {
+                        $q->where('start_time', '<', $clockOut->toTimeString())
+                            ->where('end_time', '>', $clockIn->toTimeString());
+                    });
+                })->exists();
+
+            if ($exists) {
+                return back()->withInput()->with('error', 'Selected workspace is already booked for this time slot.');
+            }
+
+            // Handle File Upload
+            $attachmentPath = null;
+            if ($request->hasFile('referral_attachment')) {
+                $file = $request->file('referral_attachment');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $attachmentPath = $file->storeAs('referrals', $fileName, 'public');
+            }
+
+            $passportVisaPath = null;
+            if ($request->hasFile('passport_visa_attachment')) {
+                $file = $request->file('passport_visa_attachment');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $passportVisaPath = $file->storeAs('passport_visa', $fileName, 'public');
+            }
+
+            // 2. Create the booking locally
+            $initialStatus = 'Pending';
+            if ($request->user_type === 'Student') {
+                if ($request->residence_status === 'residence') {
+                    $initialStatus = 'Pending Warden Approval';
+                } elseif ($request->residence_status === 'non residence') {
+                    $initialStatus = 'Pending HOD Approval';
+                }
+            }
+
+            $booking = Booking::create(array_merge($validated, [
+                'booking_date' => $clockIn->toDateString(),
+                'start_time' => $clockIn->toTimeString(),
+                'end_time' => $clockOut->toTimeString(),
+                'total_price' => $totalPrice,
+                'payment_status' => 'Pending',
+                'approval_status' => $initialStatus,
+                'referral_attachment' => $attachmentPath,
+                'passport_visa_attachment' => $passportVisaPath
+            ]));
+
+            // Trigger Webhook safely
+            app(\App\Services\WebhookService::class)->trigger('booking.created', $booking);
+
+            // 3. Send notification email safely
+            try {
+                $this->setupMailConfig();
+
+                if ($booking->user_type === 'Student' && $booking->residence_status === 'residence') {
+                    $wardenEmail = \App\Models\Setting::where('key', 'hall_warden_email')->value('value') ?? 'praveenrock2609@gmail.com';
+                    $approveUrl = route('bookings.approve.warden', $booking->id);
+                    $rejectUrl = route('bookings.reject.warden', $booking->id);
+                    Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
+                    Log::info('Booking notification sent to Hall Warden for ID: ' . $booking->id);
+                } elseif ($booking->user_type === 'Student' && $booking->residence_status === 'non residence') {
+                    $hodEmail = \App\Models\Setting::where('key', 'hod_email')->value('value') ?? 'unfortunately2909@gmail.com';
+                    $approveUrl = route('bookings.approve.hod', $booking->id);
+                    $rejectUrl = route('bookings.reject.hod', $booking->id);
+                    Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
+                    Log::info('Booking notification sent to HOD for ID: ' . $booking->id);
+                } else {
+                    $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                    Mail::to($principalEmail)->send(new BookingNotification($booking));
+                    Log::info('Booking notification sent successfully to Principal for ID: ' . $booking->id);
+                }
+
+                // Send WhatsApp Notification to the Principal safely
+                try {
+                    app(\App\Services\WhatsAppService::class)->sendBookingNotification($booking);
+                } catch (\Throwable $e) {
+                    Log::error('Failed to send WhatsApp notification for ID ' . $booking->id . ': ' . $e->getMessage());
+                }
+            } catch (\Throwable $e) {
+                Log::error('Failed to send booking notification for ID ' . $booking->id . ': ' . $e->getMessage());
+            }
+
+            // 4. Redirect directly to the success page
+            return redirect()->route('checkout.success', ['id' => $booking->id])->with('success', 'Booking submitted. Your request has been sent for approval.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            Log::error('storeBooking Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return back()->withInput()->with('error', 'Booking request error: ' . $e->getMessage());
+        }
     }
 
     public function sendSupportMail(Request $request)
@@ -252,25 +263,29 @@ class BookingController extends Controller
 
     private function setupMailConfig()
     {
-        $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
-        $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
-        $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
-        $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
-        $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
-        $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
+        try {
+            $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
+            $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
+            $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
+            $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
+            $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
+            $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
 
-        config([
-            'mail.default' => $mailMailer,
-            'mail.mailers.smtp.host' => $mailHost,
-            'mail.mailers.smtp.port' => $mailPort,
-            'mail.mailers.smtp.encryption' => $mailEncryption,
-            'mail.mailers.smtp.username' => $senderEmail,
-            'mail.mailers.smtp.password' => $mailPassword,
-            'mail.from.address' => $senderEmail,
-            'mail.from.name' => 'MCC IGH System'
-        ]);
+            config([
+                'mail.default' => $mailMailer,
+                'mail.mailers.smtp.host' => $mailHost,
+                'mail.mailers.smtp.port' => $mailPort,
+                'mail.mailers.smtp.encryption' => $mailEncryption,
+                'mail.mailers.smtp.username' => $senderEmail,
+                'mail.mailers.smtp.password' => $mailPassword,
+                'mail.from.address' => $senderEmail,
+                'mail.from.name' => 'MCC IGH System'
+            ]);
 
-        \Illuminate\Support\Facades\Mail::purge('smtp');
+            \Illuminate\Support\Facades\Mail::purge('smtp');
+        } catch (\Throwable $e) {
+            Log::error('setupMailConfig failed: ' . $e->getMessage());
+        }
     }
 
     public function hodApprove($id)
