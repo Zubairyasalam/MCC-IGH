@@ -142,11 +142,14 @@ class BookingController extends Controller
             }
 
             // 2. Create the booking locally
+            $userType = strtolower(trim($request->user_type ?? ''));
+            $residenceStatus = strtolower(trim($request->residence_status ?? ''));
+
             $initialStatus = 'Pending';
-            if ($request->user_type === 'Student') {
-                if ($request->residence_status === 'residence') {
+            if ($userType === 'student') {
+                if ($residenceStatus === 'residence' || $residenceStatus === 'resident') {
                     $initialStatus = 'Pending Warden Approval';
-                } elseif ($request->residence_status === 'non residence') {
+                } elseif (str_contains($residenceStatus, 'non') || $residenceStatus === 'dayscholar') {
                     $initialStatus = 'Pending HOD Approval';
                 }
             }
@@ -169,22 +172,30 @@ class BookingController extends Controller
             try {
                 $this->setupMailConfig();
 
-                if ($booking->user_type === 'Student' && $booking->residence_status === 'residence') {
-                    $wardenEmail = \App\Models\Setting::where('key', 'hall_warden_email')->value('value') ?? 'praveenrock2609@gmail.com';
+                $getSetting = function($key, $default) {
+                    $val = \App\Models\Setting::where('key', $key)->value('value');
+                    return (!is_null($val) && trim((string)$val) !== '') ? trim((string)$val) : $default;
+                };
+
+                $bookingUserType = strtolower(trim($booking->user_type ?? ''));
+                $bookingResidenceStatus = strtolower(trim($booking->residence_status ?? ''));
+
+                if ($bookingUserType === 'student' && ($bookingResidenceStatus === 'residence' || $bookingResidenceStatus === 'resident')) {
+                    $wardenEmail = $getSetting('hall_warden_email', 'praveenrock2609@gmail.com');
                     $approveUrl = route('bookings.approve.warden', $booking->id);
                     $rejectUrl = route('bookings.reject.warden', $booking->id);
                     Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info('Booking notification sent to Hall Warden for ID: ' . $booking->id);
-                } elseif ($booking->user_type === 'Student' && $booking->residence_status === 'non residence') {
-                    $hodEmail = \App\Models\Setting::where('key', 'hod_email')->value('value') ?? 'unfortunately2909@gmail.com';
+                    Log::info("Booking notification sent to Hall Warden ({$wardenEmail}) for ID: " . $booking->id);
+                } elseif ($bookingUserType === 'student' && (str_contains($bookingResidenceStatus, 'non') || $bookingResidenceStatus === 'dayscholar')) {
+                    $hodEmail = $getSetting('hod_email', 'unfortunately2909@gmail.com');
                     $approveUrl = route('bookings.approve.hod', $booking->id);
                     $rejectUrl = route('bookings.reject.hod', $booking->id);
                     Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info('Booking notification sent to HOD for ID: ' . $booking->id);
+                    Log::info("Booking notification sent to HOD ({$hodEmail}) for ID: " . $booking->id);
                 } else {
-                    $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                    $principalEmail = $getSetting('principal_email', 'prasathragul75@gmail.com');
                     Mail::to($principalEmail)->send(new BookingNotification($booking));
-                    Log::info('Booking notification sent successfully to Principal for ID: ' . $booking->id);
+                    Log::info("Booking notification sent to Principal ({$principalEmail}) for ID: " . $booking->id);
                 }
 
                 // Send WhatsApp Notification to the Principal safely
@@ -264,17 +275,22 @@ class BookingController extends Controller
     private function setupMailConfig()
     {
         try {
-            $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
-            $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
-            $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
-            $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
-            $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
-            $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
+            $getSetting = function($key, $default) {
+                $val = \App\Models\Setting::where('key', $key)->value('value');
+                return (!is_null($val) && trim((string)$val) !== '') ? trim((string)$val) : $default;
+            };
+
+            $senderEmail    = $getSetting('sender_email', env('MAIL_USERNAME', 'prasathragul75@gmail.com'));
+            $mailPassword   = $getSetting('mail_password', env('MAIL_PASSWORD', 'wnzt bweh qwvk gtbu'));
+            $mailHost       = $getSetting('mail_host', env('MAIL_HOST', 'smtp.gmail.com'));
+            $mailPort       = $getSetting('mail_port', env('MAIL_PORT', 587));
+            $mailEncryption = $getSetting('mail_encryption', env('MAIL_ENCRYPTION', 'tls'));
+            $mailMailer     = $getSetting('mail_mailer', env('MAIL_MAILER', 'smtp'));
 
             config([
                 'mail.default' => $mailMailer,
                 'mail.mailers.smtp.host' => $mailHost,
-                'mail.mailers.smtp.port' => $mailPort,
+                'mail.mailers.smtp.port' => (int)$mailPort,
                 'mail.mailers.smtp.encryption' => $mailEncryption,
                 'mail.mailers.smtp.username' => $senderEmail,
                 'mail.mailers.smtp.password' => $mailPassword,

@@ -301,17 +301,22 @@ class AdminController extends Controller
 
     private function applyMailConfig()
     {
-        $senderEmail    = \App\Models\Setting::where('key', 'sender_email')->value('value')    ?? 'prasathragul75@gmail.com';
-        $mailPassword   = \App\Models\Setting::where('key', 'mail_password')->value('value')   ?? 'wnzt bweh qwvk gtbu';
-        $mailHost       = \App\Models\Setting::where('key', 'mail_host')->value('value')       ?? 'smtp.gmail.com';
-        $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
-        $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
-        $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
+        $getSetting = function($key, $default) {
+            $val = \App\Models\Setting::where('key', $key)->value('value');
+            return (!is_null($val) && trim((string)$val) !== '') ? trim((string)$val) : $default;
+        };
+
+        $senderEmail    = $getSetting('sender_email', env('MAIL_USERNAME', 'prasathragul75@gmail.com'));
+        $mailPassword   = $getSetting('mail_password', env('MAIL_PASSWORD', 'wnzt bweh qwvk gtbu'));
+        $mailHost       = $getSetting('mail_host', env('MAIL_HOST', 'smtp.gmail.com'));
+        $mailPort       = $getSetting('mail_port', env('MAIL_PORT', 587));
+        $mailEncryption = $getSetting('mail_encryption', env('MAIL_ENCRYPTION', 'tls'));
+        $mailMailer     = $getSetting('mail_mailer', env('MAIL_MAILER', 'smtp'));
 
         config([
             'mail.default' => $mailMailer,
             'mail.mailers.smtp.host' => $mailHost,
-            'mail.mailers.smtp.port' => $mailPort,
+            'mail.mailers.smtp.port' => (int)$mailPort,
             'mail.mailers.smtp.encryption' => $mailEncryption,
             'mail.mailers.smtp.username' => $senderEmail,
             'mail.mailers.smtp.password' => $mailPassword,

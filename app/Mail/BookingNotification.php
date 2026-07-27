@@ -66,14 +66,20 @@ class BookingNotification extends Mailable
     {
         $attachments = [];
 
-        if ($this->booking->referral_attachment) {
-            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->referral_attachment))
-                ->as('referral_document.' . pathinfo($this->booking->referral_attachment, PATHINFO_EXTENSION));
+        if (!empty($this->booking->referral_attachment)) {
+            $path = storage_path('app/public/' . $this->booking->referral_attachment);
+            if (file_exists($path)) {
+                $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                    ->as('referral_document.' . pathinfo($this->booking->referral_attachment, PATHINFO_EXTENSION));
+            }
         }
 
-        if ($this->booking->passport_visa_attachment) {
-            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath(storage_path('app/public/' . $this->booking->passport_visa_attachment))
-                ->as('passport_visa_document.' . pathinfo($this->booking->passport_visa_attachment, PATHINFO_EXTENSION));
+        if (!empty($this->booking->passport_visa_attachment)) {
+            $path = storage_path('app/public/' . $this->booking->passport_visa_attachment);
+            if (file_exists($path)) {
+                $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                    ->as('passport_visa_document.' . pathinfo($this->booking->passport_visa_attachment, PATHINFO_EXTENSION));
+            }
         }
 
         return $attachments;
