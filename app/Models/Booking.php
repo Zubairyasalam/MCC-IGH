@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * App\Models\Booking
- *
- * @property string $room_name
  */
 class Booking extends Model
 {    protected $fillable = [
