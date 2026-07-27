@@ -39,7 +39,9 @@ class PaymentSuccessMail extends Mailable
             'primaryColor' => $this->primaryColor
         ]);
 
-        $senderEmail = 'noreply@mccigh.com';
+        // Use the authenticated sender email — Gmail SMTP requires From == authenticated account
+        $senderEmail = \App\Models\Setting::where('key', 'sender_email')->value('value')
+                       ?? config('mail.from.address', 'prasathragul75@gmail.com');
 
         return $this->from($senderEmail, 'MCC IGH System')
                     ->subject('Official Invoice - MCC International Guest House')

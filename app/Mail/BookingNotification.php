@@ -35,9 +35,12 @@ class BookingNotification extends Mailable
      */
     public function envelope(): Envelope
     {
+        $senderEmail = \App\Models\Setting::where('key', 'sender_email')->value('value')
+                       ?? config('mail.from.address', 'prasathragul75@gmail.com');
+
         return new Envelope(
             from: new \Illuminate\Mail\Mailables\Address(
-                'noreply@mccigh.com',
+                $senderEmail,
                 'MCC IGH System'
             ),
             subject: 'New Booking Request: ' . $this->booking->room_name,

@@ -162,7 +162,7 @@ class PaymentController extends Controller
                         'mail.mailers.smtp.encryption' => $mailEncryption,
                         'mail.mailers.smtp.username' => $senderEmail,
                         'mail.mailers.smtp.password' => $mailPassword,
-                        'mail.from.address' => 'noreply@mccigh.com',
+                        'mail.from.address' => $senderEmail,
                         'mail.from.name' => 'MCC IGH Payment System'
                     ]);
                     \Illuminate\Support\Facades\Mail::purge('smtp');
@@ -261,7 +261,7 @@ class PaymentController extends Controller
                         'mail.mailers.smtp.encryption' => $mailEncryption,
                         'mail.mailers.smtp.username' => $senderEmail,
                         'mail.mailers.smtp.password' => $mailPassword,
-                        'mail.from.address' => 'noreply@mccigh.com',
+                        'mail.from.address' => $senderEmail,
                         'mail.from.name' => 'MCC IGH Payment System'
                     ]);
                     \Illuminate\Support\Facades\Mail::purge('smtp');
