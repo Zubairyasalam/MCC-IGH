@@ -14,16 +14,15 @@ class PayUService
 
     public function __construct()
     {
-        $this->key = config('services.payu.key');
-        $this->salt = config('services.payu.salt');
-        $this->mode = config('services.payu.mode', 'test');
+        $this->key = config('services.payu.key') ?: env('PAYU_MERCHANT_KEY');
+        $this->salt = config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT');
+        $this->mode = config('services.payu.mode') ?: env('PAYU_MODE', 'production');
         $this->url = $this->mode === 'production' 
-            ? config('services.payu.production_url') 
-            : config('services.payu.test_url');
+            ? (config('services.payu.production_url') ?: env('PAYU_PRODUCTION_URL', 'https://secure.payu.in/_payment')) 
+            : (config('services.payu.test_url') ?: env('PAYU_TEST_URL', 'https://test.payu.in/_payment'));
             
         if (empty($this->key) || empty($this->salt)) {
-            Log::error('PayU credentials are not set in the configuration.');
-            throw new \RuntimeException('PayU credentials (PAYU_KEY / PAYU_SALT) are not configured in .env.');
+            Log::warning('PayU credentials are not set in the configuration.');
         }
     }
 
@@ -33,6 +32,10 @@ class PayUService
      */
     public function generateHash(array $params): string
     {
+        if (empty($this->key) || empty($this->salt)) {
+            throw new \RuntimeException('PayU merchant key or salt is missing. Please set PAYU_MERCHANT_KEY and PAYU_MERCHANT_SALT in .env.');
+        }
+
         $hashString = sprintf(
             '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||||||%s',
             $this->key,

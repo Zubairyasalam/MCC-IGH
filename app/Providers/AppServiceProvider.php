@@ -25,11 +25,21 @@ class AppServiceProvider extends ServiceProvider
             config(['app.url' => request()->getSchemeAndHttpHost()]);
         }
 
-        // Share system settings with all views
+        // Share system settings with all views safely
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
-            $view->with('settings', $settings);
-            $view->with('gstRate', $settings['gst_rate'] ?? '5');
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                    $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+                    $view->with('settings', $settings);
+                    $view->with('gstRate', $settings['gst_rate'] ?? '5');
+                } else {
+                    $view->with('settings', []);
+                    $view->with('gstRate', '5');
+                }
+            } catch (\Throwable $e) {
+                $view->with('settings', []);
+                $view->with('gstRate', '5');
+            }
         });
     }
 }
