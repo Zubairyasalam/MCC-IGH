@@ -32,22 +32,28 @@ class PaymentSuccessMail extends Mailable
      */
     public function build()
     {
-        // Generate PDF in build method
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.receipt_pdf', [
-            'booking' => $this->booking,
-            'payment' => $this->payment,
-            'primaryColor' => $this->primaryColor
-        ]);
-
         // Use the authenticated sender email — Gmail SMTP requires From == authenticated account
         $senderEmail = \App\Models\Setting::where('key', 'sender_email')->value('value')
                        ?? config('mail.from.address', 'prasathragul75@gmail.com');
 
-        return $this->from($senderEmail, 'MCC IGH System')
-                    ->subject('Official Invoice - MCC International Guest House')
-                    ->view('emails.payment_success')
-                    ->attachData($pdf->output(), 'Invoice_' . $this->payment->txnid . '.pdf', [
-                        'mime' => 'application/pdf',
-                    ]);
+        $mail = $this->from($senderEmail, 'MCC IGH System')
+                     ->subject('Official Invoice - MCC International Guest House')
+                     ->view('emails.payment_success');
+
+        try {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.receipt_pdf', [
+                'booking' => $this->booking,
+                'payment' => $this->payment,
+                'primaryColor' => $this->primaryColor
+            ]);
+
+            $mail->attachData($pdf->output(), 'Invoice_' . $this->payment->txnid . '.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('PDF generation for PaymentSuccessMail failed: ' . $e->getMessage());
+        }
+
+        return $mail;
     }
 }

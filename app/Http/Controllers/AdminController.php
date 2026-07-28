@@ -315,6 +315,7 @@ class AdminController extends Controller
 
         config([
             'mail.default' => $mailMailer,
+            'mail.mailers.smtp.scheme' => null,
             'mail.mailers.smtp.host' => $mailHost,
             'mail.mailers.smtp.port' => (int)$mailPort,
             'mail.mailers.smtp.encryption' => $mailEncryption,

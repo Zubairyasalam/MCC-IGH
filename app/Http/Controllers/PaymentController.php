@@ -157,8 +157,9 @@ class PaymentController extends Controller
 
                     config([
                         'mail.default' => $mailMailer,
+                        'mail.mailers.smtp.scheme' => null,
                         'mail.mailers.smtp.host' => $mailHost,
-                        'mail.mailers.smtp.port' => $mailPort,
+                        'mail.mailers.smtp.port' => (int)$mailPort,
                         'mail.mailers.smtp.encryption' => $mailEncryption,
                         'mail.mailers.smtp.username' => $senderEmail,
                         'mail.mailers.smtp.password' => $mailPassword,
@@ -256,8 +257,9 @@ class PaymentController extends Controller
 
                     config([
                         'mail.default' => $mailMailer,
+                        'mail.mailers.smtp.scheme' => null,
                         'mail.mailers.smtp.host' => $mailHost,
-                        'mail.mailers.smtp.port' => $mailPort,
+                        'mail.mailers.smtp.port' => (int)$mailPort,
                         'mail.mailers.smtp.encryption' => $mailEncryption,
                         'mail.mailers.smtp.username' => $senderEmail,
                         'mail.mailers.smtp.password' => $mailPassword,
