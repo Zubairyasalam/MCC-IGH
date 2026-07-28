@@ -177,6 +177,11 @@ Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('pa
 Route::get('/run-migrations', function () {
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+        } catch (\Throwable $e) {
+            // Storage link might already exist
+        }
         $output = \Illuminate\Support\Facades\Artisan::output();
         return "<div style='font-family:sans-serif; padding:40px; text-align:center;'>
             <h1 style='color:#166534;'>✅ Database Migrations Successfully Executed</h1>

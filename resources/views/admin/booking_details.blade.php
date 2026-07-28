@@ -741,7 +741,29 @@
                             </span>
                         </div>
                         @endif
-                        @if($booking->passport_visa_attachment)
+                        @if($booking->passport_attachment)
+                        <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
+                            <span class="info-label">Passport Scanned Copy</span>
+                            <span class="info-value">
+                                <a href="{{ asset('storage/' . $booking->passport_attachment) }}" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #850f0f; font-weight: 700;">
+                                    <i class="ph-bold ph-file-arrow-down" style="font-size: 1.25rem;"></i>
+                                    View Passport Copy
+                                </a>
+                            </span>
+                        </div>
+                        @endif
+                        @if($booking->visa_attachment)
+                        <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
+                            <span class="info-label">Visa Scanned Copy</span>
+                            <span class="info-value">
+                                <a href="{{ asset('storage/' . $booking->visa_attachment) }}" target="_blank" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #850f0f; font-weight: 700;">
+                                    <i class="ph-bold ph-file-arrow-down" style="font-size: 1.25rem;"></i>
+                                    View Visa Copy
+                                </a>
+                            </span>
+                        </div>
+                        @endif
+                        @if($booking->passport_visa_attachment && !$booking->passport_attachment && !$booking->visa_attachment)
                         <div class="info-item" style="grid-column: 1 / -1; margin-top: 1rem;">
                             <span class="info-label">Passport & Visa Scanned Copy</span>
                             <span class="info-value">

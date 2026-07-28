@@ -58,7 +58,23 @@ class AdminNotification extends Mailable
             }
         }
 
-        if (!empty($this->booking->passport_visa_attachment)) {
+        if (!empty($this->booking->passport_attachment)) {
+            $path = storage_path('app/public/' . $this->booking->passport_attachment);
+            if (file_exists($path)) {
+                $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                    ->as('passport_document.' . pathinfo($this->booking->passport_attachment, PATHINFO_EXTENSION));
+            }
+        }
+
+        if (!empty($this->booking->visa_attachment)) {
+            $path = storage_path('app/public/' . $this->booking->visa_attachment);
+            if (file_exists($path)) {
+                $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                    ->as('visa_document.' . pathinfo($this->booking->visa_attachment, PATHINFO_EXTENSION));
+            }
+        }
+
+        if (!empty($this->booking->passport_visa_attachment) && empty($this->booking->passport_attachment) && empty($this->booking->visa_attachment)) {
             $path = storage_path('app/public/' . $this->booking->passport_visa_attachment);
             if (file_exists($path)) {
                 $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)

@@ -855,30 +855,57 @@
                             </div>
                         </div>
 
-                        <!-- Passport/Visa Document Upload -->
-                        <div class="form-group dynamic-field non-indian-field full-width" id="passportVisaUploadGroup">
-                            <label class="form-label">Passport & Visa Scanned Copy <span>*</span></label>
-                            <div id="passportVisaUploadZone" class="custom-file-zone" onclick="document.getElementById('passportVisaFileInput').click()">
+                        <!-- Passport Document Upload -->
+                        <div class="form-group dynamic-field non-indian-field full-width" id="passportUploadGroup" style="display: none; margin-top: 0.25rem;">
+                            <label class="form-label">Passport Scanned Copy <span>*</span></label>
+                            <div id="passportUploadZone" class="custom-file-zone" onclick="document.getElementById('passportFileInput').click()">
                                 <div class="file-icon-box">
                                     <i class="ph-bold ph-file-arrow-up"></i>
                                 </div>
-                                <div class="file-text-group">
-                                    <div id="passportVisaFileNameDisplay" class="file-main-text">Click to attach Passport & Visa scanned document</div>
+                                <div class="file-text-group" style="min-width: 0; flex: 1;">
+                                    <div id="passportFileNameDisplay" class="file-main-text">Click to attach Passport scanned copy</div>
                                     <div class="file-sub-text">PDF, JPG, PNG supported (Max 5MB)</div>
                                 </div>
                                 <div class="browse-btn-mobile" style="flex-shrink: 0; background: var(--primary-color); color: #fff; padding: 7px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3px;">Browse</div>
                             </div>
-                            <input type="file" id="passportVisaFileInput" name="passport_visa_attachment" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="updatePassportVisaFileName(this)">
-                            <div class="form-helper" style="margin-top: 6px;">Upload a copy of your Passport and Visa (PDF or Image)</div>
+                            <input type="file" id="passportFileInput" name="passport_attachment" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="updatePassportFileName(this)">
+                            <div class="form-helper" style="margin-top: 6px;">Upload a scanned copy of your Passport</div>
+                        </div>
+
+                        <!-- Visa Document Upload -->
+                        <div class="form-group dynamic-field non-indian-field full-width" id="visaUploadGroup" style="display: none; margin-top: 0.25rem;">
+                            <label class="form-label">Visa Scanned Copy <span>*</span></label>
+                            <div id="visaUploadZone" class="custom-file-zone" onclick="document.getElementById('visaFileInput').click()">
+                                <div class="file-icon-box">
+                                    <i class="ph-bold ph-file-arrow-up"></i>
+                                </div>
+                                <div class="file-text-group" style="min-width: 0; flex: 1;">
+                                    <div id="visaFileNameDisplay" class="file-main-text">Click to attach Visa scanned copy</div>
+                                    <div class="file-sub-text">PDF, JPG, PNG supported (Max 5MB)</div>
+                                </div>
+                                <div class="browse-btn-mobile" style="flex-shrink: 0; background: var(--primary-color); color: #fff; padding: 7px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3px;">Browse</div>
+                            </div>
+                            <input type="file" id="visaFileInput" name="visa_attachment" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="updateVisaFileName(this)">
+                            <div class="form-helper" style="margin-top: 6px;">Upload a scanned copy of your Visa</div>
                         </div>
                         <script>
-                            function updatePassportVisaFileName(input) {
-                                const display = document.getElementById('passportVisaFileNameDisplay');
+                            function updatePassportFileName(input) {
+                                const display = document.getElementById('passportFileNameDisplay');
                                 if (input.files && input.files[0]) {
                                     display.textContent = input.files[0].name;
                                     display.style.color = 'var(--primary-color)';
                                 } else {
-                                    display.textContent = 'Click to attach Passport & Visa scanned document';
+                                    display.textContent = 'Click to attach Passport scanned copy';
+                                    display.style.color = '#475569';
+                                }
+                            }
+                            function updateVisaFileName(input) {
+                                const display = document.getElementById('visaFileNameDisplay');
+                                if (input.files && input.files[0]) {
+                                    display.textContent = input.files[0].name;
+                                    display.style.color = 'var(--primary-color)';
+                                } else {
+                                    display.textContent = 'Click to attach Visa scanned copy';
                                     display.style.color = '#475569';
                                 }
                             }
@@ -1013,8 +1040,10 @@
 
                         <div class="form-group full-width">
                             <label class="form-label">Number of Persons <span>*</span></label>
-                            <input type="number" name="no_of_persons" min="1" max="{{ $maxCapacity }}" class="form-input"
-                                placeholder="e.g. 2 (Maximum: {{ $maxCapacity }} persons)" required>
+                            <input type="number" name="no_of_persons" id="noOfPersonsInput" min="1" max="{{ $maxCapacity }}" class="form-input"
+                                placeholder="e.g. 2 (Maximum: {{ $maxCapacity }} persons)" required
+                                oninput="enforceMaxCapacity(this, {{ $maxCapacity }})"
+                                onblur="if(this.value === '' || parseInt(this.value, 10) < 1) this.value = 1;">
                             <div class="form-helper">Maximum capacity for this room is {{ $maxCapacity }} {{ Str::plural('person', $maxCapacity) }}</div>
                         </div>
 
@@ -1394,6 +1423,8 @@
             const nonIndianFields = document.querySelectorAll('.non-indian-field');
             const passportInput = document.getElementById('passportInput');
             const visaInput = document.getElementById('visaInput');
+            const passportFileInput = document.getElementById('passportFileInput');
+            const visaFileInput = document.getElementById('visaFileInput');
             const passportVisaFileInput = document.getElementById('passportVisaFileInput');
             const phoneInput = document.getElementById('phoneInput');
             const phoneAsterisk = document.getElementById('phoneRequiredAsterisk');
@@ -1401,7 +1432,11 @@
             nonIndianFields.forEach(field => {
                 if (isNonIndian) {
                     field.classList.add('show');
-                    field.style.setProperty('display', 'flex', 'important');
+                    if (field.classList.contains('paired-row')) {
+                        field.style.setProperty('display', 'grid', 'important');
+                    } else {
+                        field.style.setProperty('display', 'flex', 'important');
+                    }
                 } else {
                     field.classList.remove('show');
                     field.style.setProperty('display', 'none', 'important');
@@ -1411,12 +1446,16 @@
             if (isNonIndian) {
                 if (passportInput) passportInput.setAttribute('required', 'true');
                 if (visaInput) visaInput.setAttribute('required', 'true');
+                if (passportFileInput) passportFileInput.setAttribute('required', 'true');
+                if (visaFileInput) visaFileInput.setAttribute('required', 'true');
                 if (passportVisaFileInput) passportVisaFileInput.setAttribute('required', 'true');
                 if (phoneInput) phoneInput.removeAttribute('required');
                 if (phoneAsterisk) phoneAsterisk.style.display = 'none';
             } else {
                 if (passportInput) passportInput.removeAttribute('required');
                 if (visaInput) visaInput.removeAttribute('required');
+                if (passportFileInput) passportFileInput.removeAttribute('required');
+                if (visaFileInput) visaFileInput.removeAttribute('required');
                 if (passportVisaFileInput) passportVisaFileInput.removeAttribute('required');
                 if (phoneInput) phoneInput.setAttribute('required', 'true');
                 if (phoneAsterisk) phoneAsterisk.style.display = '';
@@ -1479,6 +1518,20 @@
             subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             gstEl.textContent = `₹${gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             totalEl.textContent = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function enforceMaxCapacity(input, maxCap) {
+            if (input.value === '') return;
+            let val = parseInt(input.value, 10);
+            if (isNaN(val)) {
+                input.value = '';
+                return;
+            }
+            if (val > maxCap) {
+                input.value = maxCap;
+            } else if (val < 1) {
+                input.value = 1;
+            }
         }
 
         // Initialize state natively on load to prevent glitch rendering

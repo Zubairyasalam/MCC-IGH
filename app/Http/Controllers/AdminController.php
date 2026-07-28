@@ -649,6 +649,9 @@ class AdminController extends Controller
             'payment_status' => 'Pending',
             'approval_status' => 'Approved',
             'referral_attachment' => $originalBooking->referral_attachment,
+            'passport_attachment' => $originalBooking->passport_attachment,
+            'visa_attachment' => $originalBooking->visa_attachment,
+            'passport_visa_attachment' => $originalBooking->passport_visa_attachment,
             'is_admin_read' => true,
             'booking_reason' => $originalBooking->booking_reason,
             'residence_status' => $originalBooking->residence_status

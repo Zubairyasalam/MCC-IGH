@@ -24,7 +24,7 @@ class PaymentSuccessMail extends Mailable
     {
         $this->booking = $booking;
         $this->payment = $payment;
-        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->first()->value ?? '#850f0f';
+        $this->primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#850f0f';
     }
 
     /**

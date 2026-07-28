@@ -34,7 +34,9 @@ class BookingController extends Controller
                 'no_of_persons' => 'required|integer|min:1',
                 'passport_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
                 'visa_number' => $request->nationality === 'Non-Indian' ? 'required|string' : 'nullable|string',
-                'passport_visa_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+                'passport_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+                'visa_attachment' => $request->nationality === 'Non-Indian' ? 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120' : 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
+                'passport_visa_attachment' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120',
                 'gst_id' => 'nullable|string|max:50',
                 'room_name' => 'required|string',
                 'clock_in' => 'required|date',
@@ -134,11 +136,27 @@ class BookingController extends Controller
                 $attachmentPath = $file->storeAs('referrals', $fileName, 'public');
             }
 
+            $passportPath = null;
+            if ($request->hasFile('passport_attachment')) {
+                $file = $request->file('passport_attachment');
+                $fileName = time() . '_passport_' . $file->getClientOriginalName();
+                $passportPath = $file->storeAs('passport_visa', $fileName, 'public');
+            }
+
+            $visaPath = null;
+            if ($request->hasFile('visa_attachment')) {
+                $file = $request->file('visa_attachment');
+                $fileName = time() . '_visa_' . $file->getClientOriginalName();
+                $visaPath = $file->storeAs('passport_visa', $fileName, 'public');
+            }
+
             $passportVisaPath = null;
             if ($request->hasFile('passport_visa_attachment')) {
                 $file = $request->file('passport_visa_attachment');
                 $fileName = time() . '_' . $file->getClientOriginalName();
                 $passportVisaPath = $file->storeAs('passport_visa', $fileName, 'public');
+            } elseif ($passportPath || $visaPath) {
+                $passportVisaPath = $passportPath ?? $visaPath;
             }
 
             // 2. Create the booking locally
@@ -162,6 +180,8 @@ class BookingController extends Controller
                 'payment_status' => 'Pending',
                 'approval_status' => $initialStatus,
                 'referral_attachment' => $attachmentPath,
+                'passport_attachment' => $passportPath,
+                'visa_attachment' => $visaPath,
                 'passport_visa_attachment' => $passportVisaPath
             ]));
 

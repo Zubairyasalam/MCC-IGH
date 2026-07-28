@@ -266,7 +266,13 @@
                             @if($booking->nationality === 'Non-Indian')
                             <div class="info-row"><span class="info-key">Passport</span><span class="info-val bill-font">{{ $booking->passport_number ?: '—' }}</span></div>
                             <div class="info-row"><span class="info-key">Visa No.</span><span class="info-val bill-font">{{ $booking->visa_number ?: '—' }}</span></div>
-                            @if($booking->passport_visa_attachment)
+                            @if($booking->passport_attachment)
+                            <div class="info-row"><span class="info-key">Passport copy</span><span class="info-val"><a href="{{ asset('storage/' . $booking->passport_attachment) }}" target="_blank" style="color: #850f0f; font-weight: 700; text-decoration: none;">View Passport</a></span></div>
+                            @endif
+                            @if($booking->visa_attachment)
+                            <div class="info-row"><span class="info-key">Visa copy</span><span class="info-val"><a href="{{ asset('storage/' . $booking->visa_attachment) }}" target="_blank" style="color: #850f0f; font-weight: 700; text-decoration: none;">View Visa</a></span></div>
+                            @endif
+                            @if($booking->passport_visa_attachment && !$booking->passport_attachment && !$booking->visa_attachment)
                             <div class="info-row"><span class="info-key">Visa/Passport copy</span><span class="info-val"><a href="{{ asset('storage/' . $booking->passport_visa_attachment) }}" target="_blank" style="color: #850f0f; font-weight: 700; text-decoration: none;">View Document</a></span></div>
                             @endif
                             @endif

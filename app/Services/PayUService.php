@@ -61,33 +61,58 @@ class PayUService
      */
     public function verifyHash(array $params): bool
     {
-        $reverseHashString = sprintf(
-            '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s',
-            $this->salt,
-            $params['status'],
-            $params['additionalCharges'] ?? ($params['udf10'] ?? ''),
-            $params['udf9'] ?? '',
-            $params['udf8'] ?? '',
-            $params['udf7'] ?? '',
-            $params['udf6'] ?? '',
-            $params['udf5'] ?? '',
-            $params['udf4'] ?? '',
-            $params['udf3'] ?? '',
-            $params['udf2'] ?? '',
-            $params['udf1'] ?? '',
-            $params['email'],
-            $params['firstname'],
-            $params['productinfo'],
-            $params['amount'],
-            $params['txnid']
-        );
-        
-        // Append key at the end
-        $reverseHashString .= '|' . $this->key;
+        if (empty($params['hash'])) {
+            return false;
+        }
 
-        $calculatedHash = hash('sha512', $reverseHashString);
-        
-        return hash_equals($calculatedHash, $params['hash']);
+        $udf10 = $params['udf10'] ?? '';
+        $udf9 = $params['udf9'] ?? '';
+        $udf8 = $params['udf8'] ?? '';
+        $udf7 = $params['udf7'] ?? '';
+        $udf6 = $params['udf6'] ?? '';
+        $udf5 = $params['udf5'] ?? '';
+        $udf4 = $params['udf4'] ?? '';
+        $udf3 = $params['udf3'] ?? '';
+        $udf2 = $params['udf2'] ?? '';
+        $udf1 = $params['udf1'] ?? '';
+
+        $email = $params['email'] ?? '';
+        $firstname = $params['firstname'] ?? '';
+        $productinfo = $params['productinfo'] ?? '';
+        $amount = $params['amount'] ?? '';
+        $txnid = $params['txnid'] ?? '';
+        $status = $params['status'] ?? '';
+
+        $hashSequence = sprintf(
+            '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s',
+            $this->salt,
+            $status,
+            $udf10,
+            $udf9,
+            $udf8,
+            $udf7,
+            $udf6,
+            $udf5,
+            $udf4,
+            $udf3,
+            $udf2,
+            $udf1,
+            $email,
+            $firstname,
+            $productinfo,
+            $amount,
+            $txnid,
+            $this->key
+        );
+
+        if (!empty($params['additionalCharges'])) {
+            $hashSequence = $params['additionalCharges'] . '|' . $hashSequence;
+        }
+
+        $calculatedHash = strtolower(hash('sha512', $hashSequence));
+        $receivedHash = strtolower($params['hash']);
+
+        return hash_equals($calculatedHash, $receivedHash);
     }
 
     public function getUrl(): string

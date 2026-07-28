@@ -198,7 +198,19 @@
                     <td><span class="badge">Attached</span></td>
                 </tr>
                 @endif
-                @if($booking->passport_visa_attachment)
+                @if($booking->passport_attachment)
+                <tr>
+                    <th>Passport Copy</th>
+                    <td><span class="badge">Attached</span></td>
+                </tr>
+                @endif
+                @if($booking->visa_attachment)
+                <tr>
+                    <th>Visa Copy</th>
+                    <td><span class="badge">Attached</span></td>
+                </tr>
+                @endif
+                @if($booking->passport_visa_attachment && !$booking->passport_attachment && !$booking->visa_attachment)
                 <tr>
                     <th>Passport & Visa Doc</th>
                     <td><span class="badge">Attached</span></td>
