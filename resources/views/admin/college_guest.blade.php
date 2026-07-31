@@ -715,7 +715,7 @@
                 </div>
             @endif
 
-            @if ($errors->any())
+            @if (isset($errors) && $errors->any())
                 <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #fecaca;">
                     <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem;">
                         @foreach ($errors->all() as $error)
@@ -805,7 +805,7 @@
                                 <div class="tabs-container">
                                     @php $tabIndex = 0; @endphp
                                     @foreach($rooms as $group => $items)
-                                        <button type="button" class="tab-btn {{ $tabIndex === 0 ? 'active' : '' }}" data-tab="tab-{{ Str::slug($group) }}">
+                                        <button type="button" class="tab-btn {{ $tabIndex === 0 ? 'active' : '' }}" data-tab="tab-{{ \Illuminate\Support\Str::slug($group) }}">
                                             @if(str_contains(strtolower($group), 'standard'))
                                                 <i class="ph ph-bed"></i>
                                             @elseif(str_contains(strtolower($group), 'advance'))
@@ -829,7 +829,7 @@
                             <!-- Room Panels -->
                             @php $panelIndex = 0; @endphp
                             @foreach($rooms as $group => $items)
-                                <div class="rooms-panel {{ $panelIndex === 0 ? 'active' : '' }}" id="tab-{{ Str::slug($group) }}">
+                                <div class="rooms-panel {{ $panelIndex === 0 ? 'active' : '' }}" id="tab-{{ \Illuminate\Support\Str::slug($group) }}">
                                     @foreach($items as $value => $label)
                                         @php
                                             $isBooked = isset($bookedRooms[$value]);

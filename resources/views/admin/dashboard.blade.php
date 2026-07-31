@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -477,7 +477,10 @@
                 <button id="sidebarToggle" class="menu-toggle" style="display: none; background: #fff; border: 1px solid var(--border); border-radius: 8px; width: 40px; height: 40px; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer; font-size: 1.25rem;">
                     <i class="ph ph-list"></i>
                 </button>
-                <div class="topbar-title" style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Dashboard Overview</div>
+                <div class="topbar-title" style="font-weight: 700; font-size: 1.15rem; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                    Dashboard Overview
+                    <span style="width: 6px; height: 6px; background: var(--primary-color); border-radius: 50%; display: inline-block;"></span>
+                </div>
             </div>
             <div class="nav-right">
                 <div title="Current Theme Color" style="
