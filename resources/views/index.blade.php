@@ -61,6 +61,17 @@
             display: inline-block;
             margin-bottom: 8px;
         }
+        /* Design Accent Touch */
+        .welcome-title::after {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color, #850f0f);
+            border-radius: 50%;
+            margin-left: 6px;
+            vertical-align: super;
+        }
         .welcome-subtitle {
             font-size: 1.15rem;
             font-weight: 500;
