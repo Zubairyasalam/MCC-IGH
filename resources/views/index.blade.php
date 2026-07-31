@@ -1106,14 +1106,14 @@
 
                         @for ($i = 0; $i < 2; $i++)
                             @foreach ($roomCards as $card)
-                                <div class="card slider-card" style="display: flex; flex-direction: column;">
-                                    <div class="card-image-wrapper" style="height: 185px; flex-shrink: 0; overflow: hidden; position: relative;">
+                                <div class="card slider-card" style="display: flex; flex-direction: column; border-radius: 20px; overflow: hidden; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid rgba(0,0,0,0.05);">
+                                    <div class="card-image-wrapper" style="height: 185px; flex-shrink: 0; overflow: hidden; position: relative; border-radius: 20px 20px 0 0;">
                                         <span class="badge {{ $card['badgeClass'] }}" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(133, 15, 15, 0.15); color: var(--primary-color); font-weight: 700; padding: 4px 12px; border-radius: 30px; font-size: 0.72rem; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">{{ $card['badge'] }}</span>
-                                        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ $card['image'] }}" alt="{{ $card['title'] }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);">
                                     </div>
                                     <div class="card-content" style="flex: 1; display: flex; flex-direction: column; padding: 1.5rem;">
                                         <div class="card-price-row" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.35rem;">
-                                            <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;">{{ $card['price'] }}</span>
+                                            <span style="font-size: 1.4rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;">{!! str_replace('₹', '<span class="rupee-symbol">₹</span>', $card['price']) !!}</span>
                                             <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">/ {{ $card['period'] }}</span>
                                         </div>
                                         <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem; color: #0f172a; letter-spacing: -0.3px;">{{ $card['title'] }}</h2>
@@ -1320,48 +1320,126 @@
 
                 <!-- Standard Rooms -->
                 <div class="card premium-card">
-                    <div class="card-image-wrapper" style="height: 160px;">
-                        <img src="{{ asset('assets/standard/standardroom.JPG') }}" alt="Standard Rooms" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span class="badge standard-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Standard</span>
+                    <div class="card-image-wrapper" style="height: 200px; position: relative; overflow: hidden; border-radius: 20px 20px 0 0;">
+                        <img src="{{ asset('assets/standard/standardroom.JPG') }}" alt="Standard Rooms" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);">
+                        <span class="badge standard-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(100, 116, 139, 0.2); color: #334155; font-weight: 700; padding: 4px 12px; border-radius: 30px; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">Standard</span>
                     </div>
-                    <div class="card-content">
-                        <h2>Standard Rooms</h2>
-                        <p class="description">Thoughtfully designed for efficiency and comfort, our Standard Rooms provide a restful haven for short-term visitors with essential modern amenities.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('standard.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                    <div class="card-content" style="padding: 1.6rem; display: flex; flex-direction: column; flex: 1;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.4px;">Standard Rooms</h2>
+                            <div class="rating" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 700; color: #eab308; background: #fef9c3; padding: 0.2rem 0.6rem; border-radius: 9999px;"><i class="ph-fill ph-star"></i> 4.6</div>
+                        </div>
+                        <p class="description" style="color: #64748b; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">Thoughtfully designed for efficiency and comfort, providing a restful haven for short-term visitors with essential modern amenities.</p>
+
+                        <div class="price-section" style="margin-bottom: 1rem;">
+                            <div class="price-highlight" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.25rem;">
+                                <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;"><span class="rupee-symbol">₹</span>1,400</span>
+                                <span style="font-size: 0.9rem; font-weight: 600; color: #64748b;">/ 12 Hours</span>
+                            </div>
+                            <p class="gst-text" style="font-size: 0.75rem; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin: 0;">
+                                <i class="ph-bold ph-info" style="font-size: 0.82rem;"></i> + {{ $gstRate }}% GST applicable
+                            </p>
+                        </div>
+
+                        <!-- Room Highlights -->
+                        <div class="room-highlights" style="margin-bottom: 1.25rem; padding: 0.9rem; background: rgba(var(--primary-rgb), 0.02); border-radius: 14px; border: 1px solid rgba(var(--primary-rgb), 0.08);">
+                            <h3 class="features-title" style="font-size: 0.72rem; font-weight: 800; color: var(--primary-color); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;">Key Highlights</h3>
+                            <div class="features-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.78rem; color: #475569;">
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-wind" style="color: var(--primary-color);"></i> AC Included</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-wifi-high" style="color: var(--primary-color);"></i> Free WiFi</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-desktop" style="color: var(--primary-color);"></i> Work Desk</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-bed" style="color: var(--primary-color);"></i> Clean Bedding</div>
+                            </div>
+                        </div>
+
+                        <div class="card-btn-wrapper" style="margin-top: auto;">
+                            <a href="{{ route('standard.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center; text-transform: uppercase; font-weight: 700; border-radius: 12px; height: 2.8rem; font-size: 0.85rem; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 6px;">
+                                EXPLORE STANDARD ROOMS <i class="ph-bold ph-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Advance Rooms -->
                 <div class="card premium-card">
-                    <div class="card-image-wrapper" style="height: 160px;">
-                        <img src="{{ asset('assets/room1.JPG') }}" alt="Advance Rooms" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span class="badge premium-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Premium</span>
+                    <div class="card-image-wrapper" style="height: 200px; position: relative; overflow: hidden; border-radius: 20px 20px 0 0;">
+                        <img src="{{ asset('assets/room1.JPG') }}" alt="Advance Rooms" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);">
+                        <span class="badge premium-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(133, 15, 15, 0.15); color: var(--primary-color); font-weight: 700; padding: 4px 12px; border-radius: 30px; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">Premium</span>
                     </div>
-                    <div class="card-content">
-                        <h2>Advance Rooms</h2>
-                        <p class="description">Experience elevated hospitality in our Advance Rooms, specifically curated for guests seeking enhanced privacy and premium comfort during longer stays.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('advance.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                    <div class="card-content" style="padding: 1.6rem; display: flex; flex-direction: column; flex: 1;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.4px;">Advance Rooms</h2>
+                            <div class="rating" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 700; color: #eab308; background: #fef9c3; padding: 0.2rem 0.6rem; border-radius: 9999px;"><i class="ph-fill ph-star"></i> 4.8</div>
+                        </div>
+                        <p class="description" style="color: #64748b; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">Experience elevated hospitality with enhanced privacy, high-end bedding, and premium amenities curated for longer stays.</p>
+
+                        <div class="price-section" style="margin-bottom: 1rem;">
+                            <div class="price-highlight" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.25rem;">
+                                <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;"><span class="rupee-symbol">₹</span>2,500</span>
+                                <span style="font-size: 0.9rem; font-weight: 600; color: #64748b;">/ Day</span>
+                            </div>
+                            <p class="gst-text" style="font-size: 0.75rem; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin: 0;">
+                                <i class="ph-bold ph-info" style="font-size: 0.82rem;"></i> + {{ $gstRate }}% GST applicable
+                            </p>
+                        </div>
+
+                        <!-- Room Highlights -->
+                        <div class="room-highlights" style="margin-bottom: 1.25rem; padding: 0.9rem; background: rgba(var(--primary-rgb), 0.02); border-radius: 14px; border: 1px solid rgba(var(--primary-rgb), 0.08);">
+                            <h3 class="features-title" style="font-size: 0.72rem; font-weight: 800; color: var(--primary-color); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;">Key Highlights</h3>
+                            <div class="features-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.78rem; color: #475569;">
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-sparkle" style="color: var(--primary-color);"></i> Premium Bedding</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-wifi-high" style="color: var(--primary-color);"></i> High-Speed WiFi</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-television" style="color: var(--primary-color);"></i> Smart TV</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-snowflake" style="color: var(--primary-color);"></i> Silent AC</div>
+                            </div>
+                        </div>
+
+                        <div class="card-btn-wrapper" style="margin-top: auto;">
+                            <a href="{{ route('advance.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center; text-transform: uppercase; font-weight: 700; border-radius: 12px; height: 2.8rem; font-size: 0.85rem; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 6px;">
+                                EXPLORE ADVANCE ROOMS <i class="ph-bold ph-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Conference / Glass Rooms -->
                 <div class="card premium-card">
-                    <div class="card-image-wrapper" style="height: 160px;">
-                        <img src="{{ asset('assets/standard/conference.JPG') }}" alt="Conference Rooms" style="width: 100%; height: 100%; object-fit: cover;">
-                        <span class="badge conference-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5;">Conference</span>
+                    <div class="card-image-wrapper" style="height: 200px; position: relative; overflow: hidden; border-radius: 20px 20px 0 0;">
+                        <img src="{{ asset('assets/standard/conference.JPG') }}" alt="Conference Rooms" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);">
+                        <span class="badge conference-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(59, 130, 246, 0.2); color: #1d4ed8; font-weight: 700; padding: 4px 12px; border-radius: 30px; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">Conference &amp; Glass</span>
                     </div>
-                    <div class="card-content">
-                        <h2>Conference & Glass Rooms</h2>
-                        <p class="description">A versatile and professionally equipped venue designed for large-scale gatherings, corporate events, and interactive workshops with HD projection.</p>
-                        <p class="gst-text">+ {{ $gstRate }}% GST applicable</p>
-                        <div class="card-btn-wrapper">
-                            <a href="{{ route('conference.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                    <div class="card-content" style="padding: 1.6rem; display: flex; flex-direction: column; flex: 1;">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.4px;">Conference &amp; Glass</h2>
+                            <div class="rating" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 700; color: #eab308; background: #fef9c3; padding: 0.2rem 0.6rem; border-radius: 9999px;"><i class="ph-fill ph-star"></i> 4.9</div>
+                        </div>
+                        <p class="description" style="color: #64748b; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem;">Versatile and professionally equipped venues designed for corporate meetings, workshops, and team brainstorming sessions.</p>
+
+                        <div class="price-section" style="margin-bottom: 1rem;">
+                            <div class="price-highlight" style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.25rem;">
+                                <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color); letter-spacing: -0.5px;"><span class="rupee-symbol">₹</span>500</span>
+                                <span style="font-size: 0.9rem; font-weight: 600; color: #64748b;">/ Hour (Min 4h)</span>
+                            </div>
+                            <p class="gst-text" style="font-size: 0.75rem; color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin: 0;">
+                                <i class="ph-bold ph-info" style="font-size: 0.82rem;"></i> + {{ $gstRate }}% GST applicable
+                            </p>
+                        </div>
+
+                        <!-- Venue Highlights -->
+                        <div class="room-highlights" style="margin-bottom: 1.25rem; padding: 0.9rem; background: rgba(var(--primary-rgb), 0.02); border-radius: 14px; border: 1px solid rgba(var(--primary-rgb), 0.08);">
+                            <h3 class="features-title" style="font-size: 0.72rem; font-weight: 800; color: var(--primary-color); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;">Venue Highlights</h3>
+                            <div class="features-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.78rem; color: #475569;">
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-users" style="color: var(--primary-color);"></i> 60 Capacity</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-projector-screen" style="color: var(--primary-color);"></i> HD Projector</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-speaker-high" style="color: var(--primary-color);"></i> Sound System</div>
+                                <div class="feature-item" style="display: flex; align-items: center; gap: 6px; font-weight: 500;"><i class="ph ph-lightbulb" style="color: var(--primary-color);"></i> Glass Setup</div>
+                            </div>
+                        </div>
+
+                        <div class="card-btn-wrapper" style="margin-top: auto;">
+                            <a href="{{ route('conference.rooms') }}" class="btn btn-outline view-details-btn" style="width: 100%; text-align: center; justify-content: center; text-transform: uppercase; font-weight: 700; border-radius: 12px; height: 2.8rem; font-size: 0.85rem; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 6px;">
+                                EXPLORE HALLS &amp; GLASS <i class="ph-bold ph-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
