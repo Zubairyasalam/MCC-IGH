@@ -1804,7 +1804,7 @@
                             </div>
                             <span style="font-size: 10.5px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 50px; letter-spacing: 0.5px; white-space: normal; word-break: break-word; text-align: center; margin-left: auto;">INCLUDED</span>
                         </div>
-                        <div class="amenity-mini-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; width: 100%;">
+                        <div class="amenity-mini-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0; width: 100%;">
                             @foreach(array_slice($room['amenities'], 0, 2) as $amenity)
                                 <div class="amenity-mini-item" style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">
                                     <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #fef2f2 0%, #fff 100%); border: 1px solid #fee2e2; color: #850f0f; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(133,15,15,0.06);">
@@ -1815,10 +1815,6 @@
                                 </div>
                             @endforeach
                         </div>
-                        <a href="javascript:void(0)" onclick="scrollToAmenities()" class="explore-services-btn" style="font-size: 13px; color: #ffffff; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 15px; background: linear-gradient(135deg, #850f0f, #b91c1c); border-radius: 14px; box-shadow: 0 8px 20px rgba(133,15,15,0.25); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; width: 100%;">
-                            <span>Explore All Services</span>
-                            <i class="ph-bold ph-arrow-right" style="color: #ffffff !important; font-size: 16px;"></i>
-                        </a>
                     </div>
  
  

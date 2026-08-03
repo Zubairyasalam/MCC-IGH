@@ -77,19 +77,28 @@
         /* LETTERHEAD */
         .receipt-letterhead {
             background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
-            border-bottom: 1px solid #f1f5f9; padding: 0.75rem 1.5rem 0.6rem; text-align: center;
+            border-bottom: 1px solid #f1f5f9; padding: 2rem 2rem 1.5rem; text-align: center;
         }
-        .receipt-letterhead img { height: 32px; margin-bottom: 4px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.06)); }
+        .receipt-letterhead img {
+            height: 110px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05));
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            mix-blend-mode: multiply;
+        }
+        .receipt-letterhead img:hover {
+            transform: scale(1.03);
+        }
         .receipt-letterhead h2 {
-            font-family: 'Outfit', sans-serif; font-size: 0.78rem; font-weight: 900;
-            color: #0f172a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1px;
+            font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800;
+            color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;
         }
-        .receipt-letterhead p { font-size: 0.65rem; color: #64748b; font-weight: 500; margin-bottom: 5px; }
+        .receipt-letterhead p { font-size: 0.85rem; color: #475569; font-weight: 500; margin-bottom: 12px; }
         .receipt-stamp {
-            display: inline-flex; align-items: center; gap: 4px;
+            display: inline-flex; align-items: center; gap: 6px;
             background: rgba(133,15,15,0.06); border: 1px solid rgba(133,15,15,0.15);
-            color: #850f0f; padding: 3px 10px; border-radius: 50px;
-            font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            color: #850f0f; padding: 5px 14px; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
         }
 
         /* RECEIPT BODY */
@@ -244,7 +253,7 @@
 
             <div class="receipt-card" id="receiptContent">
                 <div class="receipt-letterhead">
-                    <img src="{{ asset('assets/logo.png') }}" alt="MCC Logo">
+                    <img src="{{ asset('assets/logo_transparent.png') }}" alt="MCC Logo">
                     <h2>Madras Christian College</h2>
                     <p>International Guest House &amp; Conference Centre</p>
                     <div class="receipt-stamp"><i class="ph-bold ph-receipt" style="font-size:12px;"></i> Receipt Summary</div>

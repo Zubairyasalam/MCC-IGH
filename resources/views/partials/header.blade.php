@@ -1,7 +1,7 @@
 <header class="header-container">
     <div class="header-left">
         <a href="{{ route('home') }}" class="logo-link">
-            <img src="{{ asset('assets/logo.png') }}" alt="MCC Logo" class="header-logo">
+            <img src="{{ asset('assets/logo_transparent.png') }}" alt="MCC Logo" class="header-logo">
         </a>
     </div>
 
@@ -15,8 +15,8 @@
     <div class="header-right">
         @if(isset($showHelpBtn) && $showHelpBtn)
             <button class="help-btn" onclick="openHelpModal()">
-                <i class="ph ph-question"></i>
-                <span>Support</span>
+                <i class="ph ph-question-circle"></i>
+                <span>SUPPORT</span>
             </button>
         @endif
 
@@ -28,7 +28,7 @@
         @else
             <div class="profile-dropdown">
                 <button class="profile-btn" onclick="toggleDropdown(event)">
-                    <i class="ph-duotone ph-user-circle"></i>
+                    <i class="ph ph-user"></i>
                 </button>
                 <div class="dropdown-menu" id="profileMenu">
                     @auth

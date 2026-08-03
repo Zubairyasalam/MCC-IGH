@@ -3,7 +3,7 @@
     <div class="footer-content">
         <div class="footer-column brand-column" style="display: flex; flex-direction: column; justify-content: flex-start;">
             <div class="footer-logo" style="margin-bottom: 1.2rem;">
-                <img src="{{ asset('assets/logo.png') }}" alt="MCC Logo" style="max-height: 180px; width: 100%; max-width: 280px; object-fit: contain; display: block; filter: grayscale(1) invert(1) brightness(2); mix-blend-mode: screen; transform-origin: left center;">
+                <img src="{{ asset('assets/logo_transparent.png') }}" alt="MCC Logo" style="max-height: 180px; width: 100%; max-width: 280px; object-fit: contain; display: block; filter: grayscale(1) invert(1) brightness(2); mix-blend-mode: screen; transform-origin: left center;">
             </div>
             <p style="margin: 0; line-height: 1.6; color: #64748b; font-size: 0.9rem;">
                 Premium hospitality and comfortable accommodation located in the serene surroundings of the Madras Christian College campus.

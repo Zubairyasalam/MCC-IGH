@@ -109,7 +109,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <img src="/assets/logo.png" alt="MCC-MRF Innovation Park" style="height:80px; width:auto; object-fit:contain;">
+                <img src="/assets/logo_transparent.png" alt="MCC-MRF Innovation Park" style="height:80px; width:auto; object-fit:contain;">
             </div>
             <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; font-weight: 600;">SUPERADMIN PANEL</div>
         </div>

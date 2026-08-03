@@ -299,7 +299,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><img src="/assets/logo.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
+            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item {{ Route::is('superadmin.dashboard') ? 'active' : '' }}">
@@ -376,6 +376,11 @@
                 <div class="form-group">
                     <label>System Email Address (Sender)</label>
                     <input type="email" name="system_email" value="{{ $settings['sender_email'] ?? '' }}" required placeholder="e.g. user@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Principal Email Address</label>
+                    <input type="email" name="principal_email" value="{{ $settings['principal_email'] ?? '' }}" required placeholder="e.g. principal@mcc.edu.in">
                 </div>
 
                 <div class="form-group">

@@ -95,6 +95,7 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'system_email'        => 'required|email',
+            'principal_email'     => 'required|email',
             'hod_email'           => 'required|email',
             'hall_warden_email'   => 'required|email',
             'mail_password'       => 'required',
@@ -114,11 +115,11 @@ class SuperAdminController extends Controller
             'whatsapp_token'      => 'nullable|string',
         ]);
 
-        Setting::updateOrCreate(['key' => 'principal_email'], ['value' => $request->system_email]);
+        Setting::updateOrCreate(['key' => 'sender_email'],    ['value' => $request->system_email]);
+        Setting::updateOrCreate(['key' => 'principal_email'], ['value' => $request->principal_email]);
         Setting::updateOrCreate(['key' => 'hod_email'],        ['value' => $request->hod_email]);
         Setting::updateOrCreate(['key' => 'hall_warden_email'], ['value' => $request->hall_warden_email]);
         Setting::updateOrCreate(['key' => 'mail_password'],   ['value' => $request->mail_password]);
-        Setting::updateOrCreate(['key' => 'sender_email'],    ['value' => $request->system_email]);
         
         Setting::updateOrCreate(['key' => 'mail_host'],       ['value' => $request->mail_host]);
         Setting::updateOrCreate(['key' => 'mail_port'],       ['value' => $request->mail_port]);

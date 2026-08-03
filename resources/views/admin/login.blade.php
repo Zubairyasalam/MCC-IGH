@@ -124,7 +124,7 @@
 <body>
     <div class="login-card">
         <div class="logo">
-            <img src="/assets/logo.png" alt="MCC-MRF Innovation Park">
+            <img src="/assets/logo_transparent.png" alt="MCC-MRF Innovation Park">
         </div>
         <h2 class="form-title">Admin Access</h2>
 

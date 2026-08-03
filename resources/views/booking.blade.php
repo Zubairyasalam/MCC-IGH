@@ -63,7 +63,7 @@
 <body>
     <header>
         <div class="header-left">
-            <img src="{{ asset('assets/logo.png') }}" alt="Logo" class="header-logo" style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
+            <img src="{{ asset('assets/logo_transparent.png') }}" alt="Logo" class="header-logo" style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;">
         </div>
         <div class="header-center">
             <h1>MCC International Guest House</h1>

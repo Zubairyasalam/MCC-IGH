@@ -20,8 +20,8 @@
             padding-bottom: 10px;
         }
         .logo {
-            height: 45px;
-            margin-bottom: 5px;
+            height: 90px;
+            margin-bottom: 8px;
         }
         .institution-name {
             font-size: 18px;
@@ -134,7 +134,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/logo.png'))) }}" class="logo">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/logo_transparent.png'))) }}" class="logo">
         <h1 class="institution-name">Madras Christian College</h1>
         <p class="dept-name">International Guest House & Conference Centre</p>
         <div class="receipt-label">OFFICIAL TAX INVOICE</div>
