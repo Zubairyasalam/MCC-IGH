@@ -199,3 +199,28 @@ Route::get('/run-migrations', function () {
     }
 })->name('run.migrations');
 
+// Web Cache Clear Trigger Route for Live Server View & Config Sync
+Route::get('/clear-cache', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return "<div style='font-family:sans-serif; padding:40px; text-align:center;'>
+            <h1 style='color:#166534;'>✅ All Live Caches Cleared Successfully</h1>
+            <p style='color:#374151;'>Compiled views, application cache, config cache, and route cache have been purged.</p>
+            <pre style='background:#f3f4f6; padding:20px; text-align:left; border-radius:8px; display:inline-block; max-width:800px; overflow:auto;'>".e($output ?: 'All caches cleared! Latest designs will now render on live.')."</pre>
+            <br><br>
+            <a href='".route('home')."' style='background:#850f0f; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;'>Go to Home Page</a>
+        </div>";
+    } catch (\Throwable $e) {
+        return "<div style='font-family:sans-serif; padding:40px; text-align:center;'>
+            <h1 style='color:#991b1b;'>❌ Cache Clear Executed with Warning</h1>
+            <p>".e($e->getMessage())."</p>
+            <a href='".route('home')."' style='background:#850f0f; color:#fff; padding:10px 24px; border-radius:6px; text-decoration:none; font-weight:bold;'>Return to Home</a>
+        </div>";
+    }
+})->name('clear.cache');
+

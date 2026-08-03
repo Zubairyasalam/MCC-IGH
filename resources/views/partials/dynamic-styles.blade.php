@@ -1515,19 +1515,32 @@
         }
     }
 
-    // Run on load and whenever the DOM changes
-    window.addEventListener('DOMContentLoaded', applyDynamicTheme);
-    window.addEventListener('load', applyDynamicTheme);
+    function initDynamicThemeObserver() {
+        if (!document.body) return;
 
-    // Mutation Observer to catch dynamic content (like modals or JS-generated elements)
-    const observer = new MutationObserver((mutations) => {
+        let isUpdating = false;
+        const observer = new MutationObserver(() => {
+            if (isUpdating) return;
+            isUpdating = true;
+            applyDynamicTheme();
+            setTimeout(() => { isUpdating = false; }, 100);
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            applyDynamicTheme();
+            initDynamicThemeObserver();
+        });
+    } else {
         applyDynamicTheme();
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class']
-    });
+        initDynamicThemeObserver();
+    }
 </script>

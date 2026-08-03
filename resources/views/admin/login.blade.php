@@ -131,6 +131,13 @@
         @if(session('error'))
             <div class="alert-error">{{ session('error') }}</div>
         @endif
+        @if($errors->any())
+            <div class="alert-error">
+                @foreach ($errors->all() as $error)
+                    <div style="margin: 2px 0;">{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
 
         <form action="{{ route('admin.login.post') }}" method="POST">
             @csrf

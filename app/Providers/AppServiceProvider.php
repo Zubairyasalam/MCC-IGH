@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         // This ensures email links work for everyone on the same WiFi, even if the .env IP changes.
         if (!app()->runningInConsole()) {
             config(['app.url' => request()->getSchemeAndHttpHost()]);
+            if (request()->isSecure() || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || env('APP_ENV') === 'production') {
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
         }
 
         // Auto-Check and Auto-Migrate missing database columns for bookings table on live server
