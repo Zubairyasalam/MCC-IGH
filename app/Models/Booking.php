@@ -13,7 +13,7 @@ class Booking extends Model
         'start_time', 'end_time', 'total_price', 'razorpay_order_id', 
         'razorpay_payment_id', 'payment_status', 'approval_status',
         'nationality', 'user_type', 'stream', 'level', 'department',
-        'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'is_admin_read', 'booking_reason', 'residence_status', 'reference_id', 'passport_visa_attachment', 'passport_attachment', 'visa_attachment'
+        'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'is_admin_read', 'booking_reason', 'residence_status', 'reference_id', 'passport_visa_attachment', 'passport_attachment', 'visa_attachment', 'rejection_reason'
     ];
     protected static function boot()
     {

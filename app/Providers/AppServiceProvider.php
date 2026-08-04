@@ -76,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
                     'no_of_persons' => 'integer',
                     'passport_number' => 'string',
                     'approval_status' => 'string',
+                    'rejection_reason' => 'string',
                 ];
 
                 $missing = array_diff(array_keys($requiredColumns), $columns);
@@ -109,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
                             if (in_array('is_admin_read', $missing)) $table->boolean('is_admin_read')->default(false);
                             if (in_array('booking_reason', $missing)) $table->text('booking_reason')->nullable();
                             if (in_array('approval_status', $missing)) $table->string('approval_status')->default('Pending')->nullable();
+                            if (in_array('rejection_reason', $missing)) $table->text('rejection_reason')->nullable();
                         });
                     }
                 }

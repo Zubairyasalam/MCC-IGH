@@ -3,101 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Action - MCC IGH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>{{ $actionTitle ?? 'Booking Review' }} - MCC IGH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     @include('partials.dynamic-styles')
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #f8fafc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 2rem 1.25rem;
-        }
-        .container {
-            background: white;
-            padding: 3.5rem 2.5rem;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
-            max-width: 480px;
-            width: 100%;
-            border: 1px solid #e2e8f0;
-        }
-        .icon {
-            font-size: 4.5rem;
-            margin-bottom: 2rem;
-        }
-        .icon-success { color: #22c55e; }
-        .icon-info { color: #3b82f6; }
-        .icon-error { color: #ef4444; }
-        h1 {
-            font-size: 1.75rem;
-            font-weight: 800;
             color: #1e293b;
-            margin-bottom: 1rem;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
-        p {
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            font-size: 1.05rem;
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            max-width: 520px;
+            width: 100%;
+            padding: 2rem;
+            border: 1px solid #e2e8f0;
+            margin-top: 1.5rem;
         }
-        .btn {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            background: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
+        .card-title {
+            font-size: 1.65rem;
             font-weight: 700;
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(255, 122, 0, 0.2);
+            color: #0f172a;
+            margin-bottom: 1.25rem;
         }
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(255, 122, 0, 0.3);
-            opacity: 0.95;
+        .banner-warning {
+            background-color: #fef9c3;
+            border: 1px solid #fef08a;
+            color: #854d0e;
+            padding: 0.85rem 1.15rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
         }
-
-        @media (max-width: 480px) {
-            body { padding: 1.5rem 1rem; }
-            .container { padding: 2.5rem 1.5rem; border-radius: 20px; }
-            .icon { font-size: 3.5rem; }
-            h1 { font-size: 1.4rem; }
-            p { font-size: 0.95rem; }
-            .btn { width: 100%; padding: 0.85rem; }
+        .banner-success {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 0.85rem 1.15rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+        .banner-error {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 0.85rem 1.15rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+        .detail-group {
+            margin-bottom: 1.1rem;
+        }
+        .detail-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        .detail-value {
+            font-size: 0.95rem;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .detail-value a {
+            color: #1e293b;
+            text-decoration: underline;
+        }
+        .reason-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #475569;
+            margin-top: 0.25rem;
+        }
+        .form-group {
+            margin-top: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            min-height: 90px;
+            resize: vertical;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 0.85rem;
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.15s;
+        }
+        .btn-submit:hover {
+            background-color: #b91c1c;
+        }
+        .footer-link {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .footer-link a {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-decoration: none;
+        }
+        .footer-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        @if(session('error'))
-            <div class="icon icon-error" style="color: #ef4444;"><i class="ph-fill ph-x-circle"></i></div>
-            <h1>Action Completed</h1>
-            <p>{{ session('error') }}</p>
-        @elseif(session('success'))
-            <div class="icon icon-success"><i class="ph-fill ph-check-circle"></i></div>
-            <h1>Action Successful!</h1>
-            <p>{{ session('success') }}</p>
+    <div class="card">
+        <h1 class="card-title">{{ $actionTitle ?? 'Booking Review' }}</h1>
+
+        @if(!empty($alreadyReviewed))
+            <div class="banner-warning">
+                This booking has already been reviewed: {{ $statusDisplay ?? 'Processed' }}.
+            </div>
+        @elseif(!empty($success) || session('success'))
+            <div class="banner-success">
+                {{ $success ?? session('success') }}
+            </div>
+        @elseif(!empty($error) || session('error'))
+            <div class="banner-error">
+                {{ $error ?? session('error') }}
+            </div>
         @elseif(session('info'))
-            <div class="icon icon-info"><i class="ph-fill ph-info"></i></div>
-            <h1>Notice</h1>
-            <p>{{ session('info') }}</p>
-        @else
-            <div class="icon icon-info"><i class="ph-fill ph-hand-palm"></i></div>
-            <h1>Processing...</h1>
-            <p>Your action is being processed.</p>
+            <div class="banner-warning">
+                {{ session('info') }}
+            </div>
         @endif
-        
-        <a href="{{ route('home') }}" class="btn">Back to Website</a>
+
+        @if(!empty($booking))
+            <div class="detail-group">
+                <div class="detail-label">Booking Number</div>
+                <div class="detail-value">#{{ $booking->reference_id ?? $booking->id }}</div>
+            </div>
+
+            <div class="detail-group">
+                <div class="detail-label">Space</div>
+                <div class="detail-value">{{ $booking->room_name }}</div>
+            </div>
+
+            <div class="detail-group">
+                <div class="detail-label">Customer</div>
+                <div class="detail-value">{{ $booking->name }} (<a href="mailto:{{ $booking->email }}">{{ $booking->email }}</a>)</div>
+            </div>
+
+            <div class="detail-group">
+                <div class="detail-label">Purpose</div>
+                <div class="detail-value">{{ $booking->booking_reason ?: 'Guest Accommodation' }}</div>
+            </div>
+
+            <div class="detail-group">
+                <div class="detail-label">Total Amount</div>
+                <div class="detail-value">₹{{ number_format((float)($booking->total_price ?? 0)) }}</div>
+            </div>
+
+            @if(!empty($booking->rejection_reason))
+                <div class="detail-group">
+                    <div class="detail-label">Rejection Reason</div>
+                    <div class="reason-box">{{ $booking->rejection_reason }}</div>
+                </div>
+            @endif
+
+            @if(empty($alreadyReviewed) && !empty($showRejectForm))
+                <form action="{{ route('admin.bookings.reject', $booking->id) }}" method="POST" class="form-group">
+                    @csrf
+                    <label class="form-label">Reason for Rejection <span style="color: #dc2626;">*</span></label>
+                    <textarea name="rejection_reason" class="form-textarea" placeholder="Please enter the reason for rejecting this booking..." required></textarea>
+                    <button type="submit" class="btn-submit">Reject Booking</button>
+                </form>
+            @endif
+        @else
+            <div class="detail-value">{{ session('info') ?? session('success') ?? session('error') ?? 'Booking processed.' }}</div>
+        @endif
+
+        <div class="footer-link">
+            <a href="{{ route('home') }}">Return to Homepage</a>
+        </div>
     </div>
 </body>
 </html>

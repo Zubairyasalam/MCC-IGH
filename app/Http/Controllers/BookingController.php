@@ -328,62 +328,88 @@ class BookingController extends Controller
     public function hodApprove($id)
     {
         $booking = Booking::findOrFail($id);
-        
-        if ($booking->approval_status === 'Pending HOD Approval') {
-            $booking->update(['approval_status' => 'Pending Principal Approval']);
-            
-            // Notify Principal
-            try {
-                $this->setupMailConfig();
-                $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
-                Mail::to($principalEmails)->send(new BookingNotification($booking));
-                Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after HOD approval for ID: ' . $booking->id);
-            } catch (\Exception $e) {
-                Log::error('Failed to send Principal notification after HOD approval: ' . $e->getMessage());
-            }
+        $status = $booking->approval_status;
 
-            return redirect()->route('approval.status')->with('success', 'Booking approved by HOD. Sent to Principal for final approval.');
+        if ($status !== 'Pending HOD Approval' && $status !== 'Pending') {
+            $statusDisplay = in_array($status, ['Approved', 'Approved by Principal', 'Principal Approved', 'Pending Principal Approval']) 
+                ? 'Approved' 
+                : ($status === 'Rejected' ? 'Rejected' : $status);
+
+            return view('approval_status', [
+                'actionTitle' => 'Approve Booking (HOD)',
+                'booking' => $booking,
+                'alreadyReviewed' => true,
+                'statusDisplay' => $statusDisplay
+            ]);
         }
 
-        return redirect()->route('approval.status')->with('info', 'This booking has already been processed.');
+        $booking->update(['approval_status' => 'Pending Principal Approval']);
+        
+        // Notify Principal
+        try {
+            $this->setupMailConfig();
+            $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
+            Mail::to($principalEmails)->send(new BookingNotification($booking));
+            Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after HOD approval for ID: ' . $booking->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send Principal notification after HOD approval: ' . $e->getMessage());
+        }
+
+        return view('approval_status', [
+            'actionTitle' => 'Approve Booking (HOD)',
+            'booking' => $booking,
+            'alreadyReviewed' => false,
+            'statusDisplay' => 'Approved by HOD',
+            'success' => 'Booking approved by HOD. Sent to Principal for final approval.'
+        ]);
     }
 
     public function wardenApprove($id)
     {
         $booking = Booking::findOrFail($id);
-        
-        if ($booking->approval_status === 'Pending Warden Approval') {
-            $booking->update(['approval_status' => 'Pending Principal Approval']);
-            
-            // Notify Principal
-            try {
-                $this->setupMailConfig();
-                $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
-                Mail::to($principalEmails)->send(new BookingNotification($booking));
-                Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after Warden approval for ID: ' . $booking->id);
-            } catch (\Exception $e) {
-                Log::error('Failed to send Principal notification after Warden approval: ' . $e->getMessage());
-            }
+        $status = $booking->approval_status;
 
-            return redirect()->route('approval.status')->with('success', 'Booking approved by Hall Warden. Sent to Principal for final approval.');
+        if ($status !== 'Pending Warden Approval' && $status !== 'Pending') {
+            $statusDisplay = in_array($status, ['Approved', 'Approved by Principal', 'Principal Approved', 'Pending Principal Approval']) 
+                ? 'Approved' 
+                : ($status === 'Rejected' ? 'Rejected' : $status);
+
+            return view('approval_status', [
+                'actionTitle' => 'Approve Booking (Warden)',
+                'booking' => $booking,
+                'alreadyReviewed' => true,
+                'statusDisplay' => $statusDisplay
+            ]);
         }
 
-        return redirect()->route('approval.status')->with('info', 'This booking has already been processed.');
+        $booking->update(['approval_status' => 'Pending Principal Approval']);
+        
+        // Notify Principal
+        try {
+            $this->setupMailConfig();
+            $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
+            Mail::to($principalEmails)->send(new BookingNotification($booking));
+            Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after Warden approval for ID: ' . $booking->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send Principal notification after Warden approval: ' . $e->getMessage());
+        }
+
+        return view('approval_status', [
+            'actionTitle' => 'Approve Booking (Warden)',
+            'booking' => $booking,
+            'alreadyReviewed' => false,
+            'statusDisplay' => 'Approved by Warden',
+            'success' => 'Booking approved by Hall Warden. Sent to Principal for final approval.'
+        ]);
     }
 
-    public function hodReject($id)
+    public function hodReject($id, \Illuminate\Http\Request $request)
     {
-        $booking = Booking::findOrFail($id);
-        $booking->update(['approval_status' => 'Rejected']);
-        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
-        return redirect()->route('approval.status')->with('error', 'Booking has been rejected.');
+        return app(\App\Http\Controllers\AdminController::class)->reject($id, $request);
     }
 
-    public function wardenReject($id)
+    public function wardenReject($id, \Illuminate\Http\Request $request)
     {
-        $booking = Booking::findOrFail($id);
-        $booking->update(['approval_status' => 'Rejected']);
-        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
-        return redirect()->route('approval.status')->with('error', 'Booking has been rejected.');
+        return app(\App\Http\Controllers\AdminController::class)->reject($id, $request);
     }
 }

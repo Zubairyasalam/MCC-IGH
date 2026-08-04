@@ -227,19 +227,42 @@ class AdminController extends Controller
     public function principalApprove($id)
     {
         $booking = Booking::findOrFail($id);
-        
-        if ($booking->approval_status === 'Pending' || $booking->approval_status === 'Pending Principal Approval') {
-            $booking->update(['approval_status' => 'Approved by Principal']);
-            return redirect()->route('approval.status')->with('success', 'Booking approved by Principal. Admin has been notified for final confirmation.');
-        } 
-        
-        return redirect()->route('approval.status')->with('info', 'This booking has already been processed.');
+        $status = $booking->approval_status;
+
+        $isPending = in_array($status, ['Pending', 'Pending Principal Approval']);
+
+        if (!$isPending) {
+            $statusDisplay = in_array($status, ['Approved', 'Approved by Principal', 'Principal Approved']) 
+                ? 'Approved' 
+                : ($status === 'Rejected' ? 'Rejected' : $status);
+
+            return view('approval_status', [
+                'actionTitle' => 'Approve Booking',
+                'booking' => $booking,
+                'alreadyReviewed' => true,
+                'statusDisplay' => $statusDisplay
+            ]);
+        }
+
+        $booking->update(['approval_status' => 'Approved by Principal']);
+
+        return view('approval_status', [
+            'actionTitle' => 'Approve Booking',
+            'booking' => $booking,
+            'alreadyReviewed' => false,
+            'statusDisplay' => 'Approved',
+            'success' => 'Booking approved by Principal. Admin has been notified for final confirmation.'
+        ]);
     }
 
     public function adminApprove($id)
     {
         $booking = Booking::findOrFail($id);
         
+        if ($booking->approval_status === 'Rejected') {
+            return back()->with('error', 'This booking has already been rejected and cannot be approved.');
+        }
+
         if ($booking->approval_status !== 'Principal Approved' && $booking->approval_status !== 'Approved by Principal' && $booking->approval_status !== 'Approved') {
             return back()->with('error', 'Strict Enforced: This booking must be approved by the Principal first.');
         }
@@ -331,14 +354,56 @@ class AdminController extends Controller
     public function reject($id, Request $request)
     {
         $booking = Booking::findOrFail($id);
-        $booking->update(['approval_status' => 'Rejected']);
-        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
-        
-        if ($request->isMethod('post')) {
-            return back()->with('error', 'Booking has been rejected.');
+        $status = $booking->approval_status;
+
+        $isAlreadyReviewed = in_array($status, ['Approved', 'Approved by Principal', 'Principal Approved', 'Rejected']);
+
+        if ($isAlreadyReviewed) {
+            $statusDisplay = in_array($status, ['Approved', 'Approved by Principal', 'Principal Approved']) 
+                ? 'Approved' 
+                : ($status === 'Rejected' ? 'Rejected' : $status);
+
+            if ($request->isMethod('post') && $request->header('Referer') && str_contains($request->header('Referer'), '/admin')) {
+                return back()->with('error', "This booking has already been reviewed: {$statusDisplay}. Status cannot be changed.");
+            }
+
+            return view('approval_status', [
+                'actionTitle' => 'Reject Booking',
+                'booking' => $booking,
+                'alreadyReviewed' => true,
+                'statusDisplay' => $statusDisplay
+            ]);
         }
-        
-        return redirect()->route('approval.status')->with('error', 'Booking has been rejected.');
+
+        // If GET request, show rejection reason form with booking details
+        if ($request->isMethod('get')) {
+            return view('approval_status', [
+                'actionTitle' => 'Reject Booking',
+                'booking' => $booking,
+                'alreadyReviewed' => false,
+                'showRejectForm' => true
+            ]);
+        }
+
+        // Process rejection (POST request)
+        $rejectionReason = $request->input('rejection_reason') ?? 'Rejected by authority.';
+        $booking->update([
+            'approval_status' => 'Rejected',
+            'rejection_reason' => $rejectionReason
+        ]);
+
+        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
+
+        if ($request->header('Referer') && str_contains($request->header('Referer'), '/admin')) {
+            return back()->with('success', 'Booking rejected successfully.');
+        }
+
+        return view('approval_status', [
+            'actionTitle' => 'Reject Booking',
+            'booking' => $booking,
+            'alreadyReviewed' => true,
+            'statusDisplay' => 'Rejected'
+        ]);
     }
 
     public function markAsPaid($id)

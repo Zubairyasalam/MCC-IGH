@@ -102,12 +102,13 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
 
 // These routes are now public for one-click approval from email
 Route::get('/admin/bookings/{id}/approve', [AdminController::class, 'principalApprove'])->name('admin.bookings.approve.get');
-Route::get('/admin/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject.get');
+Route::match(['get', 'post'], '/admin/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject.get');
+Route::post('/admin/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject');
 
 Route::get('/admin/bookings/{id}/approve/hod', [BookingController::class, 'hodApprove'])->name('bookings.approve.hod');
 Route::get('/admin/bookings/{id}/approve/warden', [BookingController::class, 'wardenApprove'])->name('bookings.approve.warden');
-Route::get('/admin/bookings/{id}/reject/hod', [BookingController::class, 'hodReject'])->name('bookings.reject.hod');
-Route::get('/admin/bookings/{id}/reject/warden', [BookingController::class, 'wardenReject'])->name('bookings.reject.warden');
+Route::match(['get', 'post'], '/admin/bookings/{id}/reject/hod', [BookingController::class, 'hodReject'])->name('bookings.reject.hod');
+Route::match(['get', 'post'], '/admin/bookings/{id}/reject/warden', [BookingController::class, 'wardenReject'])->name('bookings.reject.warden');
 
 // SuperAdmin Auth
 Route::get('/superadmin/login', [LoginController::class, 'showSuperAdminLogin'])->name('superadmin.login');
