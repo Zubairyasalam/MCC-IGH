@@ -213,9 +213,9 @@ class BookingController extends Controller
                     Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
                     Log::info("Booking notification sent to HOD ({$hodEmail}) for ID: " . $booking->id);
                 } else {
-                    $principalEmail = $getSetting('principal_email', 'prasathragul75@gmail.com');
-                    Mail::to($principalEmail)->send(new BookingNotification($booking));
-                    Log::info("Booking notification sent to Principal ({$principalEmail}) for ID: " . $booking->id);
+                    $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
+                    Mail::to($principalEmails)->send(new BookingNotification($booking));
+                    Log::info("Booking notification sent to Principal (" . implode(', ', $principalEmails) . ") for ID: " . $booking->id);
                 }
 
                 // Send WhatsApp Notification to the Principal safely
@@ -335,9 +335,9 @@ class BookingController extends Controller
             // Notify Principal
             try {
                 $this->setupMailConfig();
-                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
-                Mail::to($principalEmail)->send(new BookingNotification($booking));
-                Log::info('Booking notification sent to Principal after HOD approval for ID: ' . $booking->id);
+                $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
+                Mail::to($principalEmails)->send(new BookingNotification($booking));
+                Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after HOD approval for ID: ' . $booking->id);
             } catch (\Exception $e) {
                 Log::error('Failed to send Principal notification after HOD approval: ' . $e->getMessage());
             }
@@ -358,9 +358,9 @@ class BookingController extends Controller
             // Notify Principal
             try {
                 $this->setupMailConfig();
-                $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
-                Mail::to($principalEmail)->send(new BookingNotification($booking));
-                Log::info('Booking notification sent to Principal after Warden approval for ID: ' . $booking->id);
+                $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
+                Mail::to($principalEmails)->send(new BookingNotification($booking));
+                Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after Warden approval for ID: ' . $booking->id);
             } catch (\Exception $e) {
                 Log::error('Failed to send Principal notification after Warden approval: ' . $e->getMessage());
             }

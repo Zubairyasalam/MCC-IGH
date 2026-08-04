@@ -95,7 +95,22 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'system_email'        => 'required|email',
-            'principal_email'     => 'required|email',
+            'principal_email'     => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    $emails = array_filter(array_map('trim', explode(',', $value)));
+                    if (empty($emails)) {
+                        $fail('The Principal Email address field is required.');
+                        return;
+                    }
+                    foreach ($emails as $email) {
+                        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                            $fail("The email address '{$email}' is not valid.");
+                        }
+                    }
+                }
+            ],
             'hod_email'           => 'required|email',
             'hall_warden_email'   => 'required|email',
             'mail_password'       => 'required',

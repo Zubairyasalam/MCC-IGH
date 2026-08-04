@@ -153,7 +153,7 @@ class PaymentController extends Controller
                     $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
                     $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
                     $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
-                    $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                    $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
 
                     config([
                         'mail.default' => $mailMailer,
@@ -169,7 +169,7 @@ class PaymentController extends Controller
                     \Illuminate\Support\Facades\Mail::purge('smtp');
 
                     // Notify Guest and Principal
-                    Mail::to($booking->email)->cc($principalEmail)->send(new PaymentSuccessMail($booking, $payment));
+                    Mail::to($booking->email)->cc($principalEmails)->send(new PaymentSuccessMail($booking, $payment));
                     
                     Log::info("Payment success invoice sent to " . $booking->email);
                 } catch (\Exception $e) {
@@ -253,7 +253,7 @@ class PaymentController extends Controller
                     $mailPort       = \App\Models\Setting::where('key', 'mail_port')->value('value')       ?? '587';
                     $mailEncryption = \App\Models\Setting::where('key', 'mail_encryption')->value('value') ?? 'tls';
                     $mailMailer     = \App\Models\Setting::where('key', 'mail_mailer')->value('value')     ?? 'smtp';
-                    $principalEmail = \App\Models\Setting::where('key', 'principal_email')->value('value') ?? 'prasathragul75@gmail.com';
+                    $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
 
                     config([
                         'mail.default' => $mailMailer,
@@ -269,7 +269,7 @@ class PaymentController extends Controller
                     \Illuminate\Support\Facades\Mail::purge('smtp');
 
                     // Notify Guest and Principal
-                    Mail::to($booking->email)->cc($principalEmail)->send(new PaymentSuccessMail($booking, $payment));
+                    Mail::to($booking->email)->cc($principalEmails)->send(new PaymentSuccessMail($booking, $payment));
                     
                     Log::info("Payment success invoice sent (webhook) to " . $booking->email);
                 } catch (\Exception $e) {

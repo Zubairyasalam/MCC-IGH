@@ -388,8 +388,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Principal Email Address</label>
-                    <input type="email" name="principal_email" value="{{ $settings['principal_email'] ?? '' }}" required placeholder="e.g. principal@mcc.edu.in">
+                    <label>Principal Email Address(es)</label>
+                    <input type="text" name="principal_email" value="{{ $settings['principal_email'] ?? '' }}" required placeholder="e.g. principal1@mcc.edu.in, principal2@mcc.edu.in">
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">
+                        <i class="ph ph-info"></i> Separate multiple emails with a comma (e.g., email1@mcc.edu.in, email2@mcc.edu.in)
+                    </div>
                 </div>
 
                 <div class="form-group">
