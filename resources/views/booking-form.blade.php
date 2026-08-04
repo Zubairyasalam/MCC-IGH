@@ -694,29 +694,32 @@
     @include('partials.header', ['headerBackBtn' => ['url' => route('home'), 'label' => 'Home']])
 
     @php
-        $normalizedRoomId = strtolower($roomId);
+        $rawRoomId = $roomId ?? 'conference-room';
+        $normalizedSlug = \Illuminate\Support\Str::slug($rawRoomId);
         
         // Get GST rate from DB
         $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
         
-        // Static room data for Summary Card
-        $roomsData = [
+        // Master static room data for Summary Card and Form Validation
+        $masterRooms = [
             'conference-hall' => [
                 'name' => 'Conference Hall',
                 'price' => 2000,
                 'price_formatted' => '₹2,000',
                 'time' => '/ 4 Hours',
+                'capacity_num' => 60,
                 'capacity' => '60 Members',
                 'img' => asset('assets/standard/conference.JPG'),
                 'category' => 'Conference Wing'
             ],
             'conference-room' => [
                 'name' => 'Conference Room',
-                'price' => 1500,
-                'price_formatted' => '₹1,500',
+                'price' => 2000,
+                'price_formatted' => '₹2,000',
                 'time' => '/ 4 Hours',
-                'capacity' => '12 Members',
-                'img' => asset('assets/standard/conferenceroom.JPG'),
+                'capacity_num' => 60,
+                'capacity' => '60 Members',
+                'img' => asset('assets/standard/conference.JPG'),
                 'category' => 'Conference Wing'
             ],
             'glass-room' => [
@@ -724,8 +727,9 @@
                 'price' => 1500,
                 'price_formatted' => '₹1,500',
                 'time' => '/ 4 Hours',
-                'capacity' => '20 Members',
-                'img' => asset('assets/standard/glassroom.JPG'),
+                'capacity_num' => 15,
+                'capacity' => '15 Members',
+                'img' => asset('assets/standard/glass.JPG'),
                 'category' => 'Conference Wing'
             ],
             'suite-room' => [
@@ -733,48 +737,51 @@
                 'price' => 4500,
                 'price_formatted' => '₹4,500',
                 'time' => '/ Day',
-                'capacity' => '4 Members',
+                'capacity_num' => 2,
+                'capacity' => '2 Members',
                 'img' => asset('assets/suite.JPG'),
                 'category' => 'Luxury Wing'
-            ]
-        ];
-
-        // Check for standard/advance rooms
-        if (str_contains($normalizedRoomId, 'standard')) {
-            $room = [
+            ],
+            'standard-guest-room' => [
                 'name' => 'Standard Guest Room',
                 'price' => 1400,
                 'price_formatted' => '₹1,400',
                 'time' => '/ 12 Hours',
+                'capacity_num' => 2,
                 'capacity' => '2 Members',
                 'img' => asset('assets/standard/standardroom.JPG'),
                 'category' => 'Guest Wing'
-            ];
-            $maxCapacity = 2;
-        } elseif (str_contains($normalizedRoomId, 'advance')) {
-            $room = [
+            ],
+            'advance-executive-room' => [
                 'name' => 'Advance Executive Room',
                 'price' => 2500,
                 'price_formatted' => '₹2,500',
                 'time' => '/ Day',
+                'capacity_num' => 4,
                 'capacity' => '4 Members',
                 'img' => asset('assets/room1.JPG'),
                 'category' => 'Executive Wing'
-            ];
-            $maxCapacity = 4;
+            ]
+        ];
+
+        // Match room by exact key, slug match, or partial keyword match
+        if (isset($masterRooms[$normalizedSlug])) {
+            $room = $masterRooms[$normalizedSlug];
+        } elseif (str_contains($normalizedSlug, 'glass')) {
+            $room = $masterRooms['glass-room'];
+        } elseif (str_contains($normalizedSlug, 'conference')) {
+            $room = $masterRooms['conference-room'];
+        } elseif (str_contains($normalizedSlug, 'suite')) {
+            $room = $masterRooms['suite-room'];
+        } elseif (str_contains($normalizedSlug, 'standard')) {
+            $room = $masterRooms['standard-guest-room'];
+        } elseif (str_contains($normalizedSlug, 'advance') || is_numeric($rawRoomId)) {
+            $room = $masterRooms['advance-executive-room'];
         } else {
-            // Fallback using matched data or general values
-            $key = isset($roomsData[$normalizedRoomId]) ? $normalizedRoomId : 'conference-hall';
-            $room = $roomsData[$key];
-            
-            if (str_contains($normalizedRoomId, 'conference-hall') || str_contains($normalizedRoomId, 'conference-room')) {
-                $maxCapacity = 60;
-            } elseif (str_contains($normalizedRoomId, 'glass-room')) {
-                $maxCapacity = 20;
-            } else {
-                $maxCapacity = 4;
-            }
+            $room = $masterRooms['conference-room'];
         }
+
+        $maxCapacity = $room['capacity_num'];
     @endphp
 
     <main>
@@ -1534,6 +1541,18 @@
             }
         }
 
+        function syncClockOutMin() {
+            const clockInEl = document.querySelector('input[name="clock_in"]');
+            const clockOutEl = document.querySelector('input[name="clock_out"]');
+            
+            if (clockInEl && clockOutEl && clockInEl.value) {
+                clockOutEl.min = clockInEl.value;
+                if (!clockOutEl.value || clockOutEl.value <= clockInEl.value) {
+                    clockOutEl.value = clockInEl.value;
+                }
+            }
+        }
+
         // Initialize state natively on load to prevent glitch rendering
         document.addEventListener('DOMContentLoaded', () => {
             toggleStudentFields();
@@ -1544,8 +1563,18 @@
             const clockOutEl = document.querySelector('input[name="clock_out"]');
             
             if (clockInEl && clockOutEl) {
-                clockInEl.addEventListener('change', calculateEstimatedPrice);
+                const handleClockInChange = () => {
+                    syncClockOutMin();
+                    calculateEstimatedPrice();
+                };
+
+                clockInEl.addEventListener('change', handleClockInChange);
+                clockInEl.addEventListener('input', handleClockInChange);
+
                 clockOutEl.addEventListener('change', calculateEstimatedPrice);
+                clockOutEl.addEventListener('input', calculateEstimatedPrice);
+
+                syncClockOutMin();
             }
             
             calculateEstimatedPrice();

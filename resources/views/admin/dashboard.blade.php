@@ -236,7 +236,7 @@
         /* Stats Cards */
         .stats-grid {
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); 
             gap: 1rem; 
             margin-bottom: 2rem;
             width: 100%;
@@ -245,14 +245,16 @@
 
         .stat-card {
             background: white; 
-            padding: 1.5rem; 
+            padding: 1.25rem; 
             border-radius: 16px; 
             border: 1px solid var(--border);
             display: flex; 
             flex-direction: column; 
-            gap: 0.5rem; 
+            justify-content: space-between;
+            min-height: 130px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
             min-width: 0;
+            overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -264,19 +266,21 @@
         .stat-header { 
             display: flex; 
             justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 0.25rem;
+            align-items: flex-start; 
+            margin-bottom: 0.5rem;
             gap: 0.5rem;
+            width: 100%;
+            min-width: 0;
         }
 
         .stat-icon {
-            width: 40px; 
-            height: 40px; 
+            width: 36px; 
+            height: 36px; 
             border-radius: 10px; 
             display: flex; 
             align-items: center;
             justify-content: center; 
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             flex-shrink: 0;
         }
 
@@ -287,22 +291,28 @@
         .icon-red { background: #fef2f2; color: #ef4444; }
 
         .stat-value { 
-            font-size: 1.75rem; 
-            font-weight: 700; 
+            font-size: clamp(1.15rem, 1.5vw, 1.55rem); 
+            font-weight: 800; 
             color: #1e293b;
             line-height: 1.2;
             margin-top: auto;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         .stat-label { 
-            font-size: 0.7rem; 
+            font-size: 0.68rem; 
             color: #64748b; 
             font-weight: 700; 
             text-transform: uppercase; 
-            letter-spacing: 0.05em;
-            line-height: 1.2;
+            letter-spacing: 0.04em;
+            line-height: 1.25;
             word-wrap: break-word;
             display: block;
+            flex: 1;
+            min-width: 0;
         }
 
         /* Generic Section Card */

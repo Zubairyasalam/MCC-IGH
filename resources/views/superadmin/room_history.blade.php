@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -24,9 +24,23 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg-color); display: flex; min-height: 100vh; }
 
         .sidebar { width: var(--sidebar-width); background: white; height: 100vh; border-right: 1px solid var(--border); position: fixed; display: flex; flex-direction: column; z-index: 100; }
-        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); }
-        .sidebar-logo { display: flex; align-items: center; padding: 0.25rem 0; }
-        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
+        .sidebar-header {
+            height: 72px;
+            padding: 0 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .sidebar-logo { display: flex; align-items: center; }
+        .sidebar-logo img { height: 44px; width: auto; max-width: 135px; object-fit: contain; }
+        .superadmin-badge {
+            font-size: 0.65rem; font-weight: 800; color: var(--primary-color, #850f0f);
+            background: rgba(133, 15, 15, 0.08); padding: 3px 8px; border-radius: 6px;
+            letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid rgba(133, 15, 15, 0.15);
+            white-space: nowrap;
+        }
         .sidebar-menu { flex: 1; padding: 1rem 0.75rem; }
         .menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 0.85rem; transition: all 0.2s; margin-bottom: 0.25rem; }
         .menu-item:hover, .menu-item.active { background: rgba(133, 15, 15, 0.08); color: var(--primary-color); }
@@ -77,7 +91,8 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
+            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo"></div>
+            <span class="superadmin-badge">SUPERADMIN</span>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item">
@@ -88,12 +103,6 @@
             </a>
             <a href="{{ route('superadmin.payments') }}" class="menu-item active">
                 <i class="ph ph-wallet"></i> Payment Details
-            </a>
-            <a href="{{ route('superadmin.webhooks') }}" class="menu-item {{ Route::is('superadmin.webhooks') ? 'active' : '' }}">
-                <i class="ph-bold ph-plugs-connected"></i> Webhooks
-            </a>
-            <a href="{{ route('superadmin.webhooks.logs') }}" class="menu-item {{ Route::is('superadmin.webhooks.logs') ? 'active' : '' }}">
-                <i class="ph-bold ph-article"></i> Webhook Logs
             </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item">
                 <i class="ph ph-gear"></i> System Settings

@@ -1159,10 +1159,10 @@
             ],
             'conference-room' => [
                 'name' => 'Conference Room',
-                'price' => '₹1,500',
+                'price' => '₹2,000',
                 'time' => '/ 4 Hours',
-                'capacity' => '12 Members',
-                'size' => '350 sq.ft',
+                'capacity' => '60 Members',
+                'size' => '1200 sq.ft',
                 'location' => 'Main Wing, 1st Floor',
                 'img' => asset('assets/standard/conference.JPG'),
                 'desc' => 'An elegant, state-of-the-art corporate room designed for executive meetings, board discussions, and private presentations. Equipped with high-speed WiFi, modern presentation screen, comfortable executive chairs, and dedicated beverage support, the Conference Room is the perfect setting for high-level decision making.',
@@ -1181,8 +1181,8 @@
                     ['text' => 'Dedicated technical support', 'icon' => 'ph ph-headset'],
                 ],
                 'capacity_breakdown' => [
-                    ['title' => 'Theater', 'value' => '20'],
-                    ['title' => 'Boardroom', 'value' => '12'],
+                    ['title' => 'Theater', 'value' => '60'],
+                    ['title' => 'Boardroom', 'value' => '40'],
                 ],
                 'tips' => [
                     'Minimum booking: 4 hours',
@@ -1201,13 +1201,13 @@
             ],
             'glass-room' => [
                 'name' => 'Glass Room',
-                'price' => '₹2,000',
+                'price' => '₹1,500',
                 'time' => '/ 4 Hours',
-                'capacity' => '20 Members',
+                'capacity' => '15 Members',
                 'size' => '450 sq.ft',
                 'location' => 'East Wing, Ground Floor',
                 'img' => asset('assets/standard/glass.JPG'),
-                'desc' => 'Inspire creativity in our modern Glass Room, a unique transparent facility designed for collaborative brainstorming and focused team sessions for up to 20 members. Flooded with natural light and equipped with the latest presentation technology, this space fosters an atmosphere of transparency and professional innovation.',
+                'desc' => 'Inspire creativity in our modern Glass Room, a unique transparent facility designed for collaborative brainstorming and focused team sessions for up to 15 members. Flooded with natural light and equipped with the latest presentation technology, this space fosters an atmosphere of transparency and professional innovation.',
                 'amenities' => [
                     ['name' => 'Modern Furniture', 'icon' => 'ph-armchair'],
                     ['name' => 'High Speed WiFi', 'icon' => 'ph-wifi-high'],
@@ -1223,9 +1223,9 @@
                     ['text' => 'Privacy blinds available', 'icon' => 'ph ph-eye-slash'],
                 ],
                 'capacity_breakdown' => [
-                    ['title' => 'Standing', 'value' => '25'],
+                    ['title' => 'Standing', 'value' => '20'],
                     ['title' => 'Boardroom', 'value' => '15'],
-                    ['title' => 'Informal', 'value' => '20'],
+                    ['title' => 'Informal', 'value' => '15'],
                 ],
                 'tips' => [
                     'Ideal for brainstorming sessions',
@@ -1246,9 +1246,9 @@
             ],
             'suite-room' => [
                 'name' => 'Suite Room',
-                'price' => '₹2,000',
-                'time' => '/ 4 Hours',
-                'capacity' => '4 Members',
+                'price' => '₹4,500',
+                'time' => '/ Day',
+                'capacity' => '2 Members',
                 'size' => '600 sq.ft',
                 'location' => 'Executive Wing, 2nd Floor',
                 'img' => asset('assets/suite.JPG'),

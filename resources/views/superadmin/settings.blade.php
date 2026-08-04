@@ -42,20 +42,34 @@
         }
 
         .sidebar-header {
-            padding: 1.5rem;
+            height: 72px;
+            padding: 0 1.25rem;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
         }
 
         .sidebar-logo {
-            font-weight: 800;
-            color: var(--primary-color);
-            font-size: 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
         }
 
-        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
+        .sidebar-logo img { height: 44px; width: auto; max-width: 135px; object-fit: contain; }
+
+        .superadmin-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--primary-color, #850f0f);
+            background: rgba(133, 15, 15, 0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(133, 15, 15, 0.15);
+            white-space: nowrap;
+        }
 
         .sidebar-menu {
             flex: 1;
@@ -80,7 +94,7 @@
         }
 
         .topbar-nav {
-            height: 64px;
+            height: 72px;
             background: white;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -299,7 +313,8 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
+            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo"></div>
+            <span class="superadmin-badge">SUPERADMIN</span>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item {{ Route::is('superadmin.dashboard') ? 'active' : '' }}">
@@ -310,12 +325,6 @@
             </a>
             <a href="{{ route('superadmin.payments') }}" class="menu-item {{ Route::is('superadmin.payments') ? 'active' : '' }}">
                 <i class="ph ph-wallet"></i> Payment Details
-            </a>
-            <a href="{{ route('superadmin.webhooks') }}" class="menu-item {{ Route::is('superadmin.webhooks') ? 'active' : '' }}">
-                <i class="ph-bold ph-plugs-connected"></i> Webhooks
-            </a>
-            <a href="{{ route('superadmin.webhooks.logs') }}" class="menu-item {{ Route::is('superadmin.webhooks.logs') ? 'active' : '' }}">
-                <i class="ph-bold ph-article"></i> Webhook Logs
             </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item {{ Route::is('superadmin.settings') ? 'active' : '' }}">
                 <i class="ph ph-gear"></i> System Settings

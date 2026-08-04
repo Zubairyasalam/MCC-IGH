@@ -1091,7 +1091,7 @@
                                     'route' => 'conference.rooms',
                                     'btnText' => 'EXPLORE HALLS',
                                     'amenities' => [
-                                        ['name' => '20 Capacity', 'icon' => 'ph-users'],
+                                        ['name' => '15 Capacity', 'icon' => 'ph-users'],
                                         ['name' => 'AC', 'icon' => 'ph-snowflake'],
                                         ['name' => 'Brainstorm', 'icon' => 'ph-lightbulb'],
                                     ]

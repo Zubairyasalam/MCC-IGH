@@ -23,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
         // This ensures email links work for everyone on the same WiFi, even if the .env IP changes.
         if (!app()->runningInConsole()) {
             config(['app.url' => request()->getSchemeAndHttpHost()]);
-            if (request()->isSecure() || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || env('APP_ENV') === 'production') {
+            // Force HTTPS scheme ONLY on non-localhost domains (live server)
+            if (!in_array(request()->getHost(), ['127.0.0.1', 'localhost']) && (request()->isSecure() || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || app()->environment('production'))) {
                 \Illuminate\Support\Facades\URL::forceScheme('https');
             }
         }

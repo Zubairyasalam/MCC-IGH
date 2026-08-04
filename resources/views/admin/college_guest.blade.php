@@ -1154,8 +1154,27 @@
         }
 
         if (clockInInput && clockOutInput) {
-            clockInInput.addEventListener('change', checkAvailability);
+            function syncClockOutMinAdmin() {
+                if (clockInInput.value) {
+                    clockOutInput.min = clockInInput.value;
+                    if (!clockOutInput.value || clockOutInput.value <= clockInInput.value) {
+                        clockOutInput.value = clockInInput.value;
+                    }
+                }
+            }
+
+            const handleAdminClockIn = () => {
+                syncClockOutMinAdmin();
+                checkAvailability();
+            };
+
+            clockInInput.addEventListener('change', handleAdminClockIn);
+            clockInInput.addEventListener('input', handleAdminClockIn);
+
             clockOutInput.addEventListener('change', checkAvailability);
+            clockOutInput.addEventListener('input', checkAvailability);
+
+            syncClockOutMinAdmin();
         }
 
         // Restore old room selection if exists

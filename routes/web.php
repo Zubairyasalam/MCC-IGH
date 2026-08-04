@@ -138,13 +138,6 @@ Route::prefix('superadmin')->middleware('superadmin.auth')->group(function () {
     Route::get('/payments', [SuperAdminController::class, 'payments'])->name('superadmin.payments');
     Route::get('/room-history/{room_name}', [SuperAdminController::class, 'roomHistory'])->name('superadmin.room.history');
 
-    // Webhook Management
-    Route::get('/webhooks', [SuperAdminController::class, 'webhookSettings'])->name('superadmin.webhooks');
-    Route::post('/webhooks', [SuperAdminController::class, 'storeWebhookEndpoint'])->name('superadmin.webhooks.store');
-    Route::post('/webhooks/{id}', [SuperAdminController::class, 'updateWebhookEndpoint'])->name('superadmin.webhooks.update');
-    Route::delete('/webhooks/{id}', [SuperAdminController::class, 'deleteWebhookEndpoint'])->name('superadmin.webhooks.delete');
-    Route::get('/webhooks/logs', [SuperAdminController::class, 'webhookLogs'])->name('superadmin.webhooks.logs');
-    Route::post('/webhooks/logs/{id}/retry', [SuperAdminController::class, 'retryWebhook'])->name('superadmin.webhooks.retry');
 });
 
 Route::get('/approval-status', function () {

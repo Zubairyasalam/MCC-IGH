@@ -45,17 +45,34 @@
         }
 
         .sidebar-header {
-            padding: 1.5rem;
+            height: 72px;
+            padding: 0 1.25rem;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-bottom;
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
-            padding: 0.25rem 0;
         }
 
-        .sidebar-logo img { height: 80px; width: auto; object-fit: contain; }
+        .sidebar-logo img { height: 44px; width: auto; max-width: 135px; object-fit: contain; }
+
+        .superadmin-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--primary-color, #850f0f);
+            background: rgba(133, 15, 15, 0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(133, 15, 15, 0.15);
+            white-space: nowrap;
+        }
 
         .sidebar-menu {
             flex: 1;
@@ -177,21 +194,27 @@
             background: white;
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 1.25rem 1.5rem;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            justify-content: space-between;
+            min-height: 130px;
+            min-width: 0;
+            overflow: hidden;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
         }
 
         .stat-card-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
+            gap: 0.5rem;
+            width: 100%;
+            min-width: 0;
         }
 
-        .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-value { font-size: 1.7rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+        .stat-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.25; flex: 1; min-width: 0; }
+        .stat-value { font-size: clamp(1.15rem, 1.5vw, 1.55rem); font-weight: 800; color: var(--text); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
         .stat-sub   { font-size: 0.72rem; color: var(--muted); }
 
         .stat-icon {
@@ -358,9 +381,9 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <img src="/assets/logo_transparent.png" alt="MCC-MRF Innovation Park" style="height:80px; width:auto; object-fit:contain;">
+                <img src="/assets/logo_transparent.png" alt="MCC-MRF Innovation Park">
             </div>
-            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; font-weight: 600;">SUPERADMIN PANEL</div>
+            <span class="superadmin-badge">SUPERADMIN</span>
         </div>
         <nav class="sidebar-menu">
             <a href="{{ route('superadmin.dashboard') }}" class="menu-item {{ Route::is('superadmin.dashboard') ? 'active' : '' }}">
@@ -371,12 +394,6 @@
             </a>
             <a href="{{ route('superadmin.payments') }}" class="menu-item {{ Route::is('superadmin.payments') ? 'active' : '' }}">
                 <i class="ph ph-wallet"></i> Payment Details
-            </a>
-            <a href="{{ route('superadmin.webhooks') }}" class="menu-item {{ Route::is('superadmin.webhooks') ? 'active' : '' }}">
-                <i class="ph-bold ph-plugs-connected"></i> Webhooks
-            </a>
-            <a href="{{ route('superadmin.webhooks.logs') }}" class="menu-item {{ Route::is('superadmin.webhooks.logs') ? 'active' : '' }}">
-                <i class="ph-bold ph-article"></i> Webhook Logs
             </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item {{ Route::is('superadmin.settings') ? 'active' : '' }}">
                 <i class="ph ph-gear"></i> System Settings

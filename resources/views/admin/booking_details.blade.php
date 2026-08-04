@@ -1213,6 +1213,23 @@ function openAddRoomModal() {
 function closeAddRoomModal() {
     document.getElementById("addRoomModal").style.display = "none";
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modalIn = document.querySelector('#addRoomModal input[name="clock_in"]');
+    const modalOut = document.querySelector('#addRoomModal input[name="clock_out"]');
+    if (modalIn && modalOut) {
+        const syncModalDates = () => {
+            if (modalIn.value) {
+                modalOut.min = modalIn.value;
+                if (!modalOut.value || modalOut.value <= modalIn.value) {
+                    modalOut.value = modalIn.value;
+                }
+            }
+        };
+        modalIn.addEventListener('change', syncModalDates);
+        modalIn.addEventListener('input', syncModalDates);
+    }
+});
 </script>
 </body>
 </html>

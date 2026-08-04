@@ -143,11 +143,11 @@
             @csrf
             <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" name="email" required placeholder="admin@mccigh.com">
+                <input type="email" name="email" required>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" required placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+                <input type="password" name="password" required>
             </div>
             <button type="submit" class="btn-login">Login to Dashboard</button>
         </form>
