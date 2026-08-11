@@ -1548,7 +1548,20 @@
             if (clockInEl && clockOutEl && clockInEl.value) {
                 clockOutEl.min = clockInEl.value;
                 if (!clockOutEl.value || clockOutEl.value <= clockInEl.value) {
-                    clockOutEl.value = clockInEl.value;
+                    const inDate = new Date(clockInEl.value);
+                    if (!isNaN(inDate.getTime())) {
+                        let addHours = 12;
+                        if (rateType.includes('Day')) addHours = 24;
+                        else if (rateType.includes('4')) addHours = 4;
+                        
+                        const defaultOut = new Date(inDate.getTime() + addHours * 60 * 60 * 1000);
+                        const year = defaultOut.getFullYear();
+                        const month = String(defaultOut.getMonth() + 1).padStart(2, '0');
+                        const day = String(defaultOut.getDate()).padStart(2, '0');
+                        const hours = String(defaultOut.getHours()).padStart(2, '0');
+                        const mins = String(defaultOut.getMinutes()).padStart(2, '0');
+                        clockOutEl.value = `${year}-${month}-${day}T${hours}:${mins}`;
+                    }
                 }
             }
         }
@@ -1558,6 +1571,24 @@
             toggleStudentFields();
             toggleStaffCategoryFields();
             toggleNationalityFields();
+
+            const form = document.querySelector('form[action="{{ route("booking.store") }}"]');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    const clockInEl = document.querySelector('input[name="clock_in"]');
+                    const clockOutEl = document.querySelector('input[name="clock_out"]');
+                    if (clockInEl && clockOutEl) {
+                        const inDate = new Date(clockInEl.value);
+                        const outDate = new Date(clockOutEl.value);
+                        if (isNaN(inDate.getTime()) || isNaN(outDate.getTime()) || outDate <= inDate) {
+                            e.preventDefault();
+                            alert('Check-Out date and time must be strictly after Check-In date and time.');
+                            clockOutEl.focus();
+                            return false;
+                        }
+                    }
+                });
+            }
 
             const clockInEl = document.querySelector('input[name="clock_in"]');
             const clockOutEl = document.querySelector('input[name="clock_out"]');
@@ -1574,7 +1605,9 @@
                 clockOutEl.addEventListener('change', calculateEstimatedPrice);
                 clockOutEl.addEventListener('input', calculateEstimatedPrice);
 
-                syncClockOutMin();
+                if (clockInEl.value && !clockOutEl.value) {
+                    syncClockOutMin();
+                }
             }
             
             calculateEstimatedPrice();

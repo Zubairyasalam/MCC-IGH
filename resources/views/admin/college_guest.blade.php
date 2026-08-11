@@ -1158,7 +1158,16 @@
                 if (clockInInput.value) {
                     clockOutInput.min = clockInInput.value;
                     if (!clockOutInput.value || clockOutInput.value <= clockInInput.value) {
-                        clockOutInput.value = clockInInput.value;
+                        const inDate = new Date(clockInInput.value);
+                        if (!isNaN(inDate.getTime())) {
+                            const defaultOut = new Date(inDate.getTime() + 12 * 60 * 60 * 1000);
+                            const year = defaultOut.getFullYear();
+                            const month = String(defaultOut.getMonth() + 1).padStart(2, '0');
+                            const day = String(defaultOut.getDate()).padStart(2, '0');
+                            const hours = String(defaultOut.getHours()).padStart(2, '0');
+                            const mins = String(defaultOut.getMinutes()).padStart(2, '0');
+                            clockOutInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+                        }
                     }
                 }
             }

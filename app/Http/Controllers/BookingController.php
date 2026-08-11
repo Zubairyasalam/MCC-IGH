@@ -80,9 +80,16 @@ class BookingController extends Controller
             $clockIn = \Carbon\Carbon::parse($validated['clock_in']);
             $clockOut = \Carbon\Carbon::parse($validated['clock_out']);
             
-            // Calculate duration in hours
-            $durationHours = $clockIn->diffInHours($clockOut);
-            if ($durationHours == 0) $durationHours = 1;
+            if ($clockOut->lte($clockIn)) {
+                return back()->withInput()->with('error', 'Check-Out date and time must be strictly after Check-In date and time.');
+            }
+
+            // Calculate duration in hours precisely
+            $durationMinutes = $clockIn->diffInMinutes($clockOut);
+            if ($durationMinutes < 15) {
+                return back()->withInput()->with('error', 'Booking duration must be at least 15 minutes.');
+            }
+            $durationHours = $durationMinutes / 60.0;
             
             $basePrice = 0;
             $roomName = $validated['room_name'];
@@ -90,18 +97,18 @@ class BookingController extends Controller
             // Dynamic Pricing Logic based on Category
             if (str_contains(strtolower($roomName), 'standard')) {
                 // Standard Rooms: ₹1400 per 12-hour block (or fraction)
-                $twelveHourBlocks = ceil($durationHours / 12);
-                $basePrice = $twelveHourBlocks * 1400;
-            } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4)) {
-                // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day
-                $days = ceil($durationHours / 24);
-                $basePrice = $days * 2500;
+                $twelveHourBlocks = (int) ceil($durationHours / 12.0);
+                $basePrice = max(1, $twelveHourBlocks) * 1400;
+            } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4) || str_contains(strtolower($roomName), 'advance')) {
+                // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day (or fraction)
+                $days = (int) ceil($durationHours / 24.0);
+                $basePrice = max(1, $days) * 2500;
             } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
                 // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
-                $billableHours = max(4, $durationHours);
+                $billableHours = max(4, (int) ceil($durationHours));
                 $basePrice = $billableHours * 500;
             } else {
-                // Default Fallback (Previous logic)
+                // Default Fallback
                 $basePrice = $durationHours > 4 ? 5000 : 2000;
             }
             
@@ -176,6 +183,8 @@ class BookingController extends Controller
                 'booking_date' => $clockIn->toDateString(),
                 'start_time' => $clockIn->toTimeString(),
                 'end_time' => $clockOut->toTimeString(),
+                'clock_in' => $clockIn->toDateTimeString(),
+                'clock_out' => $clockOut->toDateTimeString(),
                 'total_price' => $totalPrice,
                 'payment_status' => 'Pending',
                 'approval_status' => $initialStatus,

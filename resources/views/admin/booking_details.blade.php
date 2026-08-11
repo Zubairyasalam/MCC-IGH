@@ -869,19 +869,19 @@
                         </div>
                         <div class="info-item">
                             <span class="info-label">Check-In</span>
-                            <span class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') }} | {{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }}</span>
+                            <span class="info-value">{{ $booking->clock_in ? $booking->clock_in->format('d M, Y | h:i A') : \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') . ' | ' . \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Check-Out</span>
-                            <span class="info-value">{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') }} | {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</span>
+                            <span class="info-value">{{ $booking->clock_out ? $booking->clock_out->format('d M, Y | h:i A') : \Carbon\Carbon::parse($booking->booking_date)->format('d M, Y') . ' | ' . \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Total Duration</span>
                             <span class="info-value">
                                 @php
-                                    $start = \Carbon\Carbon::parse($booking->start_time);
-                                    $end = \Carbon\Carbon::parse($booking->end_time);
-                                    $hours = $start->diffInHours($end);
+                                    $cIn = $booking->clock_in;
+                                    $cOut = $booking->clock_out;
+                                    $hours = ($cIn && $cOut) ? max(1, (int) round($cIn->diffInMinutes($cOut) / 60.0)) : 1;
                                 @endphp
                                 {{ $hours }} {{ Str::plural('Hour', $hours) }}
                             </span>
@@ -1222,7 +1222,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modalIn.value) {
                 modalOut.min = modalIn.value;
                 if (!modalOut.value || modalOut.value <= modalIn.value) {
-                    modalOut.value = modalIn.value;
+                    const inDate = new Date(modalIn.value);
+                    if (!isNaN(inDate.getTime())) {
+                        const defaultOut = new Date(inDate.getTime() + 12 * 60 * 60 * 1000);
+                        const year = defaultOut.getFullYear();
+                        const month = String(defaultOut.getMonth() + 1).padStart(2, '0');
+                        const day = String(defaultOut.getDate()).padStart(2, '0');
+                        const hours = String(defaultOut.getHours()).padStart(2, '0');
+                        const mins = String(defaultOut.getMinutes()).padStart(2, '0');
+                        modalOut.value = `${year}-${month}-${day}T${hours}:${mins}`;
+                    }
                 }
             }
         };

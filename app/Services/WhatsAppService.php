@@ -48,8 +48,8 @@ class WhatsAppService
 
         // Compile WhatsApp Message
         $roomName = ucwords(str_replace('-', ' ', $booking->room_name));
-        $checkIn = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A');
-        $checkOut = \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A');
+        $checkIn = $booking->clock_in ? $booking->clock_in->format('d M Y, h:i A') : \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A');
+        $checkOut = $booking->clock_out ? $booking->clock_out->format('d M Y, h:i A') : \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A');
         $approveUrl = route('admin.bookings.approve.get', $booking->id);
         $rejectUrl = route('admin.bookings.reject.get', $booking->id);
         $reason = $booking->booking_reason ?: 'N/A';

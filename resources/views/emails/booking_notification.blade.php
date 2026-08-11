@@ -246,11 +246,11 @@
                 </tr>
                 <tr>
                     <th>Check-In</th>
-                    <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A') }}</td>
+                    <td>{{ $booking->clock_in ? $booking->clock_in->format('d M Y, h:i A') : \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->start_time)->format('d M Y, h:i A') }}</td>
                 </tr>
                 <tr>
                     <th>Check-Out</th>
-                    <td>{{ \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A') }}</td>
+                    <td>{{ $booking->clock_out ? $booking->clock_out->format('d M Y, h:i A') : \Carbon\Carbon::parse($booking->booking_date . ' ' . $booking->end_time)->format('d M Y, h:i A') }}</td>
                 </tr>
                 @if($booking->booking_reason)
                 <tr>
