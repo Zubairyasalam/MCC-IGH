@@ -99,19 +99,20 @@ class AdminController extends Controller
             $insights[] = "{$topSpace->room_name} is your most popular workspace this month.";
         }
 
-        // Real Room & Space Availability Status
+        // Real Website Room & Space Availability Status
         $allRoomsList = [
-            'Standard Guest Rooms' => [
-                'standard-room-1', 'standard-room-2', 'standard-room-3', 'standard-room-4', 'standard-room-5',
-                'standard-room-6', 'standard-room-7', 'standard-room-8', 'standard-room-9', 'standard-room-10',
-                'standard-room-11', 'standard-room-12', 'standard-room-13', 'standard-room-14', 'standard-room-15',
-                'standard-room-16', 'standard-room-17', 'standard-room-18', 'standard-room-19', 'standard-room-20'
+            'Standard Rooms' => [
+                'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5',
+                'Room 6', 'Room 7', 'Room 8', 'Room 9', 'Room 10',
+                'Room 11', 'Room 12', 'Room 13', 'Room 14', 'Room 15',
+                'Room 16', 'Room 17', 'Room 18', 'Room 19', 'Room 20'
             ],
-            'Advance Executive Rooms' => [
-                'advance-executive-room-1', 'advance-executive-room-2', 'advance-executive-room-3'
+            'Advance Rooms' => [
+                'Room 101', 'Room 102', 'Room 103', 'Room 104',
+                'Room 201', 'Room 203', 'Room 204', 'Room 205', 'Room 206', 'Room 207'
             ],
             'Conference & Special Facilities' => [
-                'conference-room', 'glass-room', 'suite-room'
+                'Conference Room', 'Glass Room', 'Suite Room (202)'
             ]
         ];
 
@@ -128,15 +129,14 @@ class AdminController extends Controller
 
         foreach ($allRoomsList as $category => $rooms) {
             $roomAvailabilityStatus[$category] = [];
-            foreach ($rooms as $rSlug) {
+            foreach ($rooms as $rName) {
                 $totalRoomsCount++;
-                $formattedName = str_replace('-', ' ', ucwords($rSlug, '- '));
-                $rSlugLower = strtolower($rSlug);
-                $fNameLower = strtolower($formattedName);
+                $rNameLower = strtolower($rName);
 
-                $roomNum = null;
-                if (preg_match('/-(\d+)$/', $rSlugLower, $m)) {
-                    $roomNum = $m[1];
+                // Extract numeric identifier if present (e.g. 1-20, 101-207, 202)
+                $rNum = null;
+                if (preg_match('/\b(\d+)\b/', $rName, $m)) {
+                    $rNum = (int)$m[1];
                 }
 
                 $matchingBooking = null;
@@ -148,51 +148,56 @@ class AdminController extends Controller
                     foreach ($roomTokens as $token) {
                         $tLower = strtolower($token);
 
-                        // 1. Exact match on token vs slug/name
-                        if ($tLower === $rSlugLower || $tLower === $fNameLower || $tLower === str_replace('-', ' ', $rSlugLower)) {
+                        // 1. Direct match (e.g. "Room 2", "Room 101", "Conference Room")
+                        if ($tLower === $rNameLower || $tLower === str_replace('room ', '', $rNameLower)) {
                             $matchingBooking = $b;
                             break 2;
                         }
 
-                        // 2. Specific room number match (e.g. "Standard Room 2" for standard-room-2)
-                        if ($roomNum !== null) {
-                            if (str_contains($rSlugLower, 'standard') && str_contains($tLower, 'standard') && preg_match('/\b' . $roomNum . '\b/', $tLower)) {
-                                $matchingBooking = $b;
-                                break 2;
-                            }
-                            if ((str_contains($rSlugLower, 'advance') || str_contains($rSlugLower, 'executive')) && (str_contains($tLower, 'advance') || str_contains($tLower, 'executive')) && preg_match('/\b' . $roomNum . '\b/', $tLower)) {
-                                $matchingBooking = $b;
-                                break 2;
+                        // 2. Room number match
+                        if ($rNum !== null) {
+                            if (preg_match('/\b' . $rNum . '\b/', $tLower)) {
+                                // Disambiguate single-digit standard rooms (1-20) from advance room 101/201
+                                if ($rNum < 100 && preg_match('/\b(1|2)\d{2}\b/', $tLower)) {
+                                    // Skip advance room numbers like 101, 201 when matching Room 1
+                                } else {
+                                    $matchingBooking = $b;
+                                    break 2;
+                                }
                             }
                         }
 
-                        // 3. Facility category match
-                        if ($rSlugLower === 'conference-room' && str_contains($tLower, 'conference')) {
+                        // 3. Facility keyword match
+                        if (str_contains($rNameLower, 'conference') && str_contains($tLower, 'conference')) {
                             $matchingBooking = $b;
                             break 2;
                         }
-                        if ($rSlugLower === 'glass-room' && str_contains($tLower, 'glass')) {
+                        if (str_contains($rNameLower, 'glass') && str_contains($tLower, 'glass')) {
                             $matchingBooking = $b;
                             break 2;
                         }
-                        if ($rSlugLower === 'suite-room' && (str_contains($tLower, 'suite') || str_contains($tLower, 'luxury'))) {
+                        if (str_contains($rNameLower, 'suite') && (str_contains($tLower, 'suite') || str_contains($tLower, '202'))) {
                             $matchingBooking = $b;
                             break 2;
                         }
                     }
 
-                    // 4. Fallback for unnumbered generic room bookings (e.g. "Standard Guest Room" or "Advance Executive Room")
+                    // 4. Generic unnumbered room booking fallback
                     if (!$matchingBooking && !in_array($b->id, $assignedGenericBookingIds)) {
                         $bLowerAll = strtolower($bRoomRaw);
-                        if (str_contains($rSlugLower, 'standard') && ($bLowerAll === 'standard-guest-room' || $bLowerAll === 'standard guest room' || $bLowerAll === 'standard room')) {
-                            $matchingBooking = $b;
-                            $assignedGenericBookingIds[] = $b->id;
-                            break;
+                        if (str_contains($rNameLower, 'standard') || ($rNum !== null && $rNum <= 20)) {
+                            if (str_contains($bLowerAll, 'standard')) {
+                                $matchingBooking = $b;
+                                $assignedGenericBookingIds[] = $b->id;
+                                break;
+                            }
                         }
-                        if ((str_contains($rSlugLower, 'advance') || str_contains($rSlugLower, 'executive')) && ($bLowerAll === 'advance-executive-room' || $bLowerAll === 'advance executive room' || $bLowerAll === 'executive room')) {
-                            $matchingBooking = $b;
-                            $assignedGenericBookingIds[] = $b->id;
-                            break;
+                        if (str_contains($rNameLower, 'advance') || ($rNum !== null && $rNum >= 101 && $rNum <= 207 && $rNum !== 202)) {
+                            if (str_contains($bLowerAll, 'advance') || str_contains($bLowerAll, 'executive')) {
+                                $matchingBooking = $b;
+                                $assignedGenericBookingIds[] = $b->id;
+                                break;
+                            }
                         }
                     }
                 }
@@ -200,7 +205,7 @@ class AdminController extends Controller
                 if ($matchingBooking) {
                     $totalReservedRooms++;
                     $roomAvailabilityStatus[$category][] = [
-                        'name' => $formattedName,
+                        'name' => $rName,
                         'is_available' => false,
                         'status' => 'Reserved',
                         'guest_name' => $matchingBooking->name,
@@ -213,7 +218,7 @@ class AdminController extends Controller
                 } else {
                     $totalAvailableRooms++;
                     $roomAvailabilityStatus[$category][] = [
-                        'name' => $formattedName,
+                        'name' => $rName,
                         'is_available' => true,
                         'status' => 'Available',
                         'guest_name' => null,
