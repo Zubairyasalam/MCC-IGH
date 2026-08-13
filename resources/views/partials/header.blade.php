@@ -12,7 +12,7 @@
         </div>
     </div>
     
-    <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
+    <div class="header-right" style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
         <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View My Reservations">
             <i class="ph-bold ph-list-checks" style="font-size: 1.1rem;"></i>
             <span class="cart-label-text">MY RESERVATIONS</span>

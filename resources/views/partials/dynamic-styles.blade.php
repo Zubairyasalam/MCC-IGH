@@ -416,33 +416,50 @@
         color: #ffffff !important;
     }
 
-    /* Header Cart Button */
+    /* Header Cart Button & Reservation Badge */
     .cart-btn-header {
         background: var(--primary-color) !important;
         color: #ffffff !important;
         border: 1px solid var(--primary-color) !important;
-        padding: 0.58rem 1.45rem !important;
+        padding: 0.5rem 1.2rem !important;
         border-radius: 9999px !important;
         font-weight: 700 !important;
-        font-size: 0.78rem !important;
+        font-size: 0.76rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 6px !important;
+        gap: 8px !important;
         transition: all 0.2s ease !important;
         cursor: pointer !important;
-        box-shadow: 0 4px 10px rgba({{ $primaryRgb }}, 0.15) !important;
-        height: 38px !important;
+        box-shadow: 0 4px 12px rgba({{ $primaryRgb }}, 0.2) !important;
+        height: 40px !important;
         box-sizing: border-box !important;
         text-decoration: none !important;
+        white-space: nowrap !important;
+        margin-right: 2px !important;
     }
 
     .cart-btn-header i,
     .cart-btn-header span,
     .cart-btn-header .cart-label-text {
         color: #ffffff !important;
+    }
+
+    .cart-count-badge {
+        background: #ffffff !important;
+        color: var(--primary-color) !important;
+        padding: 2px 7px !important;
+        border-radius: 9999px !important;
+        font-size: 0.72rem !important;
+        font-weight: 800 !important;
+        margin-left: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
+        line-height: 1 !important;
     }
 
     .cart-btn-header:hover,
@@ -467,10 +484,10 @@
         background: var(--primary-color) !important;
         color: #ffffff !important;
         border: 1px solid var(--primary-color) !important;
-        padding: 0.55rem 1.35rem !important;
-        border-radius: 50px !important;
+        padding: 0.5rem 1.25rem !important;
+        border-radius: 9999px !important;
         font-weight: 700 !important;
-        font-size: 0.85rem !important;
+        font-size: 0.8rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.8px !important;
         display: inline-flex !important;
@@ -479,7 +496,10 @@
         gap: 8px !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
         cursor: pointer !important;
-        box-shadow: 0 4px 10px rgba({{ $primaryRgb }}, 0.15) !important;
+        box-shadow: 0 4px 12px rgba({{ $primaryRgb }}, 0.2) !important;
+        height: 40px !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
     }
 
     .btn-header-back i,
@@ -547,7 +567,7 @@
         transform: translateY(0) !important;
     }
 
-    /* Header center: visible on screens 1024px and wider */
+    /* Header center: visible cleanly on wide screens without collision */
     .header-center {
         position: absolute !important;
         left: 50% !important;
@@ -559,6 +579,8 @@
         justify-content: center !important;
         pointer-events: none !important;
         white-space: nowrap !important;
+        max-width: calc(100% - 620px) !important;
+        overflow: hidden !important;
     }
 
     .logo-text {
@@ -570,12 +592,21 @@
     }
 
     /* Fixed alignment for header parts */
-    .header-left,
-    .header-right {
+    .header-left {
         display: flex !important;
         align-items: center !important;
         gap: 1rem !important;
         z-index: 2 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .header-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        z-index: 2 !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
     }
 
     @media (max-width: 992px) {
@@ -585,8 +616,8 @@
         }
     }
 
-    /* Show header center text only on desktop/tablet-landscape screens */
-    @media (min-width: 1024px) {
+    /* Show header center text only on desktop screens where width >= 1150px to prevent overlap */
+    @media (min-width: 1150px) {
         .header-center {
             display: flex !important;
         }
