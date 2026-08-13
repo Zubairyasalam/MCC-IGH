@@ -416,6 +416,52 @@
         color: #ffffff !important;
     }
 
+    /* Header Cart Button */
+    .cart-btn-header {
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--primary-color) !important;
+        padding: 0.58rem 1.45rem !important;
+        border-radius: 9999px !important;
+        font-weight: 700 !important;
+        font-size: 0.78rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 10px rgba({{ $primaryRgb }}, 0.15) !important;
+        height: 38px !important;
+        box-sizing: border-box !important;
+        text-decoration: none !important;
+    }
+
+    .cart-btn-header i,
+    .cart-btn-header span,
+    .cart-btn-header .cart-label-text {
+        color: #ffffff !important;
+    }
+
+    .cart-btn-header:hover,
+    .cart-btn-header:active,
+    .cart-btn-header:focus {
+        background: var(--primary-color) !important;
+        color: #ffffff !important;
+        border-color: var(--primary-color) !important;
+        filter: brightness(0.9) !important;
+        box-shadow: 0 6px 15px rgba({{ $primaryRgb }}, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .cart-btn-header:hover i,
+    .cart-btn-header:hover span,
+    .cart-btn-header:hover .cart-label-text {
+        color: #ffffff !important;
+    }
+
     /* Premium Header Back Button */
     .btn-header-back {
         background: var(--primary-color) !important;

@@ -663,14 +663,18 @@
                                 <div class="next-available-placeholder"></div>
                             @endif
 
-                            <div class="card-actions">
-                                <a href="{{ route('room.details', ['id' => 'standard-room-' . $i]) }}" class="btn btn-outline" style="flex: 1; justify-content: center; text-align: center;">View Details</a>
+                            <div class="card-actions" style="display: flex; gap: 8px;">
                                 @if(isset($bookedRooms["Standard Room " . $i]))
                                     <a href="javascript:void(0)" class="btn"
                                         style="flex: 1; background: #bc8e8e; border-color: #bc8e8e; cursor: not-allowed; opacity: 0.8; justify-content: center;">Booked</a>
                                 @else
-                                    <a href="{{ route('booking.form.full', ['room' => 'Standard Room ' . $i]) }}"
-                                        class="btn" style="flex: 1; justify-content: center;">Book Now</a>
+                                    <button type="button" class="btn btn-outline" data-cart-room="Standard Room {{ $i }}"
+                                        onclick="window.IGHCart.toggleRoom({ id: 'standard-room-{{ $i }}', name: 'Standard Room {{ $i }}', category: 'Standard Room', price: '1400', priceText: '₹1,400', rateType: '12 Hours', capacity: 2 })"
+                                        style="padding: 8px 10px; font-size: 0.85rem; flex: 1; justify-content: center; gap: 4px;">
+                                        <i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart
+                                    </button>
+                                    <a href="javascript:void(0)" onclick="window.IGHCart.bookNowDirect({ id: 'standard-room-{{ $i }}', name: 'Standard Room {{ $i }}', category: 'Standard Room', price: '1400', priceText: '₹1,400', rateType: '12 Hours', capacity: 2 })"
+                                        class="btn" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 8px 10px;">Book Now</a>
                                 @endif
                             </div>
                         </div>
@@ -746,7 +750,10 @@
                 bookBtn.style.cursor = 'pointer';
                 bookBtn.style.pointerEvents = 'auto';
                 bookBtn.innerHTML = 'Proceed to Booking Form <i class="ph-bold ph-arrow-right"></i>';
-                bookBtn.href = "{{ route('booking.form.full') }}?room=" + data.room;
+                bookBtn.onclick = function() {
+                    window.IGHCart.bookNowDirect({ id: data.room.toLowerCase().replace(/\s+/g, '-'), name: data.room, category: 'Standard Room', price: '1400', priceText: '₹1,400', rateType: '12 Hours', capacity: 2 });
+                };
+                bookBtn.href = "javascript:void(0)";
             }
 
             const container = document.getElementById('modalFacilitiesContainer');

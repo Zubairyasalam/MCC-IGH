@@ -346,6 +346,11 @@
     <script src="{{ asset('js/script.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            try {
+                localStorage.removeItem('mcc_igh_cart');
+                if (window.IGHCart) window.IGHCart.clearCart();
+            } catch (e) {}
+
             if (window.location.search.includes('download=1')) {
                 setTimeout(() => { window.location.href = "{{ route('receipt.download', $booking->id) }}"; }, 1500);
             }

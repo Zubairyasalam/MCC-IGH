@@ -17,12 +17,18 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/standard-rooms', function () {
-    $bookedRooms = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
+    $bookedRooms = [];
+    $items = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
         ->whereDate('booking_date', '>=', now()->toDateString())
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [$item->room_name => ['date' => $item->booking_date, 'time' => $item->end_time]];
-        })->toArray();
+        ->get();
+    foreach ($items as $item) {
+        $names = array_map('trim', explode(',', $item->room_name));
+        foreach ($names as $r) {
+            if (!empty($r)) {
+                $bookedRooms[$r] = ['date' => $item->booking_date, 'time' => $item->end_time];
+            }
+        }
+    }
     return view('standard-rooms', compact('bookedRooms'));
 })->name('standard.rooms');
 
@@ -32,22 +38,34 @@ Route::get('/booking-form', function () {
 })->name('booking.form.full');
 
 Route::get('/advance-rooms', function () {
-    $bookedRooms = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
+    $bookedRooms = [];
+    $items = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
         ->whereDate('booking_date', '>=', now()->toDateString())
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [$item->room_name => ['date' => $item->booking_date, 'time' => $item->end_time]];
-        })->toArray();
+        ->get();
+    foreach ($items as $item) {
+        $names = array_map('trim', explode(',', $item->room_name));
+        foreach ($names as $r) {
+            if (!empty($r)) {
+                $bookedRooms[$r] = ['date' => $item->booking_date, 'time' => $item->end_time];
+            }
+        }
+    }
     return view('advance-rooms', compact('bookedRooms'));
 })->name('advance.rooms');
 
 Route::get('/conference-rooms', function () {
-    $bookedRooms = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
+    $bookedRooms = [];
+    $items = \App\Models\Booking::where('approval_status', '!=', 'Rejected')
         ->whereDate('booking_date', '>=', now()->toDateString())
-        ->get()
-        ->mapWithKeys(function ($item) {
-            return [$item->room_name => ['date' => $item->booking_date, 'time' => $item->end_time]];
-        })->toArray();
+        ->get();
+    foreach ($items as $item) {
+        $names = array_map('trim', explode(',', $item->room_name));
+        foreach ($names as $r) {
+            if (!empty($r)) {
+                $bookedRooms[$r] = ['date' => $item->booking_date, 'time' => $item->end_time];
+            }
+        }
+    }
     return view('conference-rooms', compact('bookedRooms'));
 })->name('conference.rooms');
 

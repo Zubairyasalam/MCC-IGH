@@ -749,30 +749,54 @@
                             <label>Designation / Category</label>
                             <input type="hidden" id="designation" name="designation" value="{{ old('designation') }}" required>
                             <div class="radio-cards-grid">
-                                <div class="radio-card" data-value="Ex-Principal">
+                                <div class="radio-card designation-card" data-value="Ex-Principal">
                                     <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
                                     <i class="ph ph-graduation-cap radio-card-icon"></i>
                                     <span class="radio-card-title">Ex-Principal</span>
                                 </div>
-                                <div class="radio-card" data-value="College Guest / VIP">
+                                <div class="radio-card designation-card" data-value="College Guest / VIP">
                                     <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
                                     <i class="ph ph-crown radio-card-icon"></i>
                                     <span class="radio-card-title">College Guest / VIP</span>
                                 </div>
-                                <div class="radio-card" data-value="Board Member">
+                                <div class="radio-card designation-card" data-value="Board Member">
                                     <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
                                     <i class="ph ph-briefcase radio-card-icon"></i>
                                     <span class="radio-card-title">Board Member</span>
                                 </div>
-                                <div class="radio-card" data-value="Guest Lecturer">
+                                <div class="radio-card designation-card" data-value="Guest Lecturer">
                                     <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
                                     <i class="ph ph-book-open radio-card-icon"></i>
                                     <span class="radio-card-title">Guest Lecturer</span>
                                 </div>
-                                <div class="radio-card" data-value="Other College Guest">
+                                <div class="radio-card designation-card" data-value="Other College Guest">
                                     <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
                                     <i class="ph ph-user radio-card-icon"></i>
                                     <span class="radio-card-title">Other Guest</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Type Selector (Non-Payment vs Payment Required) -->
+                        <div class="form-group full-width" style="margin-top: 0.25rem;">
+                            <label>Booking Fee / Payment Mode</label>
+                            <input type="hidden" id="payment_type" name="payment_type" value="{{ old('payment_type', 'non_payment') }}" required>
+                            <div class="radio-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                                <div class="radio-card payment-type-card {{ old('payment_type', 'non_payment') === 'non_payment' ? 'selected' : '' }}" data-value="non_payment" style="padding: 1.1rem 1.25rem;">
+                                    <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
+                                    <i class="ph ph-gift radio-card-icon" style="font-size: 1.75rem; color: #059669;"></i>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="radio-card-title" style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">Non-Payment (Complimentary)</span>
+                                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Zero charges • Instant approved booking</span>
+                                    </div>
+                                </div>
+                                <div class="radio-card payment-type-card {{ old('payment_type') === 'payment' ? 'selected' : '' }}" data-value="payment" style="padding: 1.1rem 1.25rem;">
+                                    <div class="radio-card-badge"><i class="ph-bold ph-check"></i></div>
+                                    <i class="ph ph-paper-plane-tilt radio-card-icon" style="font-size: 1.75rem; color: #850f0f;"></i>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span class="radio-card-title" style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">Payment Required (Send Link)</span>
+                                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">Calculates tariff & emails payment link to guest</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -797,7 +821,17 @@
 
                         <!-- Room Selection (Visual Tabbed selector) -->
                         <div class="form-group full-width">
-                            <label>Select Room / Workspace</label>
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                                <label style="margin: 0;">Select Room / Workspace</label>
+                                <div style="display: flex; gap: 8px; margin-left: auto;">
+                                    <button type="button" id="btnSelectAllRooms" onclick="selectAllAvailableRooms(event)" style="background: rgba(133, 15, 15, 0.08); color: var(--primary-color, #850f0f); border: 1px solid rgba(133, 15, 15, 0.2); padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                        <i class="ph-bold ph-squares-four"></i> Select All Rooms (Block Entire IGH)
+                                    </button>
+                                    <button type="button" id="btnClearAllRooms" onclick="clearAllSelectedRooms(event)" style="background: rgba(100, 116, 139, 0.08); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.2); padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                                        <i class="ph-bold ph-x-circle"></i> Clear Selection
+                                    </button>
+                                </div>
+                            </div>
                             <input type="hidden" id="room_name" name="room_name" value="{{ old('room_name') }}" required>
                             
                             <!-- Search & Tabs -->
@@ -961,7 +995,7 @@
 
         // Designation Selection
         const designationInput = document.getElementById('designation');
-        const designationCards = document.querySelectorAll('.radio-card');
+        const designationCards = document.querySelectorAll('.designation-card');
         
         designationCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -971,12 +1005,24 @@
             });
         });
 
-        // Restore old selection if exists
+        // Restore old designation selection if exists
         const oldDesignation = designationInput.value;
         if (oldDesignation) {
             const selectedCard = Array.from(designationCards).find(c => c.getAttribute('data-value') === oldDesignation);
             if (selectedCard) selectedCard.classList.add('selected');
         }
+
+        // Payment Type Selection (Non-Payment vs Payment Required)
+        const paymentTypeInput = document.getElementById('payment_type');
+        const paymentTypeCards = document.querySelectorAll('.payment-type-card');
+        
+        paymentTypeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                paymentTypeCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                paymentTypeInput.value = card.getAttribute('data-value');
+            });
+        });
 
         // Room Selection Tabs Switching
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1050,30 +1096,91 @@
         const noOfPersonsInput = document.getElementById('no_of_persons');
         const capacityHint = document.getElementById('capacity_limit_hint');
 
+        function updateSelectedRoomsState() {
+            const selectedCards = document.querySelectorAll('.room-card-btn.selected');
+            const selectedValues = Array.from(selectedCards).map(c => c.getAttribute('data-value'));
+            roomNameInput.value = selectedValues.join(', ');
+
+            let combinedCapacity = 0;
+            selectedCards.forEach(c => {
+                combinedCapacity += parseInt(c.getAttribute('data-capacity')) || 4;
+            });
+
+            if (noOfPersonsInput) {
+                if (combinedCapacity > 0) {
+                    noOfPersonsInput.max = combinedCapacity;
+                    if (parseInt(noOfPersonsInput.value) > combinedCapacity) {
+                        noOfPersonsInput.value = combinedCapacity;
+                    }
+                } else {
+                    noOfPersonsInput.max = 100;
+                }
+            }
+
+            if (capacityHint) {
+                if (selectedValues.length > 0) {
+                    capacityHint.textContent = `Selected ${selectedValues.length} ${selectedValues.length === 1 ? 'room' : 'rooms'}. Maximum combined capacity is ${combinedCapacity} ${combinedCapacity === 1 ? 'guest' : 'guests'}.`;
+                    capacityHint.style.display = 'block';
+                } else {
+                    capacityHint.style.display = 'none';
+                }
+            }
+        }
+
         roomCards.forEach(card => {
             card.addEventListener('click', () => {
                 if (card.classList.contains('booked')) {
                     showAlert('This room is already booked for the selected date and time range.');
                     return;
                 }
-                roomCards.forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-                roomNameInput.value = card.getAttribute('data-value');
-
-                // Update dynamic capacity limit
-                const capacity = parseInt(card.getAttribute('data-capacity')) || 4;
-                if (noOfPersonsInput) {
-                    noOfPersonsInput.max = capacity;
-                    if (parseInt(noOfPersonsInput.value) > capacity) {
-                        noOfPersonsInput.value = capacity;
-                    }
-                }
-                if (capacityHint) {
-                    capacityHint.textContent = `Maximum capacity for this room is ${capacity} ${capacity === 1 ? 'guest' : 'guests'}.`;
-                    capacityHint.style.display = 'block';
-                }
+                card.classList.toggle('selected');
+                updateSelectedRoomsState();
             });
         });
+
+        window.selectAllAvailableRooms = function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const cards = document.querySelectorAll('.room-card-btn');
+            let count = 0;
+            cards.forEach(card => {
+                if (!card.classList.contains('booked')) {
+                    card.classList.add('selected');
+                    count++;
+                }
+            });
+            updateSelectedRoomsState();
+            if (count > 0) {
+                showAlert(`All ${count} available rooms selected across standard, advance, and special facilities.`);
+            } else {
+                showAlert('No available rooms to select for the chosen date & time range.');
+            }
+        };
+
+        window.clearAllSelectedRooms = function (e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const cards = document.querySelectorAll('.room-card-btn');
+            cards.forEach(card => {
+                card.classList.remove('selected');
+            });
+            const roomInput = document.getElementById('room_name');
+            if (roomInput) roomInput.value = '';
+
+            const capacityHint = document.getElementById('capacity_limit_hint');
+            if (capacityHint) capacityHint.style.display = 'none';
+
+            const noOfPersonsInput = document.getElementById('no_of_persons');
+            if (noOfPersonsInput) {
+                noOfPersonsInput.max = 100;
+                noOfPersonsInput.value = 1;
+            }
+            updateSelectedRoomsState();
+        };
 
         if (noOfPersonsInput) {
             noOfPersonsInput.addEventListener('input', () => {
@@ -1081,7 +1188,7 @@
                 const val = parseInt(noOfPersonsInput.value) || 0;
                 if (val > max) {
                     noOfPersonsInput.value = max;
-                    showAlert(`Number of guests cannot exceed the room capacity of ${max}.`);
+                    showAlert(`Number of guests cannot exceed the total room capacity of ${max}.`);
                 }
             });
         }
@@ -1128,11 +1235,6 @@
                         descEl.textContent = 'Booked';
                         descEl.style.color = '#ef4444';
                         descEl.style.fontWeight = '600';
-                        
-                        // Clear selected value if currently chosen
-                        if (roomNameInput.value === roomVal) {
-                            roomNameInput.value = '';
-                        }
                     } else {
                         card.classList.remove('booked');
                         const descEl = card.querySelector('.room-card-desc');
@@ -1149,6 +1251,8 @@
                         descEl.textContent = defaultDesc;
                     }
                 });
+
+                updateSelectedRoomsState();
             })
             .catch(err => console.error('Availability check failed:', err));
         }

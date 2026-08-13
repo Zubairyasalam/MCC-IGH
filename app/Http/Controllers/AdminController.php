@@ -99,10 +99,44 @@ class AdminController extends Controller
             $insights[] = "{$topSpace->room_name} is your most popular workspace this month.";
         }
 
+        // Fetch all bookings for current month for Admin Calendar
+        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+
+        $monthBookings = Booking::where('approval_status', '!=', 'Rejected')
+            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->orderBy('start_time')
+            ->get();
+
+        $calendarBookings = [];
+        foreach ($monthBookings as $b) {
+            $dayNum = (int) Carbon::parse($b->booking_date)->day;
+            if (!isset($calendarBookings[$dayNum])) {
+                $calendarBookings[$dayNum] = [];
+            }
+            $calendarBookings[$dayNum][] = [
+                'id' => $b->id,
+                'name' => $b->name,
+                'email' => $b->email,
+                'phone' => $b->phone ?? 'N/A',
+                'user_type' => $b->user_type ?? 'Guest',
+                'room_name' => $b->room_name,
+                'booking_date' => \Carbon\Carbon::parse($b->booking_date)->format('d M Y'),
+                'clock_in' => $b->clock_in ? \Carbon\Carbon::parse($b->clock_in)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->start_time),
+                'clock_out' => $b->clock_out ? \Carbon\Carbon::parse($b->clock_out)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->end_time),
+                'no_of_persons' => $b->no_of_persons ?? 1,
+                'approval_status' => $b->approval_status,
+                'payment_status' => $b->payment_status,
+                'total_price' => number_format($b->total_price, 2),
+                'details_url' => route('admin.bookings.show', $b->id),
+            ];
+        }
+
         return view('admin.dashboard', compact(
             'totalBookings', 'todayBookings', 'totalRevenue', 'todayRevenue', 
             'pendingPayments', 'pendingApprovals', 'principalApprovals', 'completedBookings', 'cancelledBookings', 'activeWorkspaces',
-            'recentBookings', 'upcomingBookings', 'dailyRevenue', 'monthlyRevenue', 'workspaceData', 'insights', 'notificationBookings'
+            'recentBookings', 'upcomingBookings', 'dailyRevenue', 'monthlyRevenue', 'workspaceData', 'insights', 'notificationBookings',
+            'calendarBookings'
         ));
     }
 
@@ -522,12 +556,18 @@ class AdminController extends Controller
             ],
         ];
 
-        $bookedRooms = Booking::where('approval_status', '!=', 'Rejected')
+        $bookedRooms = [];
+        $items = Booking::where('approval_status', '!=', 'Rejected')
             ->whereDate('booking_date', '>=', now()->toDateString())
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->room_name => ['date' => $item->booking_date, 'time' => $item->end_time]];
-            })->toArray();
+            ->get();
+        foreach ($items as $item) {
+            $names = array_map('trim', explode(',', $item->room_name));
+            foreach ($names as $r) {
+                if (!empty($r)) {
+                    $bookedRooms[$r] = ['date' => $item->booking_date, 'time' => $item->end_time];
+                }
+            }
+        }
 
         return view('admin.college_guest', compact('rooms', 'bookedRooms'));
     }
@@ -547,7 +587,7 @@ class AdminController extends Controller
         }
 
         // Find all rooms booked during this period
-        $bookedRooms = Booking::where('approval_status', '!=', 'Rejected')
+        $rawBooked = Booking::where('approval_status', '!=', 'Rejected')
             ->where('booking_date', $clockIn->toDateString())
             ->where(function ($query) use ($clockIn, $clockOut) {
                 $query->where(function ($q) use ($clockIn, $clockOut) {
@@ -557,6 +597,16 @@ class AdminController extends Controller
             })
             ->pluck('room_name')
             ->toArray();
+
+        $bookedRooms = [];
+        foreach ($rawBooked as $rStr) {
+            $names = array_map('trim', explode(',', $rStr));
+            foreach ($names as $n) {
+                if (!empty($n) && !in_array($n, $bookedRooms)) {
+                    $bookedRooms[] = $n;
+                }
+            }
+        }
 
         return response()->json([
             'booked_rooms' => $bookedRooms
@@ -571,6 +621,7 @@ class AdminController extends Controller
             'phone' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
             'room_name' => 'required|string|max:255',
+            'payment_type' => 'nullable|string|in:non_payment,payment',
             'clock_in' => 'required|date',
             'clock_out' => 'required|date|after:clock_in',
             'no_of_persons' => 'required|integer|min:1',
@@ -584,38 +635,86 @@ class AdminController extends Controller
             return back()->withInput()->with('error', 'Check-Out date and time must be strictly after Check-In date and time.');
         }
 
-        // Enforce maximum capacity based on selected room
-        $maxCapacity = 4;
-        $roomVal = strtolower($request->room_name);
-        if (str_contains($roomVal, 'standard')) {
-            $maxCapacity = 2;
-        } elseif (str_contains($roomVal, 'conference')) {
-            $maxCapacity = 60;
-        } elseif (str_contains($roomVal, 'glass')) {
-            $maxCapacity = 20;
-        } elseif (str_contains($roomVal, 'suite')) {
-            $maxCapacity = 4;
-        } elseif (is_numeric($roomVal) || str_contains($roomVal, 'advance')) {
-            $maxCapacity = 4;
+        // Parse selected rooms (supports single room or multi-room selection)
+        $selectedRooms = array_filter(array_map('trim', explode(',', $request->room_name)));
+        if (empty($selectedRooms)) {
+            $selectedRooms = [$request->room_name];
+        }
+
+        // Calculate combined maximum capacity for all selected rooms
+        $maxCapacity = 0;
+        foreach ($selectedRooms as $rName) {
+            $roomVal = strtolower($rName);
+            if (str_contains($roomVal, 'conference-hall') || str_contains($roomVal, 'conference-room')) {
+                $maxCapacity += 60;
+            } elseif (str_contains($roomVal, 'glass')) {
+                $maxCapacity += 20;
+            } elseif (str_contains($roomVal, 'suite')) {
+                $maxCapacity += 4;
+            } elseif (str_contains($roomVal, 'standard')) {
+                $maxCapacity += 2;
+            } elseif (is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4) || str_contains($roomVal, 'advance')) {
+                $maxCapacity += 4;
+            } else {
+                $maxCapacity += 4;
+            }
         }
 
         if ($request->no_of_persons > $maxCapacity) {
-            return back()->withInput()->with('error', "Number of guests exceeds the maximum capacity of {$maxCapacity} for this room.");
+            return back()->withInput()->with('error', "Number of guests exceeds the maximum total capacity of {$maxCapacity} for your selected room(s).");
         }
 
-        // Check availability
-        $exists = Booking::where('room_name', $request->room_name)
-            ->where('booking_date', $clockIn->toDateString())
-            ->where('approval_status', '!=', 'Rejected')
-            ->where(function ($query) use ($clockIn, $clockOut) {
-                $query->where(function ($q) use ($clockIn, $clockOut) {
-                    $q->where('start_time', '<', $clockOut->toTimeString())
-                      ->where('end_time', '>', $clockIn->toTimeString());
-                });
-            })->exists();
+        // Check availability for each selected room individually
+        foreach ($selectedRooms as $singleRoom) {
+            $exists = Booking::where('approval_status', '!=', 'Rejected')
+                ->where('booking_date', $clockIn->toDateString())
+                ->where(function ($query) use ($clockIn, $clockOut) {
+                    $query->where(function ($q) use ($clockIn, $clockOut) {
+                        $q->where('start_time', '<', $clockOut->toTimeString())
+                          ->where('end_time', '>', $clockIn->toTimeString());
+                    });
+                })
+                ->where(function ($query) use ($singleRoom) {
+                    $query->where('room_name', $singleRoom)
+                        ->orWhere('room_name', 'LIKE', '%' . $singleRoom . '%');
+                })
+                ->exists();
 
-        if ($exists) {
-            return back()->withInput()->with('error', 'The selected room is already booked for this date and time slot.');
+            if ($exists) {
+                return back()->withInput()->with('error', "{$singleRoom} is already booked for this date and time slot.");
+            }
+        }
+
+        $paymentType = $request->input('payment_type', 'non_payment');
+        $totalPrice = 0;
+
+        if ($paymentType === 'payment') {
+            $durationMinutes = $clockIn->diffInMinutes($clockOut);
+            $durationHours = max(0.25, $durationMinutes / 60.0);
+
+            $basePrice = 0;
+            foreach ($selectedRooms as $rName) {
+                $normR = strtolower($rName);
+                if (str_contains($normR, 'standard')) {
+                    $twelveHourBlocks = (int) ceil($durationHours / 12.0);
+                    $basePrice += max(1, $twelveHourBlocks) * 1400;
+                } elseif (is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4) || str_contains($normR, 'advance')) {
+                    $days = (int) ceil($durationHours / 24.0);
+                    $basePrice += max(1, $days) * 2500;
+                } elseif (in_array($normR, ['conference-hall', 'conference-room', 'glass-room', 'suite-room']) || str_contains($normR, 'conference') || str_contains($normR, 'glass') || str_contains($normR, 'suite')) {
+                    $billableHours = max(4, (int) ceil($durationHours));
+                    $basePrice += $billableHours * 500;
+                } else {
+                    $basePrice += $durationHours > 4 ? 5000 : 2000;
+                }
+            }
+
+            try {
+                $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+            } catch (\Throwable $e) {
+                $gstRate = 5;
+            }
+            $totalPrice = $basePrice * (1 + ($gstRate / 100));
         }
 
         // Create booking
@@ -636,16 +735,45 @@ class AdminController extends Controller
         $booking->end_time = $clockOut->toTimeString();
         $booking->clock_in = $clockIn->toDateTimeString();
         $booking->clock_out = $clockOut->toDateTimeString();
-        $booking->total_price = 0;
-        $booking->payment_status = 'Paid';
-        $booking->approval_status = 'Approved';
-        $booking->razorpay_order_id = 'COLLEGE_GUEST';
-        $booking->razorpay_payment_id = 'FREE_EXEMPT';
+
+        if ($paymentType === 'payment') {
+            $booking->total_price = $totalPrice;
+            $booking->payment_status = 'Pending';
+            $booking->approval_status = 'Approved';
+            $booking->razorpay_order_id = 'PAYMENT_LINK';
+            $booking->razorpay_payment_id = null;
+        } else {
+            $booking->total_price = 0;
+            $booking->payment_status = 'Paid';
+            $booking->approval_status = 'Approved';
+            $booking->razorpay_order_id = 'COLLEGE_GUEST';
+            $booking->razorpay_payment_id = 'FREE_EXEMPT';
+        }
+
         $booking->is_admin_read = true;
         $booking->booking_reason = $request->booking_reason;
         $booking->save();
 
-        return redirect()->route('admin.bookings')->with('success', 'College guest booking created successfully.');
+        if ($paymentType === 'payment') {
+            $token = Str::random(32);
+            $paymentLink = PaymentLink::create([
+                'booking_id' => $booking->id,
+                'token' => $token,
+                'expires_at' => Carbon::now()->addHours(24),
+                'is_used' => false
+            ]);
+
+            try {
+                $this->applyMailConfig();
+                Mail::to($booking->email)->send(new PaymentLinkMail($booking, $paymentLink));
+            } catch (\Throwable $e) {
+                \Log::error('Failed to send college guest payment link email: ' . $e->getMessage());
+            }
+
+            return redirect()->route('admin.bookings')->with('success', 'College guest booking created. Payment link has been emailed to ' . $booking->email);
+        }
+
+        return redirect()->route('admin.bookings')->with('success', 'College guest booking created successfully (Complimentary / Non-Payment).');
     }
 
     public function addRoomToBooking(Request $request, $id)

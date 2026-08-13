@@ -1724,9 +1724,16 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('booking.form.full', ['room' => $roomId]) }}" class="btn book-now-btn" style="width: 100%; padding: 18px !important; border-radius: 16px !important; font-size: 16px !important; margin-bottom: 26px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
-                        Book Now <i class="ph-bold ph-arrow-right" style="font-size: 18px;"></i>
-                    </a>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px;">
+                        <button type="button" class="btn btn-outline" data-cart-room="{{ $room['name'] }}"
+                            onclick="window.IGHCart.toggleRoom({ id: '{{ $roomId }}', name: '{{ $room['name'] }}', category: '{{ $room['category'] }}', price: '{{ str_replace(['₹', ','], '', $room['price']) }}', priceText: '{{ $room['price'] }}', rateType: '{{ $room['time'] }}', capacity: {{ (int) filter_var($room['capacity'], FILTER_SANITIZE_NUMBER_INT) ?: 2 }} })"
+                            style="width: 100%; padding: 14px !important; border-radius: 14px !important; font-size: 15px !important; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart
+                        </button>
+                        <a href="javascript:void(0)" onclick="window.IGHCart.bookNowDirect({ id: '{{ $roomId }}', name: '{{ $room['name'] }}', category: '{{ $room['category'] }}', price: '{{ str_replace(['₹', ','], '', $room['price']) }}', priceText: '{{ $room['price'] }}', rateType: '{{ $room['time'] }}', capacity: {{ (int) filter_var($room['capacity'], FILTER_SANITIZE_NUMBER_INT) ?: 2 }} })" class="btn book-now-btn" style="width: 100%; padding: 16px !important; border-radius: 14px !important; font-size: 15px !important; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
+                            Book Now <i class="ph-bold ph-arrow-right" style="font-size: 18px;"></i>
+                        </a>
+                    </div>
 
                     <!-- Sidebar Content with Luxury Styling -->
                     <div class="sidebar-feature-card" style="background: linear-gradient(180deg, #ffffff 0%, #fefcfc 100%); border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 24px; padding: 22px; margin-bottom: 20px; box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box; width: 100%;">

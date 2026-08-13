@@ -402,20 +402,73 @@
 
         .cal-day { 
             font-size: 0.75rem; 
-            height: 28px;
+            height: 32px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 6px; 
+            border-radius: 8px; 
             color: #64748b; 
             transition: all 0.2s;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cal-day:hover {
+            background: #f1f5f9;
+            color: #0f172a;
         }
 
         .cal-day.active { 
             background: var(--primary-color); 
             color: white; 
-            font-weight: 700; 
-            box-shadow: 0 2px 4px rgba(133, 15, 15, 0.3);
+            font-weight: 800; 
+            box-shadow: 0 2px 6px rgba(133, 15, 15, 0.3);
+        }
+
+        .cal-day.has-bookings {
+            font-weight: 700;
+            background: rgba(133, 15, 15, 0.08);
+            color: var(--primary-color);
+            border: 1.5px solid rgba(133, 15, 15, 0.3);
+        }
+
+        .cal-day.has-bookings:hover {
+            background: rgba(133, 15, 15, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .cal-booking-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 800;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .cal-day.active .cal-booking-badge {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        #calendarDayModal.active {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+
+        #calendarDayModal.active > div {
+            transform: scale(1) !important;
         }
 
         .cal-month-year {
@@ -655,11 +708,21 @@
                                 $today = \Carbon\Carbon::now()->day;
                             @endphp
                             @for($i = 0; $i < $dayOfWeek; $i++) <div></div> @endfor
-                            @for($d = 1; $d <= $daysInMonth; $d++)
-                                <div class="cal-day {{ $d == $today ? 'active' : '' }}">
-                                    {{ $d }}
-                                </div>
-                            @endfor
+                             @for($d = 1; $d <= $daysInMonth; $d++)
+                                 @php
+                                     $hasBookings = isset($calendarBookings[$d]) && count($calendarBookings[$d]) > 0;
+                                     $count = $hasBookings ? count($calendarBookings[$d]) : 0;
+                                     $dateStr = \Carbon\Carbon::now()->startOfMonth()->addDays($d - 1)->format('F d, Y');
+                                 @endphp
+                                 <div class="cal-day {{ $d == $today ? 'active' : '' }} {{ $hasBookings ? 'has-bookings' : '' }}" 
+                                      onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}')"
+                                      title="{{ $hasBookings ? $count . ' Booking(s) on ' . $dateStr : 'Click to view ' . $dateStr }}">
+                                     {{ $d }}
+                                     @if($hasBookings)
+                                         <span class="cal-booking-badge">{{ $count }}</span>
+                                     @endif
+                                 </div>
+                             @endfor
                         </div>
                     </div>
                 </div>
@@ -846,7 +909,7 @@
                             grid: { color: '#f1f5f9', drawBorder: false }, 
                             ticks: { 
                                 font: { size: 10 },
-                                callback: v => '?' + v 
+                                callback: v => '₹' + v.toLocaleString() 
                             } 
                         },
                         x: { 
@@ -917,6 +980,108 @@
             applyWidth();
             window.addEventListener('resize', applyWidth);
         })();
+    </script>
+
+    <!-- Admin Calendar Day Details Modal -->
+    <div id="calendarDayModal" class="modal-overlay" onclick="if(event.target === this) closeCalendarDayModal()" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.25s ease;">
+        <div style="background: #ffffff; width: 92%; max-width: 580px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; border: 1px solid var(--border);">
+            <div style="padding: 1.25rem 1.5rem; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-bold ph-calendar-check" style="color: var(--primary-color);"></i>
+                    <span id="calModalDateTitle">Bookings Details</span>
+                </h3>
+                <button type="button" onclick="closeCalendarDayModal()" style="background: rgba(100, 116, 139, 0.08); border: none; font-size: 1.2rem; cursor: pointer; color: #64748b; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <div id="calModalBody" style="padding: 1.5rem; max-height: 65vh; overflow-y: auto;">
+                <!-- Dynamic day bookings list -->
+            </div>
+            <div style="padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid #f1f5f9; text-align: right;">
+                <button type="button" onclick="closeCalendarDayModal()" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #334155; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const calendarData = @json($calendarBookings ?? []);
+
+        window.openCalendarDayModal = function (dayNum, dateFormattedStr) {
+            const modal = document.getElementById('calendarDayModal');
+            const titleEl = document.getElementById('calModalDateTitle');
+            const bodyEl = document.getElementById('calModalBody');
+            if (!modal || !titleEl || !bodyEl) return;
+
+            titleEl.textContent = `Bookings on ${dateFormattedStr}`;
+            const dayBookings = calendarData[dayNum] || [];
+
+            if (dayBookings.length === 0) {
+                bodyEl.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                        <i class="ph-bold ph-calendar-x" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
+                        <p style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1.05rem; color: #334155;">No Room Bookings</p>
+                        <p style="font-size: 0.85rem; color: #94a3b8;">There are no room reservations scheduled for this date.</p>
+                    </div>
+                `;
+            } else {
+                let html = '<div style="display: flex; flex-direction: column; gap: 14px;">';
+                dayBookings.forEach((b) => {
+                    const statusPillClass = b.payment_status === 'Paid' ? 'pill-paid' : (b.payment_status === 'Pending' ? 'pill-pending' : 'pill-failed');
+                    html += `
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: all 0.2s;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; border-bottom: 1px dashed #f1f5f9; padding-bottom: 0.6rem; gap: 10px;">
+                                <div>
+                                    <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-color, #850f0f); background: rgba(133, 15, 15, 0.08); padding: 2px 8px; border-radius: 6px;">
+                                        Booking #${b.id}
+                                    </span>
+                                    <h4 style="margin: 0.35rem 0 0 0; font-size: 1.05rem; font-weight: 800; color: #0f172a;">${b.name}</h4>
+                                    <span style="font-size: 0.8rem; color: #64748b;">${b.user_type} • ${b.email}</span>
+                                </div>
+                                <span class="status-pill ${statusPillClass}" style="white-space: nowrap;">${b.approval_status} (${b.payment_status})</span>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 0.85rem; font-size: 0.82rem; color: #334155;">
+                                <div>
+                                    <strong style="color: #64748b; font-size: 0.72rem; text-transform: uppercase; display: block;">Room / Workspace</strong>
+                                    <span style="font-weight: 700; color: #0f172a;"><i class="ph-bold ph-bed" style="color: var(--primary-color);"></i> ${b.room_name}</span>
+                                </div>
+                                <div>
+                                    <strong style="color: #64748b; font-size: 0.72rem; text-transform: uppercase; display: block;">Guests & Tariff</strong>
+                                    <span style="font-weight: 700; color: #0f172a;"><i class="ph-bold ph-users"></i> ${b.no_of_persons} Guests • ₹${b.total_price}</span>
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <strong style="color: #64748b; font-size: 0.72rem; text-transform: uppercase; display: block;">Stay Duration (Clock In &rarr; Clock Out)</strong>
+                                    <span style="font-weight: 600; color: #475569;"><i class="ph-bold ph-clock" style="color: var(--primary-color);"></i> ${b.clock_in} &rarr; ${b.clock_out}</span>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: flex-end; padding-top: 0.5rem; border-top: 1px solid #f8fafc;">
+                                <a href="${b.details_url}" style="font-size: 0.82rem; font-weight: 800; color: var(--primary-color, #850f0f); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(133, 15, 15, 0.06); border-radius: 8px;">
+                                    View Full Details <i class="ph-bold ph-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                bodyEl.innerHTML = html;
+            }
+
+            modal.classList.add('active');
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+        };
+
+        window.closeCalendarDayModal = function () {
+            const modal = document.getElementById('calendarDayModal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 200);
+            }
+        };
     </script>
 </body>
 </html>

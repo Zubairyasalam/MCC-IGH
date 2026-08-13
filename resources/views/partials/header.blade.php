@@ -12,7 +12,13 @@
         </div>
     </div>
     
-    <div class="header-right">
+    <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View Selected Rooms Cart">
+            <i class="ph-bold ph-shopping-cart-simple" style="font-size: 1.1rem;"></i>
+            <span class="cart-label-text">CART</span>
+            <span class="cart-count-badge" style="display: none;">0</span>
+        </button>
+
         @if(isset($showHelpBtn) && $showHelpBtn)
             <button class="help-btn" onclick="openHelpModal()">
                 <i class="ph ph-question-circle"></i>
@@ -44,6 +50,8 @@
         @endif
     </div>
 </header>
+
+<script src="{{ asset('js/cart.js') }}?v={{ time() }}"></script>
 
 
 

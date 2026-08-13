@@ -682,14 +682,18 @@
                                 <div class="next-available-placeholder"></div>
                             @endif
 
-                            <div class="card-actions">
-                                <a href="{{ route('room.details', ['id' => 'advance-room-' . $room['no']]) }}" class="btn btn-outline" style="flex: 1; justify-content: center; text-align: center;">View Details</a>
+                            <div class="card-actions" style="display: flex; gap: 8px;">
                                 @if($bookedInfo)
                                     <a href="javascript:void(0)" class="btn"
                                         style="flex: 1; background: #bc8e8e; border-color: #bc8e8e; cursor: not-allowed; opacity: 0.8; justify-content: center;">Booked</a>
                                 @else
-                                    <a href="{{ route('booking.form.full', ['room' => $room['no']]) }}"
-                                        class="btn" style="flex: 1; justify-content: center;">Book Now</a>
+                                    <button type="button" class="btn btn-outline" data-cart-room="{{ $room['no'] }}"
+                                        onclick="window.IGHCart.toggleRoom({ id: 'advance-room-{{ $room['no'] }}', name: '{{ $room['no'] }}', category: 'Advance Room', price: '2500', priceText: '₹2,500', rateType: '24 Hours', capacity: 4 })"
+                                        style="padding: 8px 10px; font-size: 0.85rem; flex: 1; justify-content: center; gap: 4px;">
+                                        <i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart
+                                    </button>
+                                    <a href="javascript:void(0)" onclick="window.IGHCart.bookNowDirect({ id: 'advance-room-{{ $room['no'] }}', name: '{{ $room['no'] }}', category: 'Advance Room', price: '2500', priceText: '₹2,500', rateType: '24 Hours', capacity: 4 })"
+                                        class="btn" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 8px 10px;">Book Now</a>
                                 @endif
                             </div>
                         </div>
@@ -765,7 +769,10 @@
                 bookBtn.style.cursor = 'pointer';
                 bookBtn.style.pointerEvents = 'auto';
                 bookBtn.innerHTML = 'Proceed to Booking Form <i class="ph-bold ph-arrow-right"></i>';
-                bookBtn.href = "{{ route('booking.form.full') }}?room=" + data.room;
+                bookBtn.onclick = function() {
+                    window.IGHCart.bookNowDirect({ id: 'advance-room-' + data.room, name: data.room, category: 'Advance Room', price: '2500', priceText: '₹2,500', rateType: '24 Hours', capacity: 4 });
+                };
+                bookBtn.href = "javascript:void(0)";
             }
 
             const container = document.getElementById('modalFacilitiesContainer');

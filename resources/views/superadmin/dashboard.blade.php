@@ -744,7 +744,7 @@
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 10 }, callback: v => '?' + v.toLocaleString() }
+                        ticks: { font: { size: 10 }, callback: v => '₹' + v.toLocaleString() }
                     },
                     y2: {
                         beginAtZero: true,

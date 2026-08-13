@@ -827,11 +827,20 @@
                             <div class="next-available-placeholder" style="display: none;"></div>
                         @endif
 
-                        <div class="card-actions" style="margin-top: auto;">
-                            <a href="{{ route('room.details', ['id' => $roomId]) }}" class="btn btn-outline" style="flex: 1; justify-content: center; text-align: center; text-transform: uppercase;">View Details</a>
-                            <a href="{{ route('booking.form.full', ['room' => $room['name']]) }}" class="btn" style="flex: 1; justify-content: center; text-transform: uppercase; {{ $bookedInfo ? 'opacity: 0.7; pointer-events: none; background: #bc8e8e; border-color: #bc8e8e;' : '' }}">
-                                {{ $bookedInfo ? 'Booked' : 'Book Now' }}
-                            </a>
+                        <div class="card-actions" style="margin-top: auto; display: flex; gap: 8px;">
+                            @if($bookedInfo)
+                                <a href="javascript:void(0)" class="btn" style="flex: 1; justify-content: center; text-transform: uppercase; opacity: 0.7; pointer-events: none; background: #bc8e8e; border-color: #bc8e8e;">
+                                    Booked
+                                </a>
+                            @else
+                                <button type="button" class="btn btn-outline" data-cart-room="{{ $room['name'] }}"
+                                    onclick="window.IGHCart.toggleRoom({ id: '{{ $roomId }}', name: '{{ $room['name'] }}', category: 'Special Facility', price: '2000', priceText: '₹2,000', rateType: '4 Hours', capacity: {{ $room['capacity'] }} })"
+                                    style="padding: 8px 10px; font-size: 0.85rem; flex: 1; justify-content: center; gap: 4px; text-transform: uppercase;">
+                                    <i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart
+                                </button>
+                                <a href="javascript:void(0)" onclick="window.IGHCart.bookNowDirect({ id: '{{ $roomId }}', name: '{{ $room['name'] }}', category: 'Special Facility', price: '2000', priceText: '₹2,000', rateType: '4 Hours', capacity: {{ $room['capacity'] }} })"
+                                    class="btn" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 8px 10px; text-transform: uppercase;">Book Now</a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -913,7 +922,10 @@
                 bookBtn.style.cursor = 'pointer';
                 bookBtn.style.pointerEvents = 'auto';
                 bookBtn.innerHTML = 'Proceed to Booking Form <i class="ph-bold ph-arrow-right"></i>';
-                bookBtn.href = "{{ route('booking.form.full') }}?room=" + data.room;
+                bookBtn.onclick = function() {
+                    window.IGHCart.bookNowDirect({ id: data.room.toLowerCase().replace(/\s+/g, '-'), name: data.room, category: 'Special Facility', price: '2000', priceText: '₹2,000', rateType: '4 Hours', capacity: 20 });
+                };
+                bookBtn.href = "javascript:void(0)";
             }
             
             const container = document.getElementById('modalFacilitiesContainer');

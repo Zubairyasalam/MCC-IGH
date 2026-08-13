@@ -58,23 +58,33 @@ class BookingController extends Controller
                 $validated['department'] = $request->department_other;
             }
 
-            // Dynamic capacity check
-            $maxCapacity = 4;
-            $normalizedRoom = strtolower($validated['room_name']);
-            if (str_contains($normalizedRoom, 'conference-hall') || str_contains($normalizedRoom, 'conference-room')) {
-                $maxCapacity = 60;
-            } elseif (str_contains($normalizedRoom, 'glass-room')) {
-                $maxCapacity = 20;
-            } elseif (str_contains($normalizedRoom, 'suite-room')) {
-                $maxCapacity = 4;
-            } elseif (str_contains($normalizedRoom, 'advance')) {
-                $maxCapacity = 4;
-            } elseif (str_contains($normalizedRoom, 'standard')) {
-                $maxCapacity = 2;
+            // Parse selected rooms (supports single room or multi-room comma-separated selection)
+            $selectedRooms = array_filter(array_map('trim', explode(',', $validated['room_name'])));
+            if (empty($selectedRooms)) {
+                $selectedRooms = [$validated['room_name']];
+            }
+
+            // Dynamic combined capacity check for all selected rooms
+            $maxCapacity = 0;
+            foreach ($selectedRooms as $rName) {
+                $normalizedRoom = strtolower($rName);
+                if (str_contains($normalizedRoom, 'conference-hall') || str_contains($normalizedRoom, 'conference-room')) {
+                    $maxCapacity += 60;
+                } elseif (str_contains($normalizedRoom, 'glass-room')) {
+                    $maxCapacity += 20;
+                } elseif (str_contains($normalizedRoom, 'suite-room')) {
+                    $maxCapacity += 4;
+                } elseif (str_contains($normalizedRoom, 'advance') || is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4)) {
+                    $maxCapacity += 4;
+                } elseif (str_contains($normalizedRoom, 'standard')) {
+                    $maxCapacity += 2;
+                } else {
+                    $maxCapacity += 4;
+                }
             }
 
             if ($validated['no_of_persons'] > $maxCapacity) {
-                return back()->withInput()->with('error', "Number of persons exceeds the maximum capacity of {$maxCapacity} for this room.");
+                return back()->withInput()->with('error', "Number of persons exceeds the maximum total capacity of {$maxCapacity} for your selected room(s).");
             }
 
             $clockIn = \Carbon\Carbon::parse($validated['clock_in']);
@@ -91,25 +101,26 @@ class BookingController extends Controller
             }
             $durationHours = $durationMinutes / 60.0;
             
+            // Combined Base Pricing Logic for all selected rooms
             $basePrice = 0;
-            $roomName = $validated['room_name'];
-            
-            // Dynamic Pricing Logic based on Category
-            if (str_contains(strtolower($roomName), 'standard')) {
-                // Standard Rooms: ₹1400 per 12-hour block (or fraction)
-                $twelveHourBlocks = (int) ceil($durationHours / 12.0);
-                $basePrice = max(1, $twelveHourBlocks) * 1400;
-            } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4) || str_contains(strtolower($roomName), 'advance')) {
-                // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day (or fraction)
-                $days = (int) ceil($durationHours / 24.0);
-                $basePrice = max(1, $days) * 2500;
-            } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
-                // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
-                $billableHours = max(4, (int) ceil($durationHours));
-                $basePrice = $billableHours * 500;
-            } else {
-                // Default Fallback
-                $basePrice = $durationHours > 4 ? 5000 : 2000;
+            foreach ($selectedRooms as $rName) {
+                $normR = strtolower($rName);
+                if (str_contains($normR, 'standard')) {
+                    // Standard Rooms: ₹1400 per 12-hour block (or fraction)
+                    $twelveHourBlocks = (int) ceil($durationHours / 12.0);
+                    $basePrice += max(1, $twelveHourBlocks) * 1400;
+                } elseif (is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4) || str_contains($normR, 'advance')) {
+                    // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day (or fraction)
+                    $days = (int) ceil($durationHours / 24.0);
+                    $basePrice += max(1, $days) * 2500;
+                } elseif (in_array($normR, ['conference-hall', 'conference-room', 'glass-room', 'suite-room']) || str_contains($normR, 'conference') || str_contains($normR, 'glass') || str_contains($normR, 'suite')) {
+                    // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
+                    $billableHours = max(4, (int) ceil($durationHours));
+                    $basePrice += $billableHours * 500;
+                } else {
+                    // Default Fallback
+                    $basePrice += $durationHours > 4 ? 5000 : 2000;
+                }
             }
             
             // Apply Dynamic GST Rate from Settings
@@ -120,19 +131,25 @@ class BookingController extends Controller
             }
             $totalPrice = $basePrice * (1 + ($gstRate / 100));
 
-            // Double booking check
-            $exists = Booking::where('room_name', $validated['room_name'])
-                ->where('booking_date', $clockIn->toDateString())
-                ->where('approval_status', '!=', 'Rejected')
-                ->where(function ($query) use ($clockIn, $clockOut) {
-                    $query->where(function ($q) use ($clockIn, $clockOut) {
-                        $q->where('start_time', '<', $clockOut->toTimeString())
-                            ->where('end_time', '>', $clockIn->toTimeString());
-                    });
-                })->exists();
+            // Double booking check for each selected room individually
+            foreach ($selectedRooms as $singleRoom) {
+                $exists = Booking::where('approval_status', '!=', 'Rejected')
+                    ->where('booking_date', $clockIn->toDateString())
+                    ->where(function ($query) use ($clockIn, $clockOut) {
+                        $query->where(function ($q) use ($clockIn, $clockOut) {
+                            $q->where('start_time', '<', $clockOut->toTimeString())
+                                ->where('end_time', '>', $clockIn->toTimeString());
+                        });
+                    })
+                    ->where(function ($query) use ($singleRoom) {
+                        $query->where('room_name', $singleRoom)
+                            ->orWhere('room_name', 'LIKE', '%' . $singleRoom . '%');
+                    })
+                    ->exists();
 
-            if ($exists) {
-                return back()->withInput()->with('error', 'Selected workspace is already booked for this time slot.');
+                if ($exists) {
+                    return back()->withInput()->with('error', "{$singleRoom} is already booked for this selected time slot.");
+                }
             }
 
             // Handle File Upload

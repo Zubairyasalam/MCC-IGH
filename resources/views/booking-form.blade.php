@@ -803,7 +803,7 @@
             <div class="page-hero-card">
                 <span class="page-hero-card-badge">Secure Your Stay</span>
                 <h1>IGH <span style="color: #850f0f;">Booking</span></h1>
-                <p>Secure your accommodation efficiently for <strong>{{ $room['name'] }}</strong></p>
+                <p>Secure your accommodation efficiently for <strong id="heroRoomTitle">{{ $room['name'] }}</strong></p>
             </div>
 
             <div class="booking-layout-grid">
@@ -828,7 +828,7 @@
 
                         <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="room_name" value="{{ $roomId }}">
+                            <input type="hidden" name="room_name" id="hiddenRoomNameInput" value="{{ $roomId }}">
 
                     <div class="form-grid">
 
@@ -1126,24 +1126,24 @@
             <!-- Right Column: Booking Summary -->
             <div class="booking-summary-column">
                 <div class="booking-summary-card">
-                    <span class="summary-room-badge">{{ $room['category'] }}</span>
-                    <img src="{{ $room['img'] }}" alt="{{ $room['name'] }}" class="summary-room-img">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph-bold ph-shopping-bag-open" style="color: var(--primary-color, #850f0f);"></i> Selected Rooms (<span id="summaryCartCount">1</span>)
+                        </h4>
+                        <a href="{{ route('standard.rooms') }}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; text-decoration: none;">
+                            + Add Room
+                        </a>
+                    </div>
                     
-                    <h3 class="summary-room-title" style="margin-top: 16px;">{{ $room['name'] }}</h3>
+                    <div id="selectedRoomsListContainer" style="display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamic Selected Rooms rendered via JS -->
+                    </div>
                     
                     <div class="summary-divider"></div>
                     
                     <div class="summary-detail-row">
-                        <span class="label">Max Capacity:</span>
-                        <span class="value">{{ $room['capacity'] }}</span>
-                    </div>
-                    <div class="summary-detail-row">
-                        <span class="label">Wing Location:</span>
-                        <span class="value">{{ $room['category'] }}</span>
-                    </div>
-                    <div class="summary-detail-row">
-                        <span class="label">Pricing Tier:</span>
-                        <span class="value">{{ $room['price_formatted'] }} {{ $room['time'] }}</span>
+                        <span class="label">Total Max Capacity:</span>
+                        <span class="value" id="summaryTotalCapacityVal">{{ $room['capacity'] }}</span>
                     </div>
                     
                     <div class="summary-divider"></div>
@@ -1469,10 +1469,110 @@
             }
         }
 
-        // Live Estimator Calculator Logic
-        const basePrice = {{ $room['price'] }};
+        // Live Estimator & Cart Sync Logic
         const gstRate = {{ $gstRate }};
-        const rateType = "{{ $room['time'] }}";
+
+        function syncBookingFormWithCart() {
+            if (!window.IGHCart) return;
+
+            // 1. Sync from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomsParam = urlParams.get('rooms');
+            const singleRoomParam = urlParams.get('room');
+
+            if (roomsParam) {
+                const roomNames = roomsParam.split(',').map(s => s.trim()).filter(Boolean);
+                if (roomNames.length > 0) {
+                    // Check if cart already has these
+                    const currentCart = window.IGHCart.getItems();
+                    if (currentCart.length === 0) {
+                        roomNames.forEach(rName => {
+                            window.IGHCart.addItem({
+                                id: rName.toLowerCase().replace(/\s+/g, '-'),
+                                name: rName,
+                                category: rName.toLowerCase().includes('standard') ? 'Standard Room' : (rName.toLowerCase().includes('advance') || !isNaN(rName) ? 'Advance Room' : 'Special Facility'),
+                                price: rName.toLowerCase().includes('standard') ? '1400' : (rName.toLowerCase().includes('advance') || !isNaN(rName) ? '2500' : '2000'),
+                                capacity: rName.toLowerCase().includes('standard') ? 2 : (rName.toLowerCase().includes('advance') || !isNaN(rName) ? 4 : 20)
+                            });
+                        });
+                    }
+                }
+            } else if (singleRoomParam && window.IGHCart.getItems().length === 0) {
+                window.IGHCart.addItem({
+                    id: singleRoomParam.toLowerCase().replace(/\s+/g, '-'),
+                    name: singleRoomParam,
+                    category: singleRoomParam.toLowerCase().includes('standard') ? 'Standard Room' : (singleRoomParam.toLowerCase().includes('advance') || !isNaN(singleRoomParam) ? 'Advance Room' : 'Special Facility'),
+                    price: singleRoomParam.toLowerCase().includes('standard') ? '1400' : (singleRoomParam.toLowerCase().includes('advance') || !isNaN(singleRoomParam) ? '2500' : '2000'),
+                    capacity: singleRoomParam.toLowerCase().includes('standard') ? 2 : (singleRoomParam.toLowerCase().includes('advance') || !isNaN(singleRoomParam) ? 4 : 20)
+                });
+            }
+
+            let cartItems = window.IGHCart.getItems();
+
+            // Fallback if empty
+            if (cartItems.length === 0) {
+                cartItems = [{
+                    id: '{{ $roomId }}',
+                    name: '{{ $room["name"] }}',
+                    category: '{{ $room["category"] }}',
+                    price: '{{ $room["price"] }}',
+                    capacity: {{ $maxCapacity }}
+                }];
+            }
+
+            // 2. Set hidden input value
+            const roomNamesStr = cartItems.map(i => i.name).join(', ');
+            const hiddenInput = document.getElementById('hiddenRoomNameInput');
+            if (hiddenInput) hiddenInput.value = roomNamesStr;
+
+            // 3. Update Hero Title
+            const heroTitle = document.getElementById('heroRoomTitle');
+            if (heroTitle) heroTitle.textContent = roomNamesStr;
+
+            // 4. Update Summary Cart Count
+            const summaryCartCount = document.getElementById('summaryCartCount');
+            if (summaryCartCount) summaryCartCount.textContent = cartItems.length;
+
+            // 5. Render Selected Rooms List Container
+            const listContainer = document.getElementById('selectedRoomsListContainer');
+            if (listContainer) {
+                let html = '';
+                cartItems.forEach((item) => {
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;">
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                                <div style="font-size: 0.75rem; color: #64748b;">${item.category} • Max ${item.capacity || 2} guests</div>
+                            </div>
+                            ${cartItems.length > 1 ? `
+                                <button type="button" onclick="window.IGHCart.removeItem('${item.name}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 1rem; flex-shrink: 0;" title="Remove Room">
+                                    <i class="ph-bold ph-x"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+            }
+
+            // 6. Update Combined Max Capacity
+            const totalCap = cartItems.reduce((acc, i) => acc + (parseInt(i.capacity, 10) || 2), 0);
+            const capValEl = document.getElementById('summaryTotalCapacityVal');
+            if (capValEl) capValEl.textContent = `${totalCap} Members`;
+
+            const noOfPersonsInput = document.getElementById('noOfPersonsInput');
+            if (noOfPersonsInput) {
+                noOfPersonsInput.max = totalCap;
+                noOfPersonsInput.placeholder = `e.g. 2 (Maximum: ${totalCap} persons)`;
+                noOfPersonsInput.setAttribute('oninput', `enforceMaxCapacity(this, ${totalCap})`);
+                const helperEl = noOfPersonsInput.nextElementSibling;
+                if (helperEl && helperEl.classList.contains('form-helper')) {
+                    helperEl.textContent = `Maximum capacity for selected rooms is ${totalCap} persons`;
+                }
+            }
+
+            calculateEstimatedPrice();
+        }
 
         function calculateEstimatedPrice() {
             const clockInVal = document.querySelector('input[name="clock_in"]').value;
@@ -1484,10 +1584,10 @@
             const totalEl = document.getElementById('summaryTotalVal');
             
             if (!clockInVal || !clockOutVal) {
-                durationEl.textContent = '—';
-                subtotalEl.textContent = '—';
-                gstEl.textContent = '—';
-                totalEl.textContent = '—';
+                if (durationEl) durationEl.textContent = '—';
+                if (subtotalEl) subtotalEl.textContent = '—';
+                if (gstEl) gstEl.textContent = '—';
+                if (totalEl) totalEl.textContent = '—';
                 return;
             }
             
@@ -1496,35 +1596,60 @@
             
             const diffMs = outDate - inDate;
             if (diffMs <= 0) {
-                durationEl.textContent = 'Invalid Dates';
-                subtotalEl.textContent = '₹0.00';
-                gstEl.textContent = '₹0.00';
-                totalEl.textContent = '₹0.00';
+                if (durationEl) durationEl.textContent = 'Invalid Dates';
+                if (subtotalEl) subtotalEl.textContent = '₹0.00';
+                if (gstEl) gstEl.textContent = '₹0.00';
+                if (totalEl) totalEl.textContent = '₹0.00';
                 return;
             }
             
-            let duration = 1;
-            let durationUnit = "";
+            const durationMinutes = diffMs / (1000 * 60);
+            const durationHours = durationMinutes / 60.0;
             
-            if (rateType.includes('Day')) {
-                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-                durationUnit = duration === 1 ? 'Day' : 'Days';
-            } else if (rateType.includes('12')) {
-                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 12)));
-                durationUnit = duration === 1 ? '12-Hr Interval' : '12-Hr Intervals';
-            } else if (rateType.includes('4')) {
-                duration = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 4)));
-                durationUnit = duration === 1 ? '4-Hr Interval' : '4-Hr Intervals';
-            }
-            
-            const subtotal = basePrice * duration;
+            const cartItems = (window.IGHCart ? window.IGHCart.getItems() : []);
+            const itemsToCalc = cartItems.length > 0 ? cartItems : [{
+                name: '{{ $room["name"] }}',
+                category: '{{ $room["category"] }}',
+                price: '{{ $room["price"] }}',
+                rateType: '{{ $room["time"] }}'
+            }];
+
+            let subtotal = 0;
+            itemsToCalc.forEach(item => {
+                const rName = (item.name || '').toLowerCase();
+                const rCategory = (item.category || '').toLowerCase();
+                const rRateType = (item.rateType || '').toLowerCase();
+                
+                if (rRateType.includes('day') || rCategory.includes('executive') || rCategory.includes('advance') || !isNaN(item.name)) {
+                    const days = Math.max(1, Math.ceil(durationHours / 24.0));
+                    subtotal += days * 2500;
+                } else if (rRateType.includes('12') || rName.includes('standard')) {
+                    const blocks = Math.max(1, Math.ceil(durationHours / 12.0));
+                    subtotal += blocks * 1400;
+                } else if (rRateType.includes('4') || rCategory.includes('conference') || rName.includes('conference') || rName.includes('glass') || rName.includes('suite')) {
+                    const billableHours = Math.max(4, Math.ceil(durationHours));
+                    subtotal += billableHours * 500;
+                } else {
+                    subtotal += (parseFloat(item.price) || 2000);
+                }
+            });
+
             const gst = subtotal * (gstRate / 100);
             const total = subtotal + gst;
+
+            let durationDisplay = '';
+            if (durationHours >= 24) {
+                const d = (durationHours / 24).toFixed(1);
+                durationDisplay = `${d} ${d === '1.0' ? 'Day' : 'Days'}`;
+            } else {
+                const h = durationHours.toFixed(1);
+                durationDisplay = `${h} ${h === '1.0' ? 'Hour' : 'Hours'}`;
+            }
             
-            durationEl.textContent = `${duration} ${durationUnit}`;
-            subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            gstEl.textContent = `₹${gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            totalEl.textContent = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (durationEl) durationEl.textContent = durationDisplay;
+            if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (gstEl) gstEl.textContent = `₹${gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (totalEl) totalEl.textContent = `₹${total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
         function enforceMaxCapacity(input, maxCap) {
@@ -1550,11 +1675,7 @@
                 if (!clockOutEl.value || clockOutEl.value <= clockInEl.value) {
                     const inDate = new Date(clockInEl.value);
                     if (!isNaN(inDate.getTime())) {
-                        let addHours = 12;
-                        if (rateType.includes('Day')) addHours = 24;
-                        else if (rateType.includes('4')) addHours = 4;
-                        
-                        const defaultOut = new Date(inDate.getTime() + addHours * 60 * 60 * 1000);
+                        const defaultOut = new Date(inDate.getTime() + 12 * 60 * 60 * 1000);
                         const year = defaultOut.getFullYear();
                         const month = String(defaultOut.getMonth() + 1).padStart(2, '0');
                         const day = String(defaultOut.getDate()).padStart(2, '0');
@@ -1566,11 +1687,17 @@
             }
         }
 
+        // Listen for Cart updates
+        window.addEventListener('ighCartUpdated', function () {
+            syncBookingFormWithCart();
+        });
+
         // Initialize state natively on load to prevent glitch rendering
         document.addEventListener('DOMContentLoaded', () => {
             toggleStudentFields();
             toggleStaffCategoryFields();
             toggleNationalityFields();
+            syncBookingFormWithCart();
 
             const form = document.querySelector('form[action="{{ route("booking.store") }}"]');
             if (form) {
@@ -1579,13 +1706,16 @@
                     const clockOutEl = document.querySelector('input[name="clock_out"]');
                     if (clockInEl && clockOutEl) {
                         const inDate = new Date(clockInEl.value);
-                        const outDate = new Date(clockOutEl.value);
-                        if (isNaN(inDate.getTime()) || isNaN(outDate.getTime()) || outDate <= inDate) {
+                        const outDate = clockOutEl.value ? new Date(clockOutEl.value) : null;
+                        if (isNaN(inDate.getTime()) || !outDate || isNaN(outDate.getTime()) || outDate <= inDate) {
                             e.preventDefault();
                             alert('Check-Out date and time must be strictly after Check-In date and time.');
                             clockOutEl.focus();
                             return false;
                         }
+                    }
+                    if (window.IGHCart) {
+                        window.IGHCart.clearCart();
                     }
                 });
             }
