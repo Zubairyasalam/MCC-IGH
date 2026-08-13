@@ -107,11 +107,11 @@ class AdminController extends Controller
                 'standard-room-11', 'standard-room-12', 'standard-room-13', 'standard-room-14', 'standard-room-15',
                 'standard-room-16', 'standard-room-17', 'standard-room-18', 'standard-room-19', 'standard-room-20'
             ],
-            'Advanced Executive Rooms' => [
-                'advance-executive-room-1', 'advance-executive-room-2', 'advance-executive-room-3', 'luxury-suite-room'
+            'Advance Executive Rooms' => [
+                'advance-executive-room-1', 'advance-executive-room-2', 'advance-executive-room-3'
             ],
-            'Conference Wing & Halls' => [
-                'conference-hall', 'conference-room', 'glass-room'
+            'Conference & Special Facilities' => [
+                'conference-room', 'glass-room', 'suite-room'
             ]
         ];
 
@@ -124,26 +124,78 @@ class AdminController extends Controller
         $totalRoomsCount = 0;
         $totalAvailableRooms = 0;
         $totalReservedRooms = 0;
+        $assignedGenericBookingIds = [];
 
         foreach ($allRoomsList as $category => $rooms) {
             $roomAvailabilityStatus[$category] = [];
             foreach ($rooms as $rSlug) {
                 $totalRoomsCount++;
                 $formattedName = str_replace('-', ' ', ucwords($rSlug, '- '));
+                $rSlugLower = strtolower($rSlug);
+                $fNameLower = strtolower($formattedName);
 
-                // Find real matching booking from database for today
-                $matchingBooking = $todayActiveBookings->first(function($b) use ($rSlug, $formattedName) {
-                    $bRoom = strtolower($b->room_name);
-                    $rSlugLower = strtolower($rSlug);
-                    $fNameLower = strtolower($formattedName);
+                $roomNum = null;
+                if (preg_match('/-(\d+)$/', $rSlugLower, $m)) {
+                    $roomNum = $m[1];
+                }
 
-                    if ($bRoom === $rSlugLower || $bRoom === $fNameLower) return true;
-                    if (str_contains($bRoom, str_replace('-', ' ', $rSlugLower))) return true;
-                    if (str_contains($rSlugLower, 'conference') && str_contains($bRoom, 'conference')) return true;
-                    if (str_contains($rSlugLower, 'glass') && str_contains($bRoom, 'glass')) return true;
+                $matchingBooking = null;
 
-                    return false;
-                });
+                foreach ($todayActiveBookings as $b) {
+                    $bRoomRaw = $b->room_name;
+                    $roomTokens = array_map('trim', explode(',', $bRoomRaw));
+
+                    foreach ($roomTokens as $token) {
+                        $tLower = strtolower($token);
+
+                        // 1. Exact match on token vs slug/name
+                        if ($tLower === $rSlugLower || $tLower === $fNameLower || $tLower === str_replace('-', ' ', $rSlugLower)) {
+                            $matchingBooking = $b;
+                            break 2;
+                        }
+
+                        // 2. Specific room number match (e.g. "Standard Room 2" for standard-room-2)
+                        if ($roomNum !== null) {
+                            if (str_contains($rSlugLower, 'standard') && str_contains($tLower, 'standard') && preg_match('/\b' . $roomNum . '\b/', $tLower)) {
+                                $matchingBooking = $b;
+                                break 2;
+                            }
+                            if ((str_contains($rSlugLower, 'advance') || str_contains($rSlugLower, 'executive')) && (str_contains($tLower, 'advance') || str_contains($tLower, 'executive')) && preg_match('/\b' . $roomNum . '\b/', $tLower)) {
+                                $matchingBooking = $b;
+                                break 2;
+                            }
+                        }
+
+                        // 3. Facility category match
+                        if ($rSlugLower === 'conference-room' && str_contains($tLower, 'conference')) {
+                            $matchingBooking = $b;
+                            break 2;
+                        }
+                        if ($rSlugLower === 'glass-room' && str_contains($tLower, 'glass')) {
+                            $matchingBooking = $b;
+                            break 2;
+                        }
+                        if ($rSlugLower === 'suite-room' && (str_contains($tLower, 'suite') || str_contains($tLower, 'luxury'))) {
+                            $matchingBooking = $b;
+                            break 2;
+                        }
+                    }
+
+                    // 4. Fallback for unnumbered generic room bookings (e.g. "Standard Guest Room" or "Advance Executive Room")
+                    if (!$matchingBooking && !in_array($b->id, $assignedGenericBookingIds)) {
+                        $bLowerAll = strtolower($bRoomRaw);
+                        if (str_contains($rSlugLower, 'standard') && ($bLowerAll === 'standard-guest-room' || $bLowerAll === 'standard guest room' || $bLowerAll === 'standard room')) {
+                            $matchingBooking = $b;
+                            $assignedGenericBookingIds[] = $b->id;
+                            break;
+                        }
+                        if ((str_contains($rSlugLower, 'advance') || str_contains($rSlugLower, 'executive')) && ($bLowerAll === 'advance-executive-room' || $bLowerAll === 'advance executive room' || $bLowerAll === 'executive room')) {
+                            $matchingBooking = $b;
+                            $assignedGenericBookingIds[] = $b->id;
+                            break;
+                        }
+                    }
+                }
 
                 if ($matchingBooking) {
                     $totalReservedRooms++;

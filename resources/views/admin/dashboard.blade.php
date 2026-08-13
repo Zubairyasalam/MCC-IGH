@@ -903,11 +903,11 @@
                 <div style="margin-bottom: 1.25rem;">
                     <div style="font-size: 0.82rem; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 6px;">
                         @if(str_contains(strtolower($categoryName), 'standard'))
-                            <i class="ph-bold ph-door" style="color: var(--primary-color);"></i> {{ $categoryName }} (20 Rooms)
+                            <i class="ph-bold ph-door" style="color: var(--primary-color);"></i> {{ $categoryName }} ({{ count($rooms) }} Rooms)
                         @elseif(str_contains(strtolower($categoryName), 'advance') || str_contains(strtolower($categoryName), 'executive'))
-                            <i class="ph-bold ph-star" style="color: #d97706;"></i> {{ $categoryName }} (4 Rooms)
+                            <i class="ph-bold ph-star" style="color: #d97706;"></i> {{ $categoryName }} ({{ count($rooms) }} Rooms)
                         @else
-                            <i class="ph-bold ph-buildings" style="color: #2563eb;"></i> {{ $categoryName }} (3 Spaces)
+                            <i class="ph-bold ph-buildings" style="color: #2563eb;"></i> {{ $categoryName }} ({{ count($rooms) }} Facilities)
                         @endif
                     </div>
 
