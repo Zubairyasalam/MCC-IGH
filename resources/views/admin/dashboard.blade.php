@@ -878,6 +878,72 @@
                 </div>
             </div>
 
+            <!-- Live Room & Space Availability Center -->
+            <div class="dashboard-section" style="margin-bottom: 1.5rem; padding: 1.5rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-bold ph-bed" style="color: var(--primary-color);"></i>
+                            Live Room & Space Availability Center
+                        </h3>
+                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px; display: block;">Real-time room availability, reservations & occupancy status for today ({{ \Carbon\Carbon::today()->format('d M Y') }})</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="padding: 6px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.75rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="ph-bold ph-check-circle" style="color: #22c55e;"></i> {{ $totalAvailableRooms }} Available
+                        </span>
+                        <span style="padding: 6px 14px; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; font-size: 0.75rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="ph-bold ph-x-circle" style="color: #ef4444;"></i> {{ $totalReservedRooms }} Reserved
+                        </span>
+                    </div>
+                </div>
+
+                @foreach($roomAvailabilityStatus as $categoryName => $rooms)
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.82rem; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 6px;">
+                        @if(str_contains(strtolower($categoryName), 'standard'))
+                            <i class="ph-bold ph-door" style="color: var(--primary-color);"></i> {{ $categoryName }} (20 Rooms)
+                        @elseif(str_contains(strtolower($categoryName), 'advance') || str_contains(strtolower($categoryName), 'executive'))
+                            <i class="ph-bold ph-star" style="color: #d97706;"></i> {{ $categoryName }} (4 Rooms)
+                        @else
+                            <i class="ph-bold ph-buildings" style="color: #2563eb;"></i> {{ $categoryName }} (3 Spaces)
+                        @endif
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 10px;">
+                        @foreach($rooms as $r)
+                            @if($r['is_available'])
+                                <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; padding: 10px 12px; border-radius: 10px; transition: all 0.2s ease;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 800; font-size: 0.82rem; color: #166534;">{{ $r['name'] }}</span>
+                                        <span style="padding: 2px 6px; background: #22c55e; color: white; font-size: 0.62rem; font-weight: 800; border-radius: 4px;">FREE</span>
+                                    </div>
+                                    <div style="font-size: 0.7rem; color: #15803d; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+                                        <i class="ph-bold ph-check-circle"></i> Available
+                                    </div>
+                                </div>
+                            @else
+                                <div style="background: #fef2f2; border: 1.5px solid #fca5a5; padding: 10px 12px; border-radius: 10px; transition: all 0.2s ease;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 800; font-size: 0.82rem; color: #991b1b;">{{ $r['name'] }}</span>
+                                        <span style="padding: 2px 6px; background: #ef4444; color: white; font-size: 0.62rem; font-weight: 800; border-radius: 4px;">RESERVED</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; font-weight: 800; color: #7f1d1d; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $r['guest_name'] }}">
+                                        <i class="ph-bold ph-user"></i> {{ $r['guest_name'] }}
+                                    </div>
+                                    <div style="font-size: 0.68rem; color: #991b1b; margin-top: 2px; display: flex; align-items: center; justify-content: space-between;">
+                                        <span><i class="ph-bold ph-clock"></i> {{ $r['time'] }}</span>
+                                        <a href="{{ route('admin.bookings.show', $r['booking_id']) }}" style="font-weight: 700; color: var(--primary-color, #850f0f); text-decoration: underline;">View</a>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
             <!-- Full Width Detailed Master Calendar -->
             <div class="dashboard-section detailed-calendar-section" style="margin-bottom: 1.5rem; padding: 1.5rem;">
                 <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
@@ -886,19 +952,19 @@
                             <i class="ph-bold ph-calendar-blank" style="color: var(--primary-color);"></i>
                             Detailed Room Reservations Calendar
                         </h3>
-                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px; display: block;">Real-time room occupancy and daily schedule for {{ \Carbon\Carbon::now()->format('F Y') }}</span>
+                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px; display: block;">Click any day to view complete category breakdown & live room availability for {{ \Carbon\Carbon::now()->format('F Y') }}</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <!-- Color Legend -->
                         <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 0.72rem; font-weight: 700;">
                             <span style="display: inline-flex; align-items: center; gap: 4px; color: #166534;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> Available
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> All Free
                             </span>
                             <span style="display: inline-flex; align-items: center; gap: 4px; color: #b45309;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span> 1-2 Booked
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span> Partial Reserved
                             </span>
                             <span style="display: inline-flex; align-items: center; gap: 4px; color: #991b1b;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #dc2626;"></span> 3+ Booked
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #dc2626;"></span> High Occupancy
                             </span>
                             <span style="display: inline-flex; align-items: center; gap: 4px; color: #850f0f;">
                                 <span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #850f0f; background: transparent;"></span> Today
@@ -939,8 +1005,25 @@
                             $dateIso = $dateObj->format('Y-m-d');
                             $isToday = ($d == $today);
 
+                            // Category Breakdown Counts for this Day
+                            $stdCount = 0;
+                            $dlxCount = 0;
+                            $hallCount = 0;
+                            foreach ($dayBookingsList as $bItem) {
+                                $rNameLower = strtolower($bItem['room_name']);
+                                if (str_contains($rNameLower, 'standard')) {
+                                    $stdCount++;
+                                } elseif (str_contains($rNameLower, 'deluxe')) {
+                                    $dlxCount++;
+                                } else {
+                                    $hallCount++;
+                                }
+                            }
+
+                            $freeRooms = max(0, 26 - $count);
+
                             $cellStatusClass = 'cell-available';
-                            if ($count >= 3) {
+                            if ($count >= 5) {
                                 $cellStatusClass = 'cell-heavy';
                             } elseif ($count >= 1) {
                                 $cellStatusClass = 'cell-partial';
@@ -948,29 +1031,47 @@
                         @endphp
 
                         <div class="cal-cell {{ $cellStatusClass }} {{ $isToday ? 'cell-today' : '' }}"
-                             onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}', '{{ $dateIso }}')">
+                             onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}', '{{ $dateIso }}')"
+                             style="cursor: pointer;">
                             <div class="cell-top-bar">
                                 <span class="cell-date-num">{{ $d }}</span>
                                 @if($count > 0)
-                                    <span class="cell-count-badge {{ $count >= 3 ? 'badge-red' : 'badge-amber' }}">{{ $count }} {{ $count == 1 ? 'Booking' : 'Bookings' }}</span>
+                                    <span class="cell-count-badge {{ $count >= 5 ? 'badge-red' : 'badge-amber' }}">{{ $count }} Reserved</span>
                                 @else
-                                    <span class="cell-free-tag"><i class="ph-bold ph-check" style="font-size: 0.65rem;"></i> Free</span>
+                                    <span class="cell-free-tag"><i class="ph-bold ph-check" style="font-size: 0.65rem;"></i> All Free</span>
                                 @endif
                             </div>
 
-                            <div class="cell-bookings-preview">
-                                @forelse(array_slice($dayBookingsList, 0, 2) as $bItem)
-                                    <div class="booking-chip {{ $bItem['payment_status'] === 'Paid' ? 'chip-paid' : 'chip-pending' }}" title="{{ $bItem['name'] }} - {{ $bItem['room_name'] }} ({{ $bItem['approval_status'] }})">
-                                        <i class="ph-bold ph-bed" style="font-size: 0.7rem;"></i>
-                                        <span class="chip-room">{{ Str::limit($bItem['room_name'], 12) }}</span>
-                                        <span class="chip-name">({{ Str::limit($bItem['name'], 8) }})</span>
+                            <div class="cell-bookings-preview" style="display: flex; flex-direction: column; gap: 3px; margin-top: 4px;">
+                                @if($count > 0)
+                                    @if($stdCount > 0)
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #850f0f; background: #fff5f5; border: 1px solid #fecdd3; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                            <span><i class="ph-bold ph-bed"></i> Standard</span>
+                                            <span style="font-weight: 800;">{{ $stdCount }}</span>
+                                        </div>
+                                    @endif
+                                    @if($dlxCount > 0)
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb; border: 1px solid #fef3c7; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                            <span><i class="ph-bold ph-star"></i> Deluxe</span>
+                                            <span style="font-weight: 800;">{{ $dlxCount }}</span>
+                                        </div>
+                                    @endif
+                                    @if($hallCount > 0)
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                            <span><i class="ph-bold ph-buildings"></i> Halls</span>
+                                            <span style="font-weight: 800;">{{ $hallCount }}</span>
+                                        </div>
+                                    @endif
+                                    <div style="font-size: 0.64rem; color: #64748b; font-weight: 700; margin-top: 2px; text-align: center;">
+                                        {{ $freeRooms }} Free • Click for details
                                     </div>
-                                @empty
-                                    <div class="cell-no-bookings">23 Rooms Available</div>
-                                @endforelse
-
-                                @if($count > 2)
-                                    <div class="chip-more">+{{ $count - 2 }} more booking(s)...</div>
+                                @else
+                                    <div class="cell-no-bookings" style="font-size: 0.72rem; color: #166534; font-weight: 700;">
+                                        <i class="ph-bold ph-check-circle"></i> 26 Rooms Available
+                                    </div>
+                                    <div style="font-size: 0.62rem; color: #94a3b8; margin-top: 2px; text-align: center;">
+                                        Click to reserve
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -1264,65 +1365,63 @@
             const bodyEl = document.getElementById('calModalBody');
             if (!modal || !titleEl || !bodyEl) return;
 
-            titleEl.textContent = `Schedule on ${dateFormattedStr}`;
+            titleEl.textContent = `Room Reservations & Occupancy on ${dateFormattedStr}`;
             const dayBookings = calendarData[dayNum] || [];
-            const TOTAL_ROOMS = 23;
+            const TOTAL_ROOMS = 26;
             const bookedCount = dayBookings.length;
             const availableCount = Math.max(0, TOTAL_ROOMS - bookedCount);
 
-            let statusBannerHtml = '';
-            if (bookedCount === 0) {
-                statusBannerHtml = `
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            // Compute category breakdown for this date
+            let stdCount = 0;
+            let advCount = 0;
+            let confCount = 0;
+            dayBookings.forEach((b) => {
+                const rNameLower = (b.room_name || '').toLowerCase();
+                if (rNameLower.includes('standard')) {
+                    stdCount++;
+                } else if (rNameLower.includes('advance') || rNameLower.includes('executive') || rNameLower.includes('deluxe') || rNameLower.includes('suite')) {
+                    advCount++;
+                } else {
+                    confCount++;
+                }
+            });
+
+            let statusBannerHtml = `
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.1rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
                         <div>
-                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #166534; letter-spacing: 0.05em; display: block;">Availability Status</span>
-                            <span style="font-size: 1.05rem; font-weight: 800; color: #15803d; display: flex; align-items: center; gap: 6px;">
-                                <i class="ph-fill ph-check-circle" style="color: #22c55e;"></i> All ${TOTAL_ROOMS} Rooms Available
+                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; display: block;">Daily Occupancy Summary</span>
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #0f172a;">
+                                ${bookedCount} Reserved • <span style="color: #166534;">${availableCount} Available</span>
                             </span>
                         </div>
-                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: #166534; color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <i class="ph-bold ph-plus"></i> Book Room
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: var(--primary-color, #850f0f); color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: gap: 4px;">
+                            <i class="ph-bold ph-plus"></i> New Reservation
                         </a>
                     </div>
-                `;
-            } else if (bookedCount < 3) {
-                statusBannerHtml = `
-                    <div style="background: #fffbe6; border: 1px solid #fde68a; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                        <div>
-                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #92400e; letter-spacing: 0.05em; display: block;">Availability Status</span>
-                            <span style="font-size: 1.05rem; font-weight: 800; color: #b45309; display: flex; align-items: center; gap: 6px;">
-                                <i class="ph-fill ph-clock" style="color: #d97706;"></i> ${bookedCount} Room(s) Booked • ${availableCount} Available
-                            </span>
-                        </div>
-                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: var(--primary-color, #850f0f); color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="ph-bold ph-plus"></i> Add Booking
-                        </a>
+                    
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #fff5f5; border: 1px solid #fecdd3; color: #850f0f; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-bed"></i> Standard: ${stdCount} / 20 Reserved
+                        </span>
+                        <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-star"></i> Advance Exec: ${advCount} / 4 Reserved
+                        </span>
+                        <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-buildings"></i> Conference: ${confCount} / 3 Reserved
+                        </span>
                     </div>
-                `;
-            } else {
-                statusBannerHtml = `
-                    <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                        <div>
-                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #991b1b; letter-spacing: 0.05em; display: block;">Availability Status</span>
-                            <span style="font-size: 1.05rem; font-weight: 800; color: #b91c1c; display: flex; align-items: center; gap: 6px;">
-                                <i class="ph-fill ph-warning-circle" style="color: #dc2626;"></i> Heavy Demand (${bookedCount} Rooms Booked)
-                            </span>
-                        </div>
-                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: #991b1b; color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="ph-bold ph-plus"></i> Add Booking
-                        </a>
-                    </div>
-                `;
-            }
+                </div>
+            `;
 
             if (dayBookings.length === 0) {
                 bodyEl.innerHTML = statusBannerHtml + `
-                    <div style="text-align: center; padding: 2rem 1rem; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
-                        <i class="ph-bold ph-calendar-check" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 0.5rem; display: block;"></i>
-                        <p style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1rem; color: #334155;">No Room Reservations Yet</p>
-                        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 1rem;">Rooms are completely free for instant online or offline booking on ${dateFormattedStr}.</p>
+                    <div style="text-align: center; padding: 2rem 1rem; color: #64748b; background: #f0fdf4; border-radius: 12px; border: 1px dashed #bbf7d0;">
+                        <i class="ph-bold ph-check-circle" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 0.5rem; display: block;"></i>
+                        <p style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1rem; color: #166534;">All 26 Rooms Completely Available</p>
+                        <p style="font-size: 0.82rem; color: #15803d; margin-bottom: 1rem;">No reservations scheduled for ${dateFormattedStr}. You can reserve any Standard Room, Deluxe Room, or Hall.</p>
                         <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 8px; background: var(--primary-color, #850f0f); color: white; text-decoration: none;">
-                            <i class="ph-bold ph-plus-circle"></i> Create Booking for this Date
+                            <i class="ph-bold ph-plus-circle"></i> Reserve Room for this Date
                         </a>
                     </div>
                 `;

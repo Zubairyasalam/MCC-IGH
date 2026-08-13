@@ -99,6 +99,77 @@ class AdminController extends Controller
             $insights[] = "{$topSpace->room_name} is your most popular workspace this month.";
         }
 
+        // Real Room & Space Availability Status
+        $allRoomsList = [
+            'Standard Guest Rooms' => [
+                'standard-room-1', 'standard-room-2', 'standard-room-3', 'standard-room-4', 'standard-room-5',
+                'standard-room-6', 'standard-room-7', 'standard-room-8', 'standard-room-9', 'standard-room-10',
+                'standard-room-11', 'standard-room-12', 'standard-room-13', 'standard-room-14', 'standard-room-15',
+                'standard-room-16', 'standard-room-17', 'standard-room-18', 'standard-room-19', 'standard-room-20'
+            ],
+            'Advanced Executive Rooms' => [
+                'advance-executive-room-1', 'advance-executive-room-2', 'advance-executive-room-3', 'luxury-suite-room'
+            ],
+            'Conference Wing & Halls' => [
+                'conference-hall', 'conference-room', 'glass-room'
+            ]
+        ];
+
+        // Fetch active bookings for today
+        $todayActiveBookings = Booking::whereDate('booking_date', Carbon::today())
+            ->where('approval_status', '!=', 'Rejected')
+            ->get();
+
+        $roomAvailabilityStatus = [];
+        $totalRoomsCount = 0;
+        $totalAvailableRooms = 0;
+        $totalReservedRooms = 0;
+
+        foreach ($allRoomsList as $category => $rooms) {
+            $roomAvailabilityStatus[$category] = [];
+            foreach ($rooms as $rSlug) {
+                $totalRoomsCount++;
+                $formattedName = str_replace('-', ' ', ucwords($rSlug, '- '));
+
+                // Find real matching booking from database for today
+                $matchingBooking = $todayActiveBookings->first(function($b) use ($rSlug, $formattedName) {
+                    $bRoom = strtolower($b->room_name);
+                    $rSlugLower = strtolower($rSlug);
+                    $fNameLower = strtolower($formattedName);
+
+                    if ($bRoom === $rSlugLower || $bRoom === $fNameLower) return true;
+                    if (str_contains($bRoom, str_replace('-', ' ', $rSlugLower))) return true;
+                    if (str_contains($rSlugLower, 'conference') && str_contains($bRoom, 'conference')) return true;
+                    if (str_contains($rSlugLower, 'glass') && str_contains($bRoom, 'glass')) return true;
+
+                    return false;
+                });
+
+                if ($matchingBooking) {
+                    $totalReservedRooms++;
+                    $roomAvailabilityStatus[$category][] = [
+                        'name' => $formattedName,
+                        'is_available' => false,
+                        'status' => 'Reserved',
+                        'guest_name' => $matchingBooking->name,
+                        'user_type' => $matchingBooking->user_type ?? 'Guest',
+                        'time' => ($matchingBooking->start_time && $matchingBooking->end_time) ? (\Carbon\Carbon::parse($matchingBooking->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($matchingBooking->end_time)->format('H:i')) : 'Full Day',
+                        'payment_status' => $matchingBooking->payment_status,
+                        'approval_status' => $matchingBooking->approval_status,
+                        'booking_id' => $matchingBooking->id,
+                    ];
+                } else {
+                    $totalAvailableRooms++;
+                    $roomAvailabilityStatus[$category][] = [
+                        'name' => $formattedName,
+                        'is_available' => true,
+                        'status' => 'Available',
+                        'guest_name' => null,
+                    ];
+                }
+            }
+        }
+
         // Fetch all bookings for current month for Admin Calendar
         $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
         $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
@@ -136,7 +207,7 @@ class AdminController extends Controller
             'totalBookings', 'todayBookings', 'totalRevenue', 'todayRevenue', 
             'pendingPayments', 'pendingApprovals', 'principalApprovals', 'completedBookings', 'cancelledBookings', 'activeWorkspaces',
             'recentBookings', 'upcomingBookings', 'dailyRevenue', 'monthlyRevenue', 'workspaceData', 'insights', 'notificationBookings',
-            'calendarBookings'
+            'calendarBookings', 'roomAvailabilityStatus', 'totalAvailableRooms', 'totalReservedRooms', 'totalRoomsCount'
         ));
     }
 
