@@ -455,11 +455,15 @@
         font-size: 0.72rem !important;
         font-weight: 800 !important;
         margin-left: 4px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
         line-height: 1 !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-count-badge[style*="display: none"],
+    .cart-count-badge:empty {
+        display: none !important;
     }
 
     .cart-btn-header:hover,

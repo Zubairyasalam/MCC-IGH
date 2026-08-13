@@ -80,11 +80,12 @@
             // Update Header Cart Badge
             const badgeEls = document.querySelectorAll('.cart-count-badge');
             badgeEls.forEach(el => {
-                el.textContent = items.length;
-                if (items.length > 0) {
-                    el.style.display = 'inline-flex';
+                const count = parseInt(items.length, 10) || 0;
+                el.textContent = count;
+                if (count > 0) {
+                    el.style.setProperty('display', 'inline-flex', 'important');
                 } else {
-                    el.style.display = 'none';
+                    el.style.setProperty('display', 'none', 'important');
                 }
             });
 

@@ -16,7 +16,7 @@
         <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View My Reservations">
             <i class="ph-bold ph-list-checks" style="font-size: 1.1rem;"></i>
             <span class="cart-label-text">MY RESERVATIONS</span>
-            <span class="cart-count-badge" style="display: none;">0</span>
+            <span class="cart-count-badge" style="display: none !important;">0</span>
         </button>
 
         @if(isset($showHelpBtn) && $showHelpBtn)
