@@ -386,28 +386,28 @@
         /* Booking Status Banner */
         .next-available {
             margin-top: 0.25rem !important;
-            margin-bottom: 1rem !important;
-            padding: 0.75rem !important;
-            background: rgba(var(--primary-rgb), 0.05) !important;
+            margin-bottom: 0.75rem !important;
+            padding: 0.6rem 0.75rem !important;
+            background: #fff1f2 !important;
             border-radius: 12px !important;
-            border: 1px solid rgba(var(--primary-rgb), 0.1) !important;
+            border: 1px solid #fee2e2 !important;
             text-align: center !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: var(--primary-color) !important;
+            color: #991b1b !important;
             font-size: 0.82rem !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
+            width: 100% !important;
         }
 
         .next-available p {
             margin: 0 !important;
-            line-height: 1.4 !important;
+            line-height: 1.35 !important;
         }
 
         .next-available-placeholder {
-            height: 0px !important;
-            margin: 0 !important;
+            display: none !important;
         }
 
         /* Card Actions */
@@ -826,6 +826,12 @@
                         @else
                             <div class="next-available-placeholder" style="display: none;"></div>
                         @endif
+
+                        <a href="{{ route('room.details', ['id' => Str::slug($room['name']), 'category' => 'conference']) }}" 
+                            class="btn btn-outline" 
+                            style="width: 100%; margin-bottom: 8px; font-size: 0.8rem; font-weight: 700; padding: 8px 10px; justify-content: center; gap: 6px; border: 1.5px solid #cbd5e1; color: #334155; background: #f8fafc; text-transform: uppercase; text-decoration: none;">
+                            <i class="ph-bold ph-info" style="color: var(--primary-color);"></i> View Room Details
+                        </a>
 
                         <div class="card-actions" style="margin-top: auto; display: flex; gap: 8px;">
                             @if($bookedInfo)
