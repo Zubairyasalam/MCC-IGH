@@ -950,10 +950,25 @@
                         <div class="form-group dynamic-field student-field full-width" id="residenceStatusFieldGroup">
                             <label class="form-label">Residence Status <span>*</span></label>
                             <div class="form-radio-group">
-                                <label class="radio-label"><input type="radio" name="residence_status" value="residence"> Residence</label>
-                                <label class="radio-label"><input type="radio" name="residence_status" value="non residence"> Non Residence</label>
+                                <label class="radio-label"><input type="radio" name="residence_status" value="residence" onchange="handleResidenceStatusChange()"> Residence</label>
+                                <label class="radio-label"><input type="radio" name="residence_status" value="non residence" onchange="handleResidenceStatusChange()"> Non Residence</label>
                             </div>
                             <div class="form-helper">Select your residential status in college</div>
+                        </div>
+
+                        <!-- Dynamic Residence Hall Dropdown for Resident Students -->
+                        <div class="form-group dynamic-field student-field full-width" id="residenceHallFieldGroup" style="display: none; margin-top: 0.5rem;">
+                            <label class="form-label">Select Residence Hall <span>*</span></label>
+                            <select class="form-select" name="hall_name" id="residenceHallSelect">
+                                <option value="" disabled selected>Select Residence Hall</option>
+                                <option value="Selaiyur Hall" {{ old('hall_name') == 'Selaiyur Hall' ? 'selected' : '' }}>Selaiyur Hall</option>
+                                <option value="St. Thomas Hall" {{ old('hall_name') == 'St. Thomas Hall' ? 'selected' : '' }}>St. Thomas Hall</option>
+                                <option value="Bishop Heber Hall" {{ old('hall_name') == 'Bishop Heber Hall' ? 'selected' : '' }}>Bishop Heber Hall</option>
+                                <option value="Martin Hall" {{ old('hall_name') == 'Martin Hall' ? 'selected' : '' }}>Martin Hall</option>
+                                <option value="Margaret Hall" {{ old('hall_name') == 'Margaret Hall' ? 'selected' : '' }}>Margaret Hall</option>
+                                <option value="Barnes Hall" {{ old('hall_name') == 'Barnes Hall' ? 'selected' : '' }}>Barnes Hall</option>
+                            </select>
+                            <div class="form-helper">Approval request will be sent directly to your Hall Warden</div>
                         </div>
 
                         <div class="form-group dynamic-field student-field full-width" id="streamFieldGroup">
@@ -981,15 +996,18 @@
                         <div class="form-group dynamic-field student-field full-width" id="departmentFieldGroup">
                             <label class="form-label">Department <span>*</span></label>
                             <select class="form-select" id="departmentSelect" name="department"
-                                onchange="toggleOtherDepartment()">
+                                onchange="toggleOtherDepartment(); updateDepartmentEmailInfo();">
                                 <option value="" disabled selected>Select Stream First</option>
                             </select>
+
+                            <!-- Dynamic HOD Email Info Helper -->
+                            <div class="form-helper" id="departmentEmailHelper" style="margin-top: 6px; display: none; color: #475569; font-size: 0.85rem; font-weight: 500; line-height: 1.4;"></div>
 
                             <!-- Hidden Smooth "Other" Field -->
                             <div id="otherDepartmentWrapper"
                                 style="overflow: hidden; max-height: 0; display: none; margin-top: 0.5rem;">
                                 <input type="text" class="form-input" id="otherDepartmentInput" name="department_other"
-                                    placeholder="Enter Department Name" style="border-color: var(--primary-color);">
+                                    placeholder="Enter Department Name" style="border-color: var(--primary-color);" oninput="updateDepartmentEmailInfo()">
                             </div>
                         </div>
 
@@ -1232,11 +1250,42 @@
                 radios.forEach(r => r.checked = false);
             }
 
-            // Refresh Other Dept and Level logic on toggle
+            // Refresh Other Dept, Residence Status & Level logic on toggle
             if (userType === 'Student') {
                 toggleOtherDepartment();
                 handleLevelChange();
+                handleResidenceStatusChange();
+            } else {
+                handleResidenceStatusChange();
             }
+        }
+
+        function handleResidenceStatusChange() {
+            const userTypeSelect = document.getElementById('userTypeSelect');
+            const userType = userTypeSelect ? userTypeSelect.value : '';
+            const resStatusChecked = document.querySelector('input[name="residence_status"]:checked');
+            const hallGroup = document.getElementById('residenceHallFieldGroup');
+            const hallSelect = document.getElementById('residenceHallSelect');
+
+            if (userType === 'Student' && resStatusChecked && (resStatusChecked.value === 'residence' || resStatusChecked.value === 'resident')) {
+                if (hallGroup) {
+                    hallGroup.classList.add('show');
+                    hallGroup.style.setProperty('display', 'flex', 'important');
+                }
+                if (hallSelect) {
+                    hallSelect.setAttribute('required', 'true');
+                }
+            } else {
+                if (hallGroup) {
+                    hallGroup.classList.remove('show');
+                    hallGroup.style.setProperty('display', 'none', 'important');
+                }
+                if (hallSelect) {
+                    hallSelect.removeAttribute('required');
+                    hallSelect.value = '';
+                }
+            }
+            updateDepartmentEmailInfo();
         }
         function toggleStaffCategoryFields() {
             const staffType = document.querySelector('input[name="staff_type"]:checked');
@@ -1386,6 +1435,7 @@
 
             // Trigger cleanly
             toggleOtherDepartment();
+            updateDepartmentEmailInfo();
         }
 
         function toggleOtherDepartment() {
@@ -1409,8 +1459,114 @@
             }
         }
 
-        // ISSUE 2: Date selection allows past dates
+        const hodEmailDictionary = {
+            'mathematics': 'hodmaths@mcc.edu.in',
+            'mathematics (aided)': 'hodmaths@mcc.edu.in',
+            'mathematics (sfs)': 'hodmathematics-sfs@mcc.edu.in',
+            'philosophy': 'hodphilosophy@mcc.edu.in',
+            'political science': 'hodpoliticalscience@mcc.edu.in',
+            'statistics': 'hodstatistics@mcc.edu.in',
+            'economics': 'hodeconomics@mcc.edu.in',
+            'zoology': 'hodzoology@mcc.edu.in',
+            'botany': 'hodbotany@mcc.edu.in',
+            'chemistry': 'hodchemistry-aided@mcc.edu.in',
+            'chemistry (aided)': 'hodchemistry-aided@mcc.edu.in',
+            'chemistry (sfs)': 'hodchemistry-sfs@mcc.edu.in',
+            'commerce': 'hodcommerce-aided@mcc.edu.in',
+            'commerce (aided)': 'hodcommerce-aided@mcc.edu.in',
+            'commerce (sfs)': 'hodcommerce-sfs@mcc.edu.in',
+            'english': 'hodenglish@mcc.edu.in',
+            'english (aided)': 'hodenglish@mcc.edu.in',
+            'english language and literature': 'hodell@mcc.edu.in',
+            'ell': 'hodell@mcc.edu.in',
+            'history': 'hodhistory@mcc.edu.in',
+            'languages': 'hodlanguages-aided@mcc.edu.in',
+            'languages (aided)': 'hodlanguages-aided@mcc.edu.in',
+            'languages (sfs)': 'hodlanguages-sfs@mcc.edu.in',
+            'physics': 'hodphysics-aided@mcc.edu.in',
+            'physics (aided)': 'hodphysics-aided@mcc.edu.in',
+            'physics (sfs)': 'hodphysics-sfs@mcc.edu.in',
+            'public administration': 'hodpublicadministration@mcc.edu.in',
+            'social work': 'hodsocialwork-aided@mcc.edu.in',
+            'social work (aided)': 'hodsocialwork-aided@mcc.edu.in',
+            'social work (sfs)': 'hodsocialwork-sfs@mcc.edu.in',
+            'tamil': 'hodtamil-aided@mcc.edu.in',
+            'tamil (aided)': 'hodtamil-aided@mcc.edu.in',
+            'tamil (sfs)': 'hodtamil-sfs@mcc.edu.in',
+            'communication': 'hodcommunication@mcc.edu.in',
+            'data science': 'hoddatascience@mcc.edu.in',
+            'computer science': 'hodcomputerscience@mcc.edu.in',
+            'computer science (b.sc)': 'hodcomputerscience@mcc.edu.in',
+            'computer science (mca)': 'hodcomputerscience@mcc.edu.in',
+            'tourism studies': 'hodtourismstudies@mcc.edu.in',
+            'business administration': 'hodbba@mcc.edu.in',
+            'bba': 'hodbba@mcc.edu.in',
+            'computer application (bca)': 'hodbca@mcc.edu.in',
+            'geography': 'hodgttm@mcc.edu.in',
+            'journalism': 'hodjournalism@mcc.edu.in',
+            'mca': 'hodmca@mcc.edu.in',
+            'microbiology': 'hodmicrobiology@mcc.edu.in',
+            'physical education': 'hodphysicaleducation@mcc.edu.in',
+            'physical education, health education and sports': 'hodphysicaleducation@mcc.edu.in',
+            'psychology': 'hodpsychology@mcc.edu.in',
+            'visual communication': 'hodviscom@mcc.edu.in',
+            'viscom': 'hodviscom@mcc.edu.in'
+        };
+
+        function updateDepartmentEmailInfo() {
+            const userTypeSelect = document.getElementById('userTypeSelect');
+            const userType = userTypeSelect ? userTypeSelect.value.trim().toLowerCase() : '';
+            const resStatusChecked = document.querySelector('input[name="residence_status"]:checked');
+            const deptSelect = document.getElementById('departmentSelect');
+            const streamChecked = document.querySelector('input[name="stream"]:checked');
+            const infoBox = document.getElementById('departmentEmailHelper');
+
+            if (!infoBox) return;
+
+            const resValue = resStatusChecked ? resStatusChecked.value.trim().toLowerCase() : '';
+            const isNonResidentStudent = (userType === 'student') && (resValue.includes('non') || resValue.includes('day'));
+
+            if (isNonResidentStudent && deptSelect && deptSelect.value && deptSelect.value !== 'Other' && !deptSelect.value.includes('First') && !deptSelect.value.includes('Select')) {
+                const deptValue = deptSelect.value.trim().toLowerCase();
+                const streamValue = streamChecked ? streamChecked.value.trim().toLowerCase() : '';
+                const streamDeptKey = `${deptValue} (${streamValue})`;
+
+                let targetEmail = hodEmailDictionary[streamDeptKey] || hodEmailDictionary[deptValue] || '';
+                
+                if (targetEmail) {
+                    infoBox.style.setProperty('display', 'block', 'important');
+                    infoBox.innerHTML = `<i class="ph-bold ph-envelope-simple" style="color: #850f0f; font-size: 0.95rem; margin-right: 4px; vertical-align: -1px;"></i> Approval request email will be sent directly to <strong style="color: #850f0f; font-weight: 700;">${targetEmail}</strong> for HOD approval.`;
+                } else {
+                    infoBox.style.setProperty('display', 'block', 'important');
+                    infoBox.innerHTML = `<i class="ph-bold ph-paper-plane-tilt" style="color: #850f0f; font-size: 0.95rem; margin-right: 4px; vertical-align: -1px;"></i> Approval request email will be sent directly to your Department HOD for approval.`;
+                }
+            } else {
+                infoBox.style.setProperty('display', 'none', 'important');
+                infoBox.innerHTML = '';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+            // Attach event listeners for dynamic email helper
+            const deptSelect = document.getElementById('departmentSelect');
+            if (deptSelect) {
+                deptSelect.addEventListener('change', updateDepartmentEmailInfo);
+            }
+            document.querySelectorAll('input[name="residence_status"], input[name="stream"]').forEach(input => {
+                input.addEventListener('change', updateDepartmentEmailInfo);
+            });
+            const userTypeSelect = document.getElementById('userTypeSelect');
+            if (userTypeSelect) {
+                userTypeSelect.addEventListener('change', updateDepartmentEmailInfo);
+            }
+            const levelSelect = document.getElementById('levelSelect');
+            if (levelSelect) {
+                levelSelect.addEventListener('change', updateDepartmentEmailInfo);
+            }
+
+            // Initial trigger
+            setTimeout(updateDepartmentEmailInfo, 100);
+
             const now = new Date();
             const today = now.toISOString().split('T')[0];
             const todayDateTime = now.toISOString().slice(0, 16);

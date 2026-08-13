@@ -27,6 +27,7 @@ class BookingController extends Controller
                 'nationality' => 'required|string',
                 'user_type' => 'required|string',
                 'residence_status' => $request->user_type === 'Student' ? 'required|string|in:residence,non residence' : 'nullable|string',
+                'hall_name' => ($request->user_type === 'Student' && strtolower($request->residence_status ?? '') === 'residence') ? 'required|string' : 'nullable|string',
                 'stream' => 'nullable|string',
                 'level' => 'nullable|string',
                 'department' => 'nullable|string',
@@ -227,17 +228,96 @@ class BookingController extends Controller
                 $bookingResidenceStatus = strtolower(trim($booking->residence_status ?? ''));
 
                 if ($bookingUserType === 'student' && ($bookingResidenceStatus === 'residence' || $bookingResidenceStatus === 'resident')) {
-                    $wardenEmail = $getSetting('hall_warden_email', 'praveenrock2609@gmail.com');
+                    $wardenEmailMap = [
+                        'martin hall'       => 'martinhall@mcc.edu.in',
+                        'barnes hall'       => 'wardenbarneshall@mcc.edu.in',
+                        'bishop heber hall' => 'wardenbishopheberhall@mcc.edu.in',
+                        'margaret hall'     => 'wardenmargaret@mcc.edu.in',
+                        'selaiyur hall'     => 'wardenselaiyurhall@mcc.edu.in',
+                        'st. thomas hall'   => 'sthwarden@mcc.edu.in',
+                        'st thomas hall'    => 'sthwarden@mcc.edu.in',
+                    ];
+
+                    $selectedHallKey = strtolower(trim($booking->hall_name ?? ''));
+                    $wardenEmail = $wardenEmailMap[$selectedHallKey] ?? $getSetting('hall_warden_email', 'praveenrock2609@gmail.com');
+
                     $approveUrl = route('bookings.approve.warden', $booking->id);
                     $rejectUrl = route('bookings.reject.warden', $booking->id);
                     Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info("Booking notification sent to Hall Warden ({$wardenEmail}) for ID: " . $booking->id);
+                    Log::info("Booking notification sent to Hall Warden for {$booking->hall_name} ({$wardenEmail}) for ID: " . $booking->id);
                 } elseif ($bookingUserType === 'student' && (str_contains($bookingResidenceStatus, 'non') || $bookingResidenceStatus === 'dayscholar')) {
-                    $hodEmail = $getSetting('hod_email', 'unfortunately2909@gmail.com');
+                    $hodEmailMap = [
+                        'mathematics'                             => 'hodmaths@mcc.edu.in',
+                        'mathematics (aided)'                     => 'hodmaths@mcc.edu.in',
+                        'mathematics (sfs)'                       => 'hodmathematics-sfs@mcc.edu.in',
+                        'philosophy'                              => 'hodphilosophy@mcc.edu.in',
+                        'political science'                       => 'hodpoliticalscience@mcc.edu.in',
+                        'statistics'                              => 'hodstatistics@mcc.edu.in',
+                        'economics'                               => 'hodeconomics@mcc.edu.in',
+                        'zoology'                                 => 'hodzoology@mcc.edu.in',
+                        'botany'                                  => 'hodbotany@mcc.edu.in',
+                        'chemistry'                               => 'hodchemistry-aided@mcc.edu.in',
+                        'chemistry (aided)'                       => 'hodchemistry-aided@mcc.edu.in',
+                        'chemistry (sfs)'                         => 'hodchemistry-sfs@mcc.edu.in',
+                        'commerce'                                => 'hodcommerce-aided@mcc.edu.in',
+                        'commerce (aided)'                        => 'hodcommerce-aided@mcc.edu.in',
+                        'commerce (sfs)'                          => 'hodcommerce-sfs@mcc.edu.in',
+                        'english'                                 => 'hodenglish@mcc.edu.in',
+                        'english (aided)'                         => 'hodenglish@mcc.edu.in',
+                        'english language and literature'         => 'hodell@mcc.edu.in',
+                        'ell'                                     => 'hodell@mcc.edu.in',
+                        'history'                                 => 'hodhistory@mcc.edu.in',
+                        'languages'                               => 'hodlanguages-aided@mcc.edu.in',
+                        'languages (aided)'                       => 'hodlanguages-aided@mcc.edu.in',
+                        'languages (sfs)'                         => 'hodlanguages-sfs@mcc.edu.in',
+                        'physics'                                 => 'hodphysics-aided@mcc.edu.in',
+                        'physics (aided)'                         => 'hodphysics-aided@mcc.edu.in',
+                        'physics (sfs)'                           => 'hodphysics-sfs@mcc.edu.in',
+                        'public administration'                   => 'hodpublicadministration@mcc.edu.in',
+                        'social work'                             => 'hodsocialwork-aided@mcc.edu.in',
+                        'social work (aided)'                     => 'hodsocialwork-aided@mcc.edu.in',
+                        'social work (sfs)'                       => 'hodsocialwork-sfs@mcc.edu.in',
+                        'tamil'                                   => 'hodtamil-aided@mcc.edu.in',
+                        'tamil (aided)'                           => 'hodtamil-aided@mcc.edu.in',
+                        'tamil (sfs)'                             => 'hodtamil-sfs@mcc.edu.in',
+                        'communication'                           => 'hodcommunication@mcc.edu.in',
+                        'data science'                            => 'hoddatascience@mcc.edu.in',
+                        'computer science'                        => 'hodcomputerscience@mcc.edu.in',
+                        'computer science (b.sc)'                 => 'hodcomputerscience@mcc.edu.in',
+                        'computer science (mca)'                  => 'hodcomputerscience@mcc.edu.in',
+                        'tourism studies'                         => 'hodtourismstudies@mcc.edu.in',
+                        'business administration'                 => 'hodbba@mcc.edu.in',
+                        'bba'                                     => 'hodbba@mcc.edu.in',
+                        'computer application (bca)'              => 'hodbca@mcc.edu.in',
+                        'computer application – bca'              => 'hodbca@mcc.edu.in',
+                        'bca'                                     => 'hodbca@mcc.edu.in',
+                        'geography'                               => 'hodgttm@mcc.edu.in',
+                        'journalism'                              => 'hodjournalism@mcc.edu.in',
+                        'mca'                                     => 'hodmca@mcc.edu.in',
+                        'microbiology'                            => 'hodmicrobiology@mcc.edu.in',
+                        'physical education'                      => 'hodphysicaleducation@mcc.edu.in',
+                        'physical education, health education and sports' => 'hodphysicaleducation@mcc.edu.in',
+                        'psychology'                              => 'hodpsychology@mcc.edu.in',
+                        'visual communication'                    => 'hodviscom@mcc.edu.in',
+                        'viscom'                                  => 'hodviscom@mcc.edu.in',
+                    ];
+
+                    $rawDept = strtolower(trim($booking->department ?? ''));
+                    $rawStream = strtolower(trim($booking->stream ?? ''));
+                    $streamDeptKey = $rawDept . ' (' . $rawStream . ')';
+
+                    if (isset($hodEmailMap[$streamDeptKey])) {
+                        $hodEmail = $hodEmailMap[$streamDeptKey];
+                    } elseif (isset($hodEmailMap[$rawDept])) {
+                        $hodEmail = $hodEmailMap[$rawDept];
+                    } else {
+                        $hodEmail = $getSetting('hod_email', 'unfortunately2909@gmail.com');
+                    }
+
                     $approveUrl = route('bookings.approve.hod', $booking->id);
                     $rejectUrl = route('bookings.reject.hod', $booking->id);
                     Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info("Booking notification sent to HOD ({$hodEmail}) for ID: " . $booking->id);
+                    Log::info("Booking notification sent to HOD for {$booking->department} ({$hodEmail}) for ID: " . $booking->id);
                 } else {
                     $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
                     Mail::to($principalEmails)->send(new BookingNotification($booking));

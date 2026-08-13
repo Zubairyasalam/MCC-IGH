@@ -94,7 +94,7 @@
                 const roomName = btn.getAttribute('data-cart-room');
                 if (this.hasItem(roomName)) {
                     btn.classList.add('in-cart');
-                    btn.innerHTML = '<i class="ph-bold ph-check"></i> In Cart';
+                    btn.innerHTML = '<i class="ph-bold ph-check"></i> In Reservation';
                     btn.style.background = '#059669';
                     btn.style.borderColor = '#059669';
                     btn.style.color = '#ffffff';
@@ -102,9 +102,9 @@
                     btn.classList.remove('in-cart');
                     const isIconOnly = btn.hasAttribute('data-cart-icon-only');
                     if (isIconOnly) {
-                        btn.innerHTML = '<i class="ph-bold ph-shopping-cart-simple"></i>';
+                        btn.innerHTML = '<i class="ph-bold ph-calendar-plus"></i>';
                     } else {
-                        btn.innerHTML = '<i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart';
+                        btn.innerHTML = '<i class="ph-bold ph-calendar-plus"></i> Add to Reservation';
                     }
                     btn.style.background = '';
                     btn.style.borderColor = '';
@@ -159,7 +159,7 @@
                     </div>
                     <div class="cart-bar-actions">
                         <button type="button" class="cart-bar-btn outline" onclick="window.IGHCart.openModal()">
-                            <i class="ph-bold ph-list-bullets"></i> View Cart
+                            <i class="ph-bold ph-list-checks"></i> View My Reservations
                         </button>
                         <a href="${this.getBookingFormUrl()}" class="cart-bar-btn primary">
                             Book Now (${items.length}) <i class="ph-bold ph-arrow-right"></i>
@@ -200,7 +200,7 @@
                 <div class="modal-card cart-modal-card">
                     <div class="modal-header-custom" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                            <i class="ph-bold ph-shopping-cart-simple" style="color: var(--primary-color, #850f0f);"></i> Your Selected Rooms
+                            <i class="ph-bold ph-list-checks" style="color: var(--primary-color, #850f0f);"></i> My Reservations
                         </h3>
                         <button type="button" class="modal-close-custom" onclick="window.IGHCart.closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
                             <i class="ph-bold ph-x"></i>
@@ -225,8 +225,8 @@
             if (items.length === 0) {
                 body.innerHTML = `
                     <div style="text-align: center; padding: 2rem 1rem; color: #64748b;">
-                        <i class="ph-bold ph-shopping-bag" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
-                        <p style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">Your room cart is currently empty</p>
+                        <i class="ph-bold ph-calendar-blank" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
+                        <p style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.1rem;">My Reservations is currently empty</p>
                         <p style="font-size: 0.9rem; color: #94a3b8;">Browse through our Standard, Advance, or Conference rooms and select rooms to book together.</p>
                     </div>
                 `;

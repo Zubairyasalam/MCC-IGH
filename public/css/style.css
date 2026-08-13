@@ -523,10 +523,9 @@ header {
 /* Footer */
 /* Footer */
 .main-footer {
-    background: #fdfbf9 !important;
-    /* Clean professional light beige/cream */
-    border-top: 1px solid #e2e8f0 !important;
-    color: #444 !important;
+    background: var(--primary-color, #850f0f) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
     width: 100%;
     margin-top: 3rem;
     /* Space from content */

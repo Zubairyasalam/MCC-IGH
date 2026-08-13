@@ -178,6 +178,22 @@ class AdminController extends Controller
     {
         $query = Booking::query();
 
+        $preset = $request->get('preset', '');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($preset === '20days') {
+            $query->where('booking_date', '>=', \Carbon\Carbon::now()->subDays(20)->startOfDay()->toDateString());
+        } elseif ($preset === '30days') {
+            $query->where('booking_date', '>=', \Carbon\Carbon::now()->subDays(30)->startOfDay()->toDateString());
+        } elseif ($preset === 'this_month') {
+            $query->whereMonth('booking_date', \Carbon\Carbon::now()->month)
+                  ->whereYear('booking_date', \Carbon\Carbon::now()->year);
+        } elseif ($startDate || $endDate) {
+            if ($startDate) $query->where('booking_date', '>=', $startDate);
+            if ($endDate)   $query->where('booking_date', '<=', $endDate);
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -189,7 +205,7 @@ class AdminController extends Controller
         if ($request->filled('status'))    $query->where('payment_status', $request->status);
         if ($request->filled('workspace')) $query->where('room_name', $request->workspace);
 
-        $bookings = $query->orderBy('created_at', 'desc')->get();
+        $bookings = $query->orderBy('booking_date', 'desc')->orderBy('created_at', 'desc')->get();
 
         $filename = 'bookings_' . now()->format('Ymd_His') . '.csv';
 
@@ -240,6 +256,71 @@ class AdminController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function reports(Request $request)
+    {
+        $query = Booking::query();
+
+        $preset = $request->get('preset', '');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($preset === '20days') {
+            $query->where('booking_date', '>=', Carbon::now()->subDays(20)->startOfDay()->toDateString());
+        } elseif ($preset === '30days') {
+            $query->where('booking_date', '>=', Carbon::now()->subDays(30)->startOfDay()->toDateString());
+        } elseif ($preset === 'this_month') {
+            $query->whereMonth('booking_date', Carbon::now()->month)
+                  ->whereYear('booking_date', Carbon::now()->year);
+        } elseif ($startDate || $endDate) {
+            if ($startDate) {
+                $query->where('booking_date', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->where('booking_date', '<=', $endDate);
+            }
+        } else {
+            // Default preset to 20 days if no explicit date filter is passed
+            $preset = '20days';
+            $query->where('booking_date', '>=', Carbon::now()->subDays(20)->startOfDay()->toDateString());
+        }
+
+        $bookings = $query->orderBy('booking_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalRevenue = $bookings->where('payment_status', 'Paid')->sum('total_price');
+        $gstVal = \App\Models\Setting::where('key', 'gst_rate')->value('value');
+        $gstRate = $gstVal !== null ? (float) $gstVal : 5.0;
+        $gstFactor = 1 + ($gstRate / 100);
+        $netRevenue = $gstFactor > 0 ? ($totalRevenue / $gstFactor) : $totalRevenue;
+        $totalGst = $totalRevenue - $netRevenue;
+
+        return view('admin.reports', compact('bookings', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate', 'preset', 'startDate', 'endDate'));
+    }
+
+    public function uploadDocument(Request $request, $id)
+    {
+        $request->validate([
+            'admin_document' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+
+        if ($request->hasFile('admin_document')) {
+            $file = $request->file('admin_document');
+            $fileName = 'admin_doc_' . $booking->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('admin_documents', $fileName, 'public');
+
+            $booking->update([
+                'admin_document' => $path
+            ]);
+
+            return back()->with('success', 'Softcopy document uploaded successfully for Booking #' . $booking->id);
+        }
+
+        return back()->with('error', 'Failed to upload document.');
     }
 
     public function show($id)
@@ -458,30 +539,6 @@ class AdminController extends Controller
         $booking->delete();
 
         return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
-    }
-
-    public function reports(Request $request)
-    {
-        $query = Booking::query();
-
-        if ($request->filled('start_date')) {
-            $query->whereDate('booking_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('booking_date', '<=', $request->end_date);
-        }
-
-        $bookings = $query->orderBy('booking_date', 'desc')->get();
-        
-        // Calculate dynamic totals for the report summary
-        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
-        $gstFactor = 1 + ($gstRate / 100);
-        
-        $totalRevenue = $bookings->sum('total_price');
-        $netRevenue = $totalRevenue / $gstFactor;
-        $totalGst = $totalRevenue - $netRevenue;
-        
-        return view('admin.reports', compact('bookings', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate'));
     }
 
     public function markNotificationsRead()

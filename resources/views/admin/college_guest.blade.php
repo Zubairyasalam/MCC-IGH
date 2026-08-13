@@ -340,6 +340,12 @@
             gap: 0.5rem;
         }
 
+        .tab-btn i {
+            font-size: 1.1rem !important;
+            color: var(--primary-color) !important;
+            transition: color 0.2s ease !important;
+        }
+
         .tab-btn:hover {
             color: var(--primary-color);
             background: rgba(var(--primary-rgb), 0.05);
@@ -347,10 +353,14 @@
         }
 
         .tab-btn.active {
-            color: #ffffff;
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.25);
+            color: #ffffff !important;
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.25) !important;
+        }
+
+        .tab-btn.active i {
+            color: #ffffff !important;
         }
 
         .rooms-panel {
@@ -365,57 +375,72 @@
         }
 
         .room-card-btn {
-            background: #f8fafc;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            padding: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            user-select: none;
+            background: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            padding: 1.1rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            user-select: none !important;
+            position: relative !important;
+            box-shadow: none !important;
         }
 
-        .room-card-btn:hover {
-            border-color: var(--primary-color);
-            background: rgba(var(--primary-rgb), 0.02);
+        .room-card-btn:hover:not(.booked):not(.selected) {
+            border-color: #94a3b8 !important;
+            background: #f8fafc !important;
         }
 
         .room-card-btn.selected {
-            border-color: var(--primary-color);
-            background: rgba(var(--primary-rgb), 0.04);
-            box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.06);
+            border: 2.5px solid #850f0f !important;
+            background: #fff5f5 !important;
+            box-shadow: 0 4px 14px rgba(133, 15, 15, 0.18) !important;
+        }
+
+        .room-card-btn.selected .room-card-name {
+            color: #850f0f !important;
+            font-weight: 800 !important;
+        }
+
+        .room-card-btn.selected i.ph {
+            color: #850f0f !important;
+        }
+
+        .room-card-btn.selected .room-selected-badge {
+            display: inline-flex !important;
+        }
+
+        .room-card-btn:not(.selected) .room-selected-badge {
+            display: none !important;
         }
 
         .room-card-btn.booked {
-            background: #fef2f2;
-            border-color: #fee2e2;
-            cursor: not-allowed;
-            opacity: 0.8;
+            background: #fef2f2 !important;
+            border: 1.5px solid #fee2e2 !important;
+            cursor: not-allowed !important;
+            opacity: 0.8 !important;
         }
 
         .room-card-btn.booked i {
-            color: #ef4444;
+            color: #ef4444 !important;
         }
 
         .room-card-btn.booked .room-card-name {
-            color: #991b1b;
+            color: #991b1b !important;
         }
 
         .room-card-btn.booked .room-card-desc {
-            color: #ef4444;
-            font-weight: 600;
+            color: #ef4444 !important;
+            font-weight: 600 !important;
         }
 
         .room-card-btn i {
             font-size: 1.75rem;
             color: var(--text-muted);
             transition: color 0.2s ease;
-        }
-
-        .room-card-btn.selected i {
-            color: var(--primary-color);
         }
 
         .room-card-info {
@@ -841,11 +866,11 @@
                                     @foreach($rooms as $group => $items)
                                         <button type="button" class="tab-btn {{ $tabIndex === 0 ? 'active' : '' }}" data-tab="tab-{{ \Illuminate\Support\Str::slug($group) }}">
                                             @if(str_contains(strtolower($group), 'standard'))
-                                                <i class="ph ph-bed"></i>
+                                                <i class="ph-bold ph-bed"></i>
                                             @elseif(str_contains(strtolower($group), 'advance'))
-                                                <i class="ph ph-sparkle"></i>
+                                                <i class="ph-bold ph-sparkle"></i>
                                             @else
-                                                <i class="ph ph-users-four"></i>
+                                                <i class="ph-bold ph-users-four"></i>
                                             @endif
                                             {{ $group }}
                                         </button>
@@ -901,10 +926,13 @@
                                             @else
                                                 <i class="ph ph-presentation"></i>
                                             @endif
-                                            <div class="room-card-info">
+                                            <div class="room-card-info" style="flex: 1;">
                                                 <span class="room-card-name">{{ $cleanLabel }}</span>
                                                 <span class="room-card-desc" style="{{ $isBooked ? 'color: #ef4444; font-weight: 600;' : '' }}">{{ $desc }}</span>
                                             </div>
+                                            <span class="room-selected-badge" style="display: none; background: #850f0f; color: #fff; border-radius: 20px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; gap: 4px; align-items: center; margin-left: auto;">
+                                                <i class="ph-bold ph-check"></i> Selected
+                                            </span>
                                         </div>
                                     @endforeach
                                 </div>
@@ -1167,6 +1195,7 @@
             const cards = document.querySelectorAll('.room-card-btn');
             cards.forEach(card => {
                 card.classList.remove('selected');
+                card.style.cssText = '';
             });
             const roomInput = document.getElementById('room_name');
             if (roomInput) roomInput.value = '';

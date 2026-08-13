@@ -703,6 +703,12 @@
                             <span class="info-value">{{ ucwords($booking->residence_status) }}</span>
                         </div>
                         @endif
+                        @if($booking->hall_name)
+                        <div class="info-item">
+                            <span class="info-label">Residence Hall</span>
+                            <span class="info-value" style="color: var(--primary-color); font-weight: 700;">{{ $booking->hall_name }}</span>
+                        </div>
+                        @endif
                         <div class="info-item">
                             <span class="info-label">Academic Details</span>
                             <span class="info-value">{{ $booking->level }} | {{ $booking->stream }} | {{ $booking->department }}</span>

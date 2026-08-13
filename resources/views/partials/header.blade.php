@@ -13,9 +13,9 @@
     </div>
     
     <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
-        <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View Selected Rooms Cart">
-            <i class="ph-bold ph-shopping-cart-simple" style="font-size: 1.1rem;"></i>
-            <span class="cart-label-text">CART</span>
+        <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View My Reservations">
+            <i class="ph-bold ph-list-checks" style="font-size: 1.1rem;"></i>
+            <span class="cart-label-text">MY RESERVATIONS</span>
             <span class="cart-count-badge" style="display: none;">0</span>
         </button>
 

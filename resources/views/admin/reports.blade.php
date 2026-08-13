@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -355,6 +355,18 @@
         </div>
 
         <div class="admin-body">
+            @if(session('success'))
+                <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; color: #15803d; padding: 12px 16px; border-radius: 10px; margin-bottom: 1.25rem; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-bold ph-check-circle" style="font-size: 1.1rem;"></i> {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div style="background: #fef2f2; border: 1.5px solid #fca5a5; color: #991b1b; padding: 12px 16px; border-radius: 10px; margin-bottom: 1.25rem; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-bold ph-warning-circle" style="font-size: 1.1rem;"></i> {{ session('error') }}
+                </div>
+            @endif
+
             <!-- Financial Summary Cards -->
             <div class="summary-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
@@ -371,30 +383,56 @@
                 </div>
             </div>
 
-            <div class="filter-card">
-                <form action="{{ route('admin.reports') }}" method="GET" class="filter-form">
-                    <div class="form-group">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" name="start_date" class="form-input" value="{{ request('start_date') }}" style="height: 48px;">
+            <!-- Quick Stay History Presets -->
+            <div style="display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; margin-right: 4px;">Stay History Filters:</span>
+                <a href="{{ route('admin.reports', ['preset' => '20days']) }}" 
+                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === '20days' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   <i class="ph-bold ph-calendar-blank"></i> Last 20 Days Stayed
+                </a>
+                <a href="{{ route('admin.reports', ['preset' => '30days']) }}" 
+                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === '30days' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   <i class="ph-bold ph-calendar"></i> Last 30 Days
+                </a>
+                <a href="{{ route('admin.reports', ['preset' => 'this_month']) }}" 
+                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === 'this_month' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   <i class="ph-bold ph-calendar-check"></i> This Month
+                </a>
+                <a href="{{ route('admin.reports', ['preset' => 'all']) }}" 
+                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === 'all' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   <i class="ph-bold ph-clock-counter-clockwise"></i> All Time History
+                </a>
+            </div>
+
+            <div class="filter-card" style="padding: 1.25rem;">
+                <form action="{{ route('admin.reports') }}" method="GET" class="filter-form" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                    <div class="form-group" style="flex: 0 0 160px; min-width: 140px;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #475569; margin-bottom: 4px; display: block;">Start Date</label>
+                        <input type="date" name="start_date" class="form-input" value="{{ request('start_date') }}" style="height: 44px; padding: 0 10px;">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">End Date</label>
-                        <input type="date" name="end_date" class="form-input" value="{{ request('end_date') }}" style="height: 48px;">
+                    <div class="form-group" style="flex: 0 0 160px; min-width: 140px;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #475569; margin-bottom: 4px; display: block;">End Date</label>
+                        <input type="date" name="end_date" class="form-input" value="{{ request('end_date') }}" style="height: 44px; padding: 0 10px;">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn-download" style="background: var(--text-main); height: 48px;">
+
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: auto;">
+                        <button type="submit" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: #1e293b; border: none; font-weight: 700;">
                             <i class="ph ph-funnel"></i> Apply Filter
                         </button>
+                        
+                        @if(count($bookings) > 0)
+                            <a href="{{ route('admin.reports.download', request()->all()) }}" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: var(--primary-color, #850f0f); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph-bold ph-file-pdf"></i> Download PDF
+                            </a>
+                            <a href="{{ route('admin.bookings.export', request()->all()) }}" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: #166534; border-color: #166534; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph-bold ph-file-csv"></i> Download CSV
+                            </a>
+                        @endif
+                        
+                        <button type="button" onclick="openDocUploadModal(null, '')" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: var(--primary-color, #850f0f); border: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(133, 15, 15, 0.25);">
+                            <i class="ph-bold ph-upload-simple"></i> Upload Softcopy
+                        </button>
                     </div>
-                    @if(count($bookings) > 0)
-                    <div class="form-group">
-                        <label class="form-label">&nbsp;</label>
-                        <a href="{{ route('admin.reports.download', request()->all()) }}" class="btn-download" style="height: 48px;">
-                            <i class="ph ph-file-pdf"></i> Download PDF Report
-                        </a>
-                    </div>
-                    @endif
                 </form>
             </div>
 
@@ -403,11 +441,10 @@
                     <thead>
                         <tr>
                             <th>Booking ID</th>
-                            <th>Guest Details</th>
-                            <th>Room / Slot</th>
-                            <th>Base Price</th>
-                            <th>GST ({{ $gstRate }}%)</th>
-                            <th>Total Amount</th>
+                            <th>Guest & Stay History Details</th>
+                            <th>Room / Category</th>
+                            <th>Tariff (Base + GST)</th>
+                            <th>Approval & Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -418,23 +455,107 @@
                             $bGstAmount = $b->total_price - $bSubtotal;
                         @endphp
                         <tr>
-                            <td style="font-weight: 600;">BK-{{ str_pad($b->id, 6, '0', STR_PAD_LEFT) }}</td>
                             <td>
-                                <div style="font-weight: 600;">{{ $b->name }}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $b->email }}</div>
+                                <div style="font-weight: 800; color: var(--primary-color, #850f0f); font-size: 0.9rem;">BK-{{ str_pad($b->id, 6, '0', STR_PAD_LEFT) }}</div>
+                                @if($b->reference_id)
+                                    <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">{{ $b->reference_id }}</span>
+                                @endif
                             </td>
                             <td>
-                                <div style="font-weight: 600;">{{ str_replace('-', ' ', ucwords($b->room_name, '- ')) }}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}</div>
+                                <!-- Booked By & User Category -->
+                                <div style="font-weight: 800; color: #0f172a; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    {{ $b->name }}
+                                    <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #475569; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">
+                                        {{ $b->user_type ?? 'Guest' }}
+                                    </span>
+                                </div>
+                                
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">
+                                    {{ $b->email }} • {{ $b->phone ?? 'N/A' }}
+                                </div>
+
+                                <!-- Guest & Department Details -->
+                                <div style="font-size: 0.72rem; color: #334155; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                                    @if($b->primary_guest_name)
+                                        <span style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;" title="Primary Guest Name">
+                                            <i class="ph-bold ph-user"></i> <strong>Guest:</strong> {{ $b->primary_guest_name }} ({{ $b->no_of_persons ?? 1 }} Pers.)
+                                        </span>
+                                    @else
+                                        <span style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i class="ph-bold ph-users"></i> {{ $b->no_of_persons ?? 1 }} Person(s)
+                                        </span>
+                                    @endif
+
+                                    @if($b->department)
+                                        <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;" title="Department">
+                                            <i class="ph-bold ph-buildings"></i> {{ $b->department }}
+                                        </span>
+                                    @endif
+
+                                    @if($b->hall_name)
+                                        <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;" title="Hostel Hall">
+                                            <i class="ph-bold ph-bank"></i> {{ $b->hall_name }}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <!-- Attachments -->
+                                @if($b->admin_document || $b->referral_attachment)
+                                    <div style="margin-top: 4px; display: flex; gap: 6px; align-items: center;">
+                                        @if($b->admin_document)
+                                            <a href="{{ asset('storage/' . $b->admin_document) }}" target="_blank" style="padding: 2px 8px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; font-size: 0.68rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="View Stored Softcopy">
+                                                <i class="ph-bold ph-file-pdf"></i> Softcopy Attached
+                                            </a>
+                                        @elseif($b->referral_attachment)
+                                            <a href="{{ asset('storage/' . $b->referral_attachment) }}" target="_blank" style="padding: 2px 8px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 0.68rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="View Referral File">
+                                                <i class="ph-bold ph-file-text"></i> Referral File
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
-                            <td style="color: #64748b;">₹{{ number_format($bSubtotal, 2) }}</td>
-                            <td style="color: #64748b;">₹{{ number_format($bGstAmount, 2) }}</td>
-                            <td style="font-weight: 700; color: var(--text-main);">₹{{ number_format($b->total_price, 2) }}</td>
+                            <td>
+                                <div style="font-weight: 700; color: #0f172a;"><i class="ph-bold ph-bed" style="color: var(--primary-color);"></i> {{ str_replace('-', ' ', ucwords($b->room_name, '- ')) }}</div>
+                                <div style="font-size: 0.75rem; color: #475569; margin-top: 2px;">
+                                    <i class="ph-bold ph-clock"></i> {{ \Carbon\Carbon::parse($b->booking_date)->format('d M Y') }}
+                                    @if($b->start_time && $b->end_time)
+                                        ({{ \Carbon\Carbon::parse($b->start_time)->format('H:i') }} &rarr; {{ \Carbon\Carbon::parse($b->end_time)->format('H:i') }})
+                                    @endif
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 800; color: #0f172a;">₹{{ number_format($b->total_price, 2) }}</div>
+                                <div style="font-size: 0.7rem; color: #64748b;">Base: ₹{{ number_format($bSubtotal, 2) }} | GST: ₹{{ number_format($bGstAmount, 2) }}</div>
+                            </td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <span class="status-pill {{ str_contains($b->approval_status, 'Approved') || $b->approval_status === 'Approved' ? 'pill-approved' : ($b->approval_status === 'Rejected' ? 'pill-rejected' : 'pill-pending') }}">
+                                        {{ $b->approval_status }}
+                                    </span>
+
+                                    <!-- Audit Chain Details -->
+                                    <div style="font-size: 0.7rem; color: #475569; display: flex; flex-direction: column; gap: 2px; margin-top: 2px;">
+                                        @if(str_contains($b->approval_status, 'Approved by Principal') || str_contains($b->approval_status, 'Principal Approved') || $b->approval_status === 'Approved')
+                                            <span style="color: #15803d; font-weight: 700;"><i class="ph-bold ph-check-circle"></i> Principal Approved</span>
+                                        @elseif($b->approval_status === 'Pending Principal Approval')
+                                            <span style="color: #c2410c; font-weight: 700;"><i class="ph-bold ph-clock"></i> Awaiting Principal</span>
+                                        @elseif(str_contains($b->approval_status, 'HOD'))
+                                            <span style="color: #b45309; font-weight: 700;"><i class="ph-bold ph-clock"></i> HOD Review</span>
+                                        @elseif(str_contains($b->approval_status, 'Warden'))
+                                            <span style="color: #b45309; font-weight: 700;"><i class="ph-bold ph-clock"></i> Warden Review</span>
+                                        @endif
+
+                                        <span style="font-weight: 700; color: {{ $b->payment_status === 'Paid' ? '#166534' : '#b45309' }};">
+                                            <i class="ph-bold ph-credit-card"></i> {{ $b->payment_status === 'Paid' ? 'Payment Paid' : 'Payment Pending' }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-muted);">
-                                No records found for the selected period.
+                            <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                                No stay records found for the selected period.
                             </td>
                         </tr>
                         @endforelse
@@ -443,7 +564,98 @@
             </div>
         </div>
     </main>
+
+    <!-- Admin Upload Softcopy Modal -->
+    <div id="docUploadModal" class="modal-overlay" onclick="if(event.target === this) closeDocUploadModal()" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.25s ease;">
+        <div style="background: #ffffff; width: 92%; max-width: 480px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; border: 1px solid var(--border);">
+            <div style="padding: 1.25rem 1.5rem; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <i class="ph-bold ph-upload-simple" style="color: var(--primary-color, #850f0f);"></i>
+                    Upload Softcopy Document
+                </h3>
+                <button type="button" onclick="closeDocUploadModal()" style="background: rgba(100, 116, 139, 0.08); border: none; font-size: 1.2rem; cursor: pointer; color: #64748b; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <form id="docUploadForm" action="" method="POST" enctype="multipart/form-data" style="padding: 1.5rem;">
+                @csrf
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 1.25rem;" id="docUploadModalSubtitle">
+                    Attach official ID proof, referral letter, or booking softcopy document.
+                </p>
+                <div class="form-group" id="bookingSelectWrapper" style="margin-bottom: 1.25rem; display: none;">
+                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select Booking Record</label>
+                    <select id="bookingSelect" class="form-input" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-weight: 600; font-size: 0.85rem;" onchange="updateFormActionFromSelect(this.value)">
+                        <option value="">-- Choose Guest Booking --</option>
+                        @foreach($bookings as $bOpt)
+                            <option value="{{ $bOpt->id }}">
+                                BK-{{ str_pad($bOpt->id, 6, '0', STR_PAD_LEFT) }} — {{ $bOpt->name }} ({{ str_replace('-', ' ', ucwords($bOpt->room_name, '- ')) }}, {{ \Carbon\Carbon::parse($bOpt->booking_date)->format('d M Y') }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select Document File (PDF, DOC, JPG, PNG)</label>
+                    <input type="file" name="admin_document" class="form-input" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+                    <button type="button" onclick="closeDocUploadModal()" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #334155; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: none; background: var(--primary-color, #850f0f); color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-upload"></i> Upload & Store
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
+        window.openDocUploadModal = function (bookingId, guestName) {
+            const modal = document.getElementById('docUploadModal');
+            const form = document.getElementById('docUploadForm');
+            const subtitle = document.getElementById('docUploadModalSubtitle');
+            const selectWrapper = document.getElementById('bookingSelectWrapper');
+            const bookingSelect = document.getElementById('bookingSelect');
+
+            if (!modal || !form) return;
+
+            if (bookingId) {
+                if (selectWrapper) selectWrapper.style.display = 'none';
+                if (bookingSelect) bookingSelect.removeAttribute('required');
+                form.action = `/admin/bookings/${bookingId}/upload-document`;
+                if (subtitle) {
+                    subtitle.innerHTML = `Attach official ID proof, referral letter, or booking softcopy document for <strong>${guestName}</strong> (Booking #BK-${String(bookingId).padStart(6, '0')}).`;
+                }
+            } else {
+                if (selectWrapper) selectWrapper.style.display = 'block';
+                if (bookingSelect) {
+                    bookingSelect.setAttribute('required', 'required');
+                    bookingSelect.value = '';
+                }
+                form.action = '';
+                if (subtitle) {
+                    subtitle.innerHTML = `Select a guest booking record below to upload and attach an official softcopy document.`;
+                }
+            }
+
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+        };
+
+        window.updateFormActionFromSelect = function (selectedId) {
+            const form = document.getElementById('docUploadForm');
+            if (form && selectedId) {
+                form.action = `/admin/bookings/${selectedId}/upload-document`;
+            }
+        };
+
+        window.closeDocUploadModal = function () {
+            const modal = document.getElementById('docUploadModal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 200);
+            }
+        };
+
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.querySelector('.sidebar');
 

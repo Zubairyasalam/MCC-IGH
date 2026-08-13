@@ -1283,14 +1283,15 @@
     }
 
     /* Premium dynamic theme footer background and border */
+    /* Premium dynamic theme footer background and border */
     .main-footer {
-        @if($useSecondary == '1')
-            background: var(--secondary-color) !important;
-        @else
-            background: var(--primary-color) !important;
-        @endif
+        background: var(--primary-color, #850f0f) !important;
         border-top: 3px solid rgba(255, 255, 255, 0.2) !important;
-        color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    .main-footer .footer-content {
+        background: var(--primary-color, #850f0f) !important;
     }
 
     .main-footer .footer-column h4 {
@@ -1323,7 +1324,7 @@
     }
 
     .main-footer .footer-column p {
-        color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(255, 255, 255, 0.85) !important;
     }
 
     .main-footer .footer-column i {
@@ -1331,12 +1332,13 @@
     }
 
     .main-footer .footer-bottom {
+        background: var(--primary-color, #850f0f) !important;
         border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-        color: rgba(255, 255, 255, 0.7) !important;
+        color: rgba(255, 255, 255, 0.85) !important;
     }
 
     .main-footer .footer-bottom p {
-        color: rgba(255, 255, 255, 0.7) !important;
+        color: rgba(255, 255, 255, 0.85) !important;
     }
 
     .main-footer .mcc-text {

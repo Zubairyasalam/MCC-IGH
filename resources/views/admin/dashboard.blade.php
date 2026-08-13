@@ -400,55 +400,75 @@
             justify-content: center;
         }
 
+        /* Smart Availability & Color Coded Calendar */
         .cal-day { 
-            font-size: 0.75rem; 
-            height: 32px;
+            font-size: 0.78rem; 
+            height: 34px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 8px; 
-            color: #64748b; 
-            transition: all 0.2s;
+            color: #475569; 
+            transition: all 0.2s ease;
             position: relative;
             cursor: pointer;
             user-select: none;
+            border: 1px solid transparent;
+            font-weight: 600;
         }
 
-        .cal-day:hover {
-            background: #f1f5f9;
-            color: #0f172a;
+        .cal-day.status-available { 
+            background: #f8fafc; 
+            color: #334155; 
         }
 
-        .cal-day.active { 
-            background: var(--primary-color); 
-            color: white; 
-            font-weight: 800; 
-            box-shadow: 0 2px 6px rgba(133, 15, 15, 0.3);
+        .cal-day.status-available:hover {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
         }
 
-        .cal-day.has-bookings {
+        .cal-day.status-partial {
+            background: #fffbe6;
+            color: #b45309;
+            border: 1.5px solid #fde68a;
             font-weight: 700;
-            background: rgba(133, 15, 15, 0.08);
-            color: var(--primary-color);
-            border: 1.5px solid rgba(133, 15, 15, 0.3);
         }
 
-        .cal-day.has-bookings:hover {
-            background: rgba(133, 15, 15, 0.18);
+        .cal-day.status-partial:hover {
+            background: #fef3c7;
             transform: translateY(-1px);
+        }
+
+        .cal-day.status-heavy {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1.5px solid #fca5a5;
+            font-weight: 800;
+        }
+
+        .cal-day.status-heavy:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
+
+        .cal-day.is-today { 
+            outline: 2px solid var(--primary-color, #850f0f); 
+            outline-offset: -2px; 
+            box-shadow: 0 2px 8px rgba(133, 15, 15, 0.2);
+            font-weight: 800;
         }
 
         .cal-booking-badge {
             position: absolute;
             top: 2px;
             right: 2px;
-            background: #ef4444;
             color: white;
             font-size: 0.55rem;
             font-weight: 800;
-            width: 14px;
-            height: 14px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -457,9 +477,214 @@
             pointer-events: none;
         }
 
-        .cal-day.active .cal-booking-badge {
-            background: white;
-            color: var(--primary-color);
+        .cal-booking-badge.badge-partial {
+            background: #d97706;
+        }
+
+        .cal-booking-badge.badge-heavy {
+            background: #dc2626;
+        }
+
+        .cal-available-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #22c55e;
+            position: absolute;
+            bottom: 3px;
+        }
+
+        /* Full Width Detailed Master Calendar Styling */
+        .detailed-calendar-section {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border, #e2e8f0);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .detailed-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .cal-day-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            text-align: center;
+            padding: 8px 0;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .cal-cell {
+            min-height: 98px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .cal-cell.empty-cell {
+            background: #f8fafc;
+            border-color: #f1f5f9;
+            cursor: default;
+            min-height: 98px;
+            opacity: 0.4;
+        }
+
+        .cal-cell.cell-available {
+            background: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        .cal-cell.cell-available:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .cal-cell.cell-partial {
+            background: #fffdf5;
+            border-color: #fde68a;
+        }
+
+        .cal-cell.cell-partial:hover {
+            border-color: #d97706;
+            background: #fffbe6;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .cal-cell.cell-heavy {
+            background: #fff5f5;
+            border-color: #fca5a5;
+        }
+
+        .cal-cell.cell-heavy:hover {
+            border-color: #dc2626;
+            background: #fef2f2;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .cal-cell.cell-today {
+            outline: 2.5px solid var(--primary-color, #850f0f);
+            outline-offset: -2.5px;
+            box-shadow: 0 4px 15px rgba(133, 15, 15, 0.2);
+        }
+
+        .cell-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .cell-date-num {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .cell-count-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 20px;
+            color: white;
+            line-height: 1;
+        }
+
+        .cell-count-badge.badge-amber {
+            background: #d97706;
+        }
+
+        .cell-count-badge.badge-red {
+            background: #dc2626;
+        }
+
+        .cell-free-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #166534;
+            background: #dcfce7;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .cell-bookings-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .cell-no-bookings {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            font-weight: 600;
+            padding-top: 4px;
+        }
+
+        .booking-chip {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .booking-chip.chip-paid {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .booking-chip.chip-pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .chip-room {
+            font-weight: 800;
+        }
+
+        .chip-name {
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        .chip-more {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #64748b;
+            padding-top: 2px;
+        }
+
+        @media (max-width: 1024px) {
+            .detailed-calendar-grid {
+                grid-template-columns: repeat(7, minmax(110px, 1fr));
+                overflow-x: auto;
+            }
         }
 
         #calendarDayModal.active {
@@ -653,78 +878,103 @@
                 </div>
             </div>
 
-            <!-- Row 2: Revenue Chart + Quick/Calendar -->
-            <div class="row-grid">
-                <div class="dashboard-section">
-                    <div class="section-header">
-                        <h3><i class="ph-bold ph-chart-line-up" style="color: var(--primary-color);"></i> Revenue Growth</h3>
-                        <div class="chart-controls">
-                            <button class="chart-toggle active" onclick="switchChart('7day', this)">7D</button>
-                            <button class="chart-toggle" onclick="switchChart('monthly', this)">6M</button>
-                        </div>
+            <!-- Full Width Detailed Master Calendar -->
+            <div class="dashboard-section detailed-calendar-section" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-bold ph-calendar-blank" style="color: var(--primary-color);"></i>
+                            Detailed Room Reservations Calendar
+                        </h3>
+                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px; display: block;">Real-time room occupancy and daily schedule for {{ \Carbon\Carbon::now()->format('F Y') }}</span>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <!-- Color Legend -->
+                        <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 0.72rem; font-weight: 700;">
+                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #166534;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> Available
+                            </span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #b45309;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span> 1-2 Booked
+                            </span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #991b1b;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #dc2626;"></span> 3+ Booked
+                            </span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #850f0f;">
+                                <span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #850f0f; background: transparent;"></span> Today
+                            </span>
+                        </div>
+                        <a href="{{ route('admin.college-guest') }}" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.78rem; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: var(--primary-color, #850f0f); color: white;">
+                            <i class="ph-bold ph-plus"></i> New Reservation
+                        </a>
                     </div>
                 </div>
 
-                <div class="right-box">
-                    <div class="dashboard-section" style="padding: 1rem;">
-                        <div class="section-header" style="margin-bottom: 0.75rem;">
-                            <h3><i class="ph-bold ph-lightning" style="color: var(--warning);"></i> Quick Actions</h3>
-                        </div>
-                        <div class="quick-actions">
-                            <a href="{{ route('home') }}" class="action-btn">
-                                <i class="ph ph-plus-circle" style="color: var(--success);"></i>
-                                New
-                            </a>
-                            <a href="{{ route('admin.bookings') }}" class="action-btn">
-                                <i class="ph ph-file-search" style="color: var(--info);"></i>
-                                Reports
-                            </a>
-                            <a href="{{ route('admin.bookings.export') }}" class="action-btn">
-                                <i class="ph ph-export" style="color: var(--primary-color);"></i>
-                                CSV
-                            </a>
-                            <a href="#" class="action-btn">
-                                <i class="ph ph-users" style="color: #a855f7;"></i>
-                                Admins
-                            </a>
-                        </div>
-                    </div>
+                <div class="detailed-calendar-grid">
+                    <div class="cal-day-header">Sunday</div>
+                    <div class="cal-day-header">Monday</div>
+                    <div class="cal-day-header">Tuesday</div>
+                    <div class="cal-day-header">Wednesday</div>
+                    <div class="cal-day-header">Thursday</div>
+                    <div class="cal-day-header">Friday</div>
+                    <div class="cal-day-header">Saturday</div>
 
-                    <div class="dashboard-section" style="padding: 1.25rem 1rem;">
-                        <div class="section-header" style="margin-bottom: 1rem;">
-                            <h3 style="margin:0;"><i class="ph-bold ph-calendar-blank" style="color: var(--primary-color);"></i> Calendar</h3>
-                            <div class="cal-month-year">{{ \Carbon\Carbon::now()->format('F Y') }}</div>
+                    @php
+                        $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
+                        $daysInMonth = \Carbon\Carbon::now()->daysInMonth;
+                        $dayOfWeek = $startOfMonth->dayOfWeek;
+                        $today = \Carbon\Carbon::now()->day;
+                    @endphp
+
+                    @for($i = 0; $i < $dayOfWeek; $i++)
+                        <div class="cal-cell empty-cell"></div>
+                    @endfor
+
+                    @for($d = 1; $d <= $daysInMonth; $d++)
+                        @php
+                            $dayBookingsList = $calendarBookings[$d] ?? [];
+                            $count = count($dayBookingsList);
+                            $dateObj = \Carbon\Carbon::now()->startOfMonth()->addDays($d - 1);
+                            $dateStr = $dateObj->format('F d, Y');
+                            $dateIso = $dateObj->format('Y-m-d');
+                            $isToday = ($d == $today);
+
+                            $cellStatusClass = 'cell-available';
+                            if ($count >= 3) {
+                                $cellStatusClass = 'cell-heavy';
+                            } elseif ($count >= 1) {
+                                $cellStatusClass = 'cell-partial';
+                            }
+                        @endphp
+
+                        <div class="cal-cell {{ $cellStatusClass }} {{ $isToday ? 'cell-today' : '' }}"
+                             onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}', '{{ $dateIso }}')">
+                            <div class="cell-top-bar">
+                                <span class="cell-date-num">{{ $d }}</span>
+                                @if($count > 0)
+                                    <span class="cell-count-badge {{ $count >= 3 ? 'badge-red' : 'badge-amber' }}">{{ $count }} {{ $count == 1 ? 'Booking' : 'Bookings' }}</span>
+                                @else
+                                    <span class="cell-free-tag"><i class="ph-bold ph-check" style="font-size: 0.65rem;"></i> Free</span>
+                                @endif
+                            </div>
+
+                            <div class="cell-bookings-preview">
+                                @forelse(array_slice($dayBookingsList, 0, 2) as $bItem)
+                                    <div class="booking-chip {{ $bItem['payment_status'] === 'Paid' ? 'chip-paid' : 'chip-pending' }}" title="{{ $bItem['name'] }} - {{ $bItem['room_name'] }} ({{ $bItem['approval_status'] }})">
+                                        <i class="ph-bold ph-bed" style="font-size: 0.7rem;"></i>
+                                        <span class="chip-room">{{ Str::limit($bItem['room_name'], 12) }}</span>
+                                        <span class="chip-name">({{ Str::limit($bItem['name'], 8) }})</span>
+                                    </div>
+                                @empty
+                                    <div class="cell-no-bookings">23 Rooms Available</div>
+                                @endforelse
+
+                                @if($count > 2)
+                                    <div class="chip-more">+{{ $count - 2 }} more booking(s)...</div>
+                                @endif
+                            </div>
                         </div>
-                        <div class="mini-calendar">
-                            <div class="cal-day-name">S</div><div class="cal-day-name">M</div><div class="cal-day-name">T</div>
-                            <div class="cal-day-name">W</div><div class="cal-day-name">T</div><div class="cal-day-name">F</div><div class="cal-day-name">S</div>
-                            @php
-                                $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
-                                $daysInMonth = \Carbon\Carbon::now()->daysInMonth;
-                                $dayOfWeek = $startOfMonth->dayOfWeek;
-                                $today = \Carbon\Carbon::now()->day;
-                            @endphp
-                            @for($i = 0; $i < $dayOfWeek; $i++) <div></div> @endfor
-                             @for($d = 1; $d <= $daysInMonth; $d++)
-                                 @php
-                                     $hasBookings = isset($calendarBookings[$d]) && count($calendarBookings[$d]) > 0;
-                                     $count = $hasBookings ? count($calendarBookings[$d]) : 0;
-                                     $dateStr = \Carbon\Carbon::now()->startOfMonth()->addDays($d - 1)->format('F d, Y');
-                                 @endphp
-                                 <div class="cal-day {{ $d == $today ? 'active' : '' }} {{ $hasBookings ? 'has-bookings' : '' }}" 
-                                      onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}')"
-                                      title="{{ $hasBookings ? $count . ' Booking(s) on ' . $dateStr : 'Click to view ' . $dateStr }}">
-                                     {{ $d }}
-                                     @if($hasBookings)
-                                         <span class="cal-booking-badge">{{ $count }}</span>
-                                     @endif
-                                 </div>
-                             @endfor
-                        </div>
-                    </div>
+                    @endfor
                 </div>
             </div>
 
@@ -1008,25 +1258,76 @@
     <script>
         const calendarData = @json($calendarBookings ?? []);
 
-        window.openCalendarDayModal = function (dayNum, dateFormattedStr) {
+        window.openCalendarDayModal = function (dayNum, dateFormattedStr, dateIso) {
             const modal = document.getElementById('calendarDayModal');
             const titleEl = document.getElementById('calModalDateTitle');
             const bodyEl = document.getElementById('calModalBody');
             if (!modal || !titleEl || !bodyEl) return;
 
-            titleEl.textContent = `Bookings on ${dateFormattedStr}`;
+            titleEl.textContent = `Schedule on ${dateFormattedStr}`;
             const dayBookings = calendarData[dayNum] || [];
+            const TOTAL_ROOMS = 23;
+            const bookedCount = dayBookings.length;
+            const availableCount = Math.max(0, TOTAL_ROOMS - bookedCount);
 
-            if (dayBookings.length === 0) {
-                bodyEl.innerHTML = `
-                    <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
-                        <i class="ph-bold ph-calendar-x" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 0.75rem; display: block;"></i>
-                        <p style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1.05rem; color: #334155;">No Room Bookings</p>
-                        <p style="font-size: 0.85rem; color: #94a3b8;">There are no room reservations scheduled for this date.</p>
+            let statusBannerHtml = '';
+            if (bookedCount === 0) {
+                statusBannerHtml = `
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #166534; letter-spacing: 0.05em; display: block;">Availability Status</span>
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #15803d; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph-fill ph-check-circle" style="color: #22c55e;"></i> All ${TOTAL_ROOMS} Rooms Available
+                            </span>
+                        </div>
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: #166534; color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <i class="ph-bold ph-plus"></i> Book Room
+                        </a>
+                    </div>
+                `;
+            } else if (bookedCount < 3) {
+                statusBannerHtml = `
+                    <div style="background: #fffbe6; border: 1px solid #fde68a; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #92400e; letter-spacing: 0.05em; display: block;">Availability Status</span>
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #b45309; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph-fill ph-clock" style="color: #d97706;"></i> ${bookedCount} Room(s) Booked • ${availableCount} Available
+                            </span>
+                        </div>
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: var(--primary-color, #850f0f); color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-plus"></i> Add Booking
+                        </a>
                     </div>
                 `;
             } else {
-                let html = '<div style="display: flex; flex-direction: column; gap: 14px;">';
+                statusBannerHtml = `
+                    <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #991b1b; letter-spacing: 0.05em; display: block;">Availability Status</span>
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #b91c1c; display: flex; align-items: center; gap: 6px;">
+                                <i class="ph-fill ph-warning-circle" style="color: #dc2626;"></i> Heavy Demand (${bookedCount} Rooms Booked)
+                            </span>
+                        </div>
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: #991b1b; color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-plus"></i> Add Booking
+                        </a>
+                    </div>
+                `;
+            }
+
+            if (dayBookings.length === 0) {
+                bodyEl.innerHTML = statusBannerHtml + `
+                    <div style="text-align: center; padding: 2rem 1rem; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                        <i class="ph-bold ph-calendar-check" style="font-size: 2.5rem; color: #22c55e; margin-bottom: 0.5rem; display: block;"></i>
+                        <p style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1rem; color: #334155;">No Room Reservations Yet</p>
+                        <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 1rem;">Rooms are completely free for instant online or offline booking on ${dateFormattedStr}.</p>
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 8px; background: var(--primary-color, #850f0f); color: white; text-decoration: none;">
+                            <i class="ph-bold ph-plus-circle"></i> Create Booking for this Date
+                        </a>
+                    </div>
+                `;
+            } else {
+                let html = statusBannerHtml + '<h4 style="margin: 0 0 0.85rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Booked Rooms & Guest Details</h4><div style="display: flex; flex-direction: column; gap: 14px;">';
                 dayBookings.forEach((b) => {
                     const statusPillClass = b.payment_status === 'Paid' ? 'pill-paid' : (b.payment_status === 'Pending' ? 'pill-pending' : 'pill-failed');
                     html += `
@@ -1039,7 +1340,10 @@
                                     <h4 style="margin: 0.35rem 0 0 0; font-size: 1.05rem; font-weight: 800; color: #0f172a;">${b.name}</h4>
                                     <span style="font-size: 0.8rem; color: #64748b;">${b.user_type} • ${b.email}</span>
                                 </div>
-                                <span class="status-pill ${statusPillClass}" style="white-space: nowrap;">${b.approval_status} (${b.payment_status})</span>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                                    <span class="status-pill ${statusPillClass}" style="white-space: nowrap;">${b.approval_status}</span>
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: ${b.payment_status === 'Paid' ? '#166534' : '#b45309'};">Payment: ${b.payment_status}</span>
+                                </div>
                             </div>
                             
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 0.85rem; font-size: 0.82rem; color: #334155;">

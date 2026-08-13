@@ -229,6 +229,12 @@
                     <td>{{ ucwords($booking->residence_status) }}</td>
                 </tr>
                 @endif
+                @if($booking->hall_name)
+                <tr>
+                    <th>Residence Hall</th>
+                    <td><strong style="color: #850f0f;">{{ $booking->hall_name }}</strong></td>
+                </tr>
+                @endif
                 @elseif($booking->user_type === 'Staff')
                 <tr>
                     <th>Staff Details</th>

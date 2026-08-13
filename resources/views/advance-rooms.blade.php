@@ -696,7 +696,7 @@
                                     <button type="button" class="btn btn-outline" data-cart-room="{{ $room['no'] }}"
                                         onclick="window.IGHCart.toggleRoom({ id: 'advance-room-{{ $room['no'] }}', name: '{{ $room['no'] }}', category: 'Advance Room', price: '2500', priceText: '₹2,500', rateType: '24 Hours', capacity: 4 })"
                                         style="padding: 8px 10px; font-size: 0.85rem; flex: 1; justify-content: center; gap: 4px;">
-                                        <i class="ph-bold ph-shopping-cart-simple"></i> Add to Cart
+                                        <i class="ph-bold ph-calendar-plus"></i> Add to Reservation
                                     </button>
                                     <a href="javascript:void(0)" onclick="window.IGHCart.bookNowDirect({ id: 'advance-room-{{ $room['no'] }}', name: '{{ $room['no'] }}', category: 'Advance Room', price: '2500', priceText: '₹2,500', rateType: '24 Hours', capacity: 4 })"
                                         class="btn" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 8px 10px;">Book Now</a>

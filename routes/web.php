@@ -103,6 +103,8 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::get('/bookings/export', [AdminController::class, 'exportCsv'])->name('admin.bookings.export');
     Route::get('/bookings/{id}', [AdminController::class, 'show'])->name('admin.bookings.show');
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::post('/bookings/{id}/upload-document', [AdminController::class, 'uploadDocument'])->name('admin.bookings.upload-document');
+    Route::get('/admins', [SuperAdminController::class, 'manageAdmins'])->name('admin.admins');
     Route::get('/reports/download', [AdminController::class, 'downloadReport'])->name('admin.reports.download');
     Route::post('/bookings/{id}/approve', [AdminController::class, 'adminApprove'])->name('admin.bookings.approve');
     Route::post('/bookings/{id}/reject', [AdminController::class, 'reject'])->name('admin.bookings.reject');
