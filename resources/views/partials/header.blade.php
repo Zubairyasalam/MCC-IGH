@@ -1,18 +1,15 @@
 <header class="header-container">
-    <div class="header-left">
-        <a href="{{ route('home') }}" class="logo-link">
+    <div class="header-left" style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+        <a href="{{ route('home') }}" class="logo-link" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
             <img src="{{ asset('assets/logo_transparent.png') }}" alt="MCC Logo" class="header-logo">
+            <div class="logo-text" style="display: flex; flex-direction: column; justify-content: center; line-height: 1.1;">
+                <span class="mcc-text">MCC</span>
+                <span class="igh-text">INTERNATIONAL GUEST HOUSE</span>
+            </div>
         </a>
     </div>
-
-    <div class="header-center">
-        <div class="logo-text">
-            <span class="mcc-text">MCC</span>
-            <span class="igh-text">INTERNATIONAL GUEST HOUSE</span>
-        </div>
-    </div>
     
-    <div class="header-right" style="display: flex; align-items: center; gap: 12px; margin-left: auto;">
+    <div class="header-right" style="display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0;">
         <button type="button" class="cart-btn-header" onclick="if(window.IGHCart) window.IGHCart.openModal();" title="View My Reservations">
             <i class="ph-bold ph-list-checks" style="font-size: 1.1rem;"></i>
             <span class="cart-label-text">MY RESERVATIONS</span>

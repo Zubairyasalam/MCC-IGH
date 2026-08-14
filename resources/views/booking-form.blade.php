@@ -1693,7 +1693,7 @@
             const listContainer = document.getElementById('selectedRoomsListContainer');
             if (listContainer) {
                 let html = '';
-                cartItems.forEach((item) => {
+                cartItems.forEach((item, index) => {
                     html += `
                         <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.85rem;">
                             <div style="min-width: 0;">
@@ -1701,7 +1701,7 @@
                                 <div style="font-size: 0.75rem; color: #64748b;">${item.category} • Max ${item.capacity || 2} guests</div>
                             </div>
                             ${cartItems.length > 1 ? `
-                                <button type="button" onclick="window.IGHCart.removeItem('${item.name}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 1rem; flex-shrink: 0;" title="Remove Room">
+                                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); window.IGHCart.removeItemByIndex(${index});" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; font-size: 1rem; flex-shrink: 0;" title="Remove Room">
                                     <i class="ph-bold ph-x"></i>
                                 </button>
                             ` : ''}

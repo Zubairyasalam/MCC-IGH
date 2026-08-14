@@ -8,17 +8,26 @@ use Illuminate\Database\Eloquent\Model;
  * App\Models\Booking
  */
 class Booking extends Model
-{    protected $fillable = [
+{
+    protected $fillable = [
         'name', 'email', 'phone', 'gst_id', 'room_name', 'booking_date', 
         'start_time', 'end_time', 'clock_in', 'clock_out', 'total_price', 'razorpay_order_id', 
         'razorpay_payment_id', 'payment_status', 'approval_status',
         'nationality', 'user_type', 'stream', 'level', 'department',
-        'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'admin_document', 'is_admin_read', 'booking_reason', 'residence_status', 'hall_name', 'reference_id', 'passport_visa_attachment', 'passport_attachment', 'visa_attachment', 'rejection_reason'
+        'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'admin_document', 'is_admin_read', 'booking_reason', 'residence_status', 'hall_name', 'reference_id', 'passport_visa_attachment', 'passport_attachment', 'visa_attachment', 'rejection_reason',
+        'hod_approved_by', 'hod_approved_at', 'warden_approved_by', 'warden_approved_at',
+        'principal_approved_by', 'principal_approved_at', 'admin_approved_by', 'admin_approved_at',
+        'rejected_by', 'rejected_at'
     ];
 
     protected $casts = [
         'clock_in' => 'datetime',
         'clock_out' => 'datetime',
+        'hod_approved_at' => 'datetime',
+        'warden_approved_at' => 'datetime',
+        'principal_approved_at' => 'datetime',
+        'admin_approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
     protected static function boot()
     {

@@ -228,6 +228,8 @@ class BookingController extends Controller
                 $bookingResidenceStatus = strtolower(trim($booking->residence_status ?? ''));
 
                 if ($bookingUserType === 'student' && ($bookingResidenceStatus === 'residence' || $bookingResidenceStatus === 'resident')) {
+                    $savedWardenMap = json_decode(\App\Models\Setting::where('key', 'warden_email_map')->value('value') ?? '[]', true) ?: [];
+
                     $wardenEmailMap = [
                         'martin hall'       => 'martinhall@mcc.edu.in',
                         'barnes hall'       => 'wardenbarneshall@mcc.edu.in',
@@ -239,13 +241,20 @@ class BookingController extends Controller
                     ];
 
                     $selectedHallKey = strtolower(trim($booking->hall_name ?? ''));
-                    $wardenEmail = $wardenEmailMap[$selectedHallKey] ?? $getSetting('hall_warden_email', 'praveenrock2609@gmail.com');
+                    $targetWarden = !empty($savedWardenMap[$selectedHallKey])
+                        ? $savedWardenMap[$selectedHallKey]
+                        : ($wardenEmailMap[$selectedHallKey] ?? $getSetting('hall_warden_email', 'praveenrock2609@gmail.com'));
+
+                    $wardenEmail = array_filter(array_map('trim', explode(',', $targetWarden)));
 
                     $approveUrl = route('bookings.approve.warden', $booking->id);
                     $rejectUrl = route('bookings.reject.warden', $booking->id);
                     Mail::to($wardenEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info("Booking notification sent to Hall Warden for {$booking->hall_name} ({$wardenEmail}) for ID: " . $booking->id);
+                    Log::info("Booking notification sent to Hall Warden for {$booking->hall_name} (" . implode(', ', $wardenEmail) . ") for ID: " . $booking->id);
+
                 } elseif ($bookingUserType === 'student' && (str_contains($bookingResidenceStatus, 'non') || $bookingResidenceStatus === 'dayscholar')) {
+                    $savedHodMap = json_decode(\App\Models\Setting::where('key', 'hod_email_map')->value('value') ?? '[]', true) ?: [];
+
                     $hodEmailMap = [
                         'mathematics'                             => 'hodmaths@mcc.edu.in',
                         'mathematics (aided)'                     => 'hodmaths@mcc.edu.in',
@@ -306,18 +315,18 @@ class BookingController extends Controller
                     $rawStream = strtolower(trim($booking->stream ?? ''));
                     $streamDeptKey = $rawDept . ' (' . $rawStream . ')';
 
-                    if (isset($hodEmailMap[$streamDeptKey])) {
-                        $hodEmail = $hodEmailMap[$streamDeptKey];
-                    } elseif (isset($hodEmailMap[$rawDept])) {
-                        $hodEmail = $hodEmailMap[$rawDept];
-                    } else {
-                        $hodEmail = $getSetting('hod_email', 'unfortunately2909@gmail.com');
-                    }
+                    $targetHod = !empty($savedHodMap[$streamDeptKey])
+                        ? $savedHodMap[$streamDeptKey]
+                        : (!empty($savedHodMap[$rawDept])
+                            ? $savedHodMap[$rawDept]
+                            : ($hodEmailMap[$streamDeptKey] ?? ($hodEmailMap[$rawDept] ?? $getSetting('hod_email', 'unfortunately2909@gmail.com'))));
+
+                    $hodEmail = array_filter(array_map('trim', explode(',', $targetHod)));
 
                     $approveUrl = route('bookings.approve.hod', $booking->id);
                     $rejectUrl = route('bookings.reject.hod', $booking->id);
                     Mail::to($hodEmail)->send(new BookingNotification($booking, $approveUrl, $rejectUrl));
-                    Log::info("Booking notification sent to HOD for {$booking->department} ({$hodEmail}) for ID: " . $booking->id);
+                    Log::info("Booking notification sent to HOD for {$booking->department} (" . (is_array($hodEmail) ? implode(', ', $hodEmail) : $hodEmail) . ") for ID: " . $booking->id);
                 } else {
                     $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
                     Mail::to($principalEmails)->send(new BookingNotification($booking));
@@ -449,7 +458,12 @@ class BookingController extends Controller
             ]);
         }
 
-        $booking->update(['approval_status' => 'Pending Principal Approval']);
+        $deptStr = trim(($booking->department ?? '') . ($booking->stream ? ' (' . $booking->stream . ')' : ''));
+        $booking->update([
+            'approval_status' => 'Pending Principal Approval',
+            'hod_approved_by' => 'HOD' . ($deptStr ? ' - ' . $deptStr : ''),
+            'hod_approved_at' => now(),
+        ]);
         
         // Notify Principal
         try {
@@ -488,7 +502,12 @@ class BookingController extends Controller
             ]);
         }
 
-        $booking->update(['approval_status' => 'Pending Principal Approval']);
+        $hallStr = $booking->hall_name ?? 'Hostel';
+        $booking->update([
+            'approval_status' => 'Pending Principal Approval',
+            'warden_approved_by' => 'Hall Warden - ' . $hallStr,
+            'warden_approved_at' => now(),
+        ]);
         
         // Notify Principal
         try {

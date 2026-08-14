@@ -134,103 +134,155 @@
         }
 
         .topbar {
-            height: 72px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+            height: 56px; background: white; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
             position: sticky; top: 0; z-index: 90;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .topbar-title {
             font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--text-main);
+            font-size: 0.95rem;
+            color: #0f172a;
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.85rem;
         }
 
 
-        .page-body { padding: 2.5rem; padding-bottom: 1rem; max-width: 1500px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+        .page-body { padding: 1.25rem 1.5rem; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box; }
 
         /* -- Welcome Banner -- */
         .welcome-banner {
             background: linear-gradient(135deg, #ff8a00 0%, #e65c00 100%);
-            border-radius: 16px;
-            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            padding: 1.25rem 1.75rem;
             color: white;
-            margin-bottom: 2rem;
+            margin-bottom: 1.25rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .welcome-banner h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; }
-        .welcome-banner p  { opacity: 0.85; font-size: 0.95rem; }
+        .welcome-banner h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .welcome-banner p  { opacity: 0.88; font-size: 0.85rem; }
 
         .welcome-stats {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .welcome-stat {
             text-align: center;
         }
 
-        .welcome-stat .val { font-size: 1.5rem; font-weight: 800; }
-        .welcome-stat .lbl { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .welcome-stat .val { font-size: 1.25rem; font-weight: 700; }
+        .welcome-stat .lbl { font-size: 0.65rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* -- Stat Cards -- */
+        /* Stats Cards - Refined Professional Enterprise Grid */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 130px;
-            min-width: 0;
-            overflow: hidden;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-        }
-
-        .stat-card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 0.5rem;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 0.75rem; 
+            margin-bottom: 1.25rem;
             width: 100%;
-            min-width: 0;
+            max-width: 100%;
         }
 
-        .stat-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.25; flex: 1; min-width: 0; }
-        .stat-value { font-size: clamp(1.15rem, 1.5vw, 1.55rem); font-weight: 800; color: var(--text); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-        .stat-sub   { font-size: 0.72rem; color: var(--muted); }
+        .stat-card-colored {
+            border-radius: 8px;
+            padding: 0.75rem 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            text-decoration: none;
+            position: relative;
+            min-height: 72px;
+        }
 
-        .stat-icon {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+        .stat-card-colored:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-card-colored .card-icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.1rem;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
-        .icon-orange  { background: #fff7ed; color: #f97316; }
-        .icon-green   { background: #f0fdf4; color: #22c55e; }
-        .icon-blue    { background: #eff6ff; color: #3b82f6; }
-        .icon-purple  { background: #faf5ff; color: #a855f7; }
-        .icon-red     { background: #fef2f2; color: #ef4444; }
-        .icon-yellow  { background: #fffbeb; color: #d97706; }
+        .stat-card-colored .card-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .stat-card-colored .card-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+            line-height: 1.2;
+            white-space: normal;
+            word-break: normal;
+            overflow: visible;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            opacity: 0.92;
+        }
+
+        .stat-card-colored .card-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-card-colored .card-subtext {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.88);
+            margin-top: 2px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* Solid Matte Rich Color Variants */
+        .card-bg-blue { background: #0284c7; }
+        .card-bg-navy { background: #0f172a; }
+        .card-bg-orange { background: #d97706; }
+        .card-bg-purple { background: #4f46e5; }
+        .card-bg-green { background: #16a34a; }
+        .card-bg-red { background: #dc2626; }
+        .card-bg-sky { background: #0288d1; }
+        .card-bg-pink { background: #9333ea; }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
         /* -- Grid Layout -- */
         .row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
@@ -395,6 +447,9 @@
             <a href="{{ route('superadmin.payments') }}" class="menu-item {{ Route::is('superadmin.payments') ? 'active' : '' }}">
                 <i class="ph ph-wallet"></i> Payment Details
             </a>
+            <a href="{{ route('superadmin.reports') }}" class="menu-item {{ Route::is('superadmin.reports') ? 'active' : '' }}">
+                <i class="ph ph-chart-bar"></i> Reports
+            </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item {{ Route::is('superadmin.settings') ? 'active' : '' }}">
                 <i class="ph ph-gear"></i> System Settings
             </a>
@@ -452,63 +507,99 @@
         <div class="page-body">
 
 
-            <!-- Stat Cards Row -->
+            <!-- Stat Cards Row (SuperAdmin System-Level Metrics) -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-label">Total Revenue</span>
-                        <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
+                <!-- Card 1: Total System Revenue -->
+                <div class="stat-card-colored card-bg-blue">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-currency-inr"></i>
                     </div>
-                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
-                    <div class="stat-sub">All paid bookings</div>
+                    <div class="card-content">
+                        <span class="card-label">Total System Revenue</span>
+                        <div class="card-value">₹{{ number_format($totalRevenue) }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-label">This Month</span>
-                        <div class="stat-icon icon-orange"><i class="ph ph-trend-up"></i></div>
+
+                <!-- Card 2: Monthly Revenue & Growth -->
+                <div class="stat-card-colored card-bg-navy">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-trend-up"></i>
                     </div>
-                    <div class="stat-value">₹{{ number_format($monthRevenue) }}</div>
-                    <div class="stat-sub">
+                    <div class="card-content">
+                        <span class="card-label">This Month Revenue</span>
+                        <div class="card-value">₹{{ number_format($monthRevenue) }}</div>
                         @if($revenueGrowth !== null)
-                            <span style="color: {{ $revenueGrowth >= 0 ? '#22c55e' : '#ef4444' }}; font-weight: 700;">
-                                {{ $revenueGrowth >= 0 ? '+' : '' }}{{ $revenueGrowth }}%
-                            </span> vs last month
-                        @else
-                            First month of data
+                            <span class="card-subtext" style="color: {{ $revenueGrowth >= 0 ? '#bbf7d0' : '#fecdd3' }}; font-weight: 700;">
+                                {{ $revenueGrowth >= 0 ? '+' : '' }}{{ $revenueGrowth }}% vs last month
+                            </span>
                         @endif
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-label">Today Revenue</span>
-                        <div class="stat-icon icon-blue"><i class="ph ph-coins"></i></div>
+
+                <!-- Card 3: Total System Bookings -->
+                <div class="stat-card-colored card-bg-orange">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-calendar-check"></i>
                     </div>
-                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
-                    <div class="stat-sub">Paid today</div>
+                    <div class="card-content">
+                        <span class="card-label">Total System Bookings</span>
+                        <div class="card-value">{{ $totalSystemBookings }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-label">Paid Bookings</span>
-                        <div class="stat-icon icon-green"><i class="ph ph-check-circle"></i></div>
+
+                <!-- Card 4: Admin Accounts -->
+                <div class="stat-card-colored card-bg-sky">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-user-gear"></i>
                     </div>
-                    <div class="stat-value">{{ $paidBookings }}</div>
-                    <div class="stat-sub">Payment confirmed</div>
+                    <div class="card-content">
+                        <span class="card-label">Admin Accounts</span>
+                        <div class="card-value">{{ $totalAdmins }}</div>
+                    </div>
                 </div>
-                <div class="stat-card" style="border-left: 3px solid var(--warning);">
-                    <div class="stat-card-header">
-                        <span class="stat-label">Pending Approval</span>
-                        <div class="stat-icon icon-yellow"><i class="ph ph-hourglass"></i></div>
+
+                <!-- Card 5: System Users & Guests -->
+                <div class="stat-card-colored card-bg-green">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-users"></i>
                     </div>
-                    <div class="stat-value">{{ $pendingApprovals }}</div>
-                    <div class="stat-sub">Awaiting principal</div>
+                    <div class="card-content">
+                        <span class="card-label">Registered Guests/Users</span>
+                        <div class="card-value">{{ $totalUsers }}</div>
+                    </div>
                 </div>
-                <div class="stat-card" style="border-left: 3px solid var(--info);">
-                    <div class="stat-card-header">
-                        <span class="stat-label">Approved by Principal</span>
-                        <div class="stat-icon icon-blue"><i class="ph ph-check-square"></i></div>
+
+                <!-- Card 6: Paid & Settled Bookings -->
+                <div class="stat-card-colored card-bg-purple">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-check-circle"></i>
                     </div>
-                    <div class="stat-value">{{ $principalApprovals }}</div>
-                    <div class="stat-sub">Needs admin final action</div>
+                    <div class="card-content">
+                        <span class="card-label">Paid & Settled Bookings</span>
+                        <div class="card-value">{{ $paidBookings }}</div>
+                    </div>
+                </div>
+
+                <!-- Card 7: Rejected Bookings (Audit) -->
+                <div class="stat-card-colored card-bg-pink">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-x-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-label">Rejected / Cancelled</span>
+                        <div class="card-value">{{ $rejectedBookings }}</div>
+                    </div>
+                </div>
+
+                <!-- Card 8: Pending Counter Payments -->
+                <div class="stat-card-colored card-bg-red">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-label">Pending Counter Payments</span>
+                        <div class="card-value">{{ $pendingPayments }}</div>
+                    </div>
                 </div>
             </div>
 

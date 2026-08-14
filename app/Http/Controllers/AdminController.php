@@ -1,5 +1,5 @@
 <?php
-
+//collab
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -15,8 +15,39 @@ use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // View, Month, Year & Date Filters for Admin Calendar
+        $selectedYear = (int) $request->input('year', Carbon::now()->year);
+        $selectedMonth = (int) $request->input('month', Carbon::now()->month);
+        $viewMode = strtolower($request->input('view', 'monthly')); // 'monthly', 'weekly', 'daily'
+        
+        if ($selectedMonth < 1 || $selectedMonth > 12) {
+            $selectedMonth = (int) Carbon::now()->month;
+        }
+        if (!in_array($viewMode, ['monthly', 'weekly', 'daily'])) {
+            $viewMode = 'monthly';
+        }
+
+        $selectedDateStr = $request->input('date');
+        if ($selectedDateStr) {
+            try {
+                $calendarDate = Carbon::parse($selectedDateStr);
+                $selectedYear = $calendarDate->year;
+                $selectedMonth = $calendarDate->month;
+            } catch (\Exception $e) {
+                $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+            }
+        } else {
+            $today = Carbon::now();
+            if ($today->year == $selectedYear && $today->month == $selectedMonth) {
+                $calendarDate = $today;
+            } else {
+                $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+            }
+        }
+        $selectedDateStr = $calendarDate->format('Y-m-d');
+
         $totalBookings = Booking::where('payment_status', 'Paid')->count();
         $todayBookings = Booking::whereDate('booking_date', Carbon::today())->count();
         $totalRevenue = Booking::where('payment_status', 'Paid')->sum('total_price');
@@ -99,7 +130,7 @@ class AdminController extends Controller
             $insights[] = "{$topSpace->room_name} is your most popular workspace this month.";
         }
 
-        // Real Website Room & Space Availability Status
+        // Real Website Room & Space Availability Status (for selected date)
         $allRoomsList = [
             'Standard Rooms' => [
                 'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5',
@@ -116,8 +147,8 @@ class AdminController extends Controller
             ]
         ];
 
-        // Fetch active bookings for today
-        $todayActiveBookings = Booking::whereDate('booking_date', Carbon::today())
+        // Fetch active bookings for selected date (defaults to today or focus date)
+        $todayActiveBookings = Booking::whereDate('booking_date', $calendarDate->toDateString())
             ->where('approval_status', '!=', 'Rejected')
             ->get();
 
@@ -227,44 +258,76 @@ class AdminController extends Controller
             }
         }
 
-        // Fetch all bookings for current month for Admin Calendar
-        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
-        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+        // Fetch all bookings for selected month for Admin Calendar
+        $startOfMonthObj = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->startOfMonth();
+        $endOfMonthObj = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->endOfMonth();
 
         $monthBookings = Booking::where('approval_status', '!=', 'Rejected')
-            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->whereBetween('booking_date', [$startOfMonthObj->toDateString(), $endOfMonthObj->toDateString()])
             ->orderBy('start_time')
             ->get();
 
         $calendarBookings = [];
+        $calendarBookingsByDate = [];
         foreach ($monthBookings as $b) {
-            $dayNum = (int) Carbon::parse($b->booking_date)->day;
+            $bDate = Carbon::parse($b->booking_date);
+            $dayNum = (int) $bDate->day;
+            $dateKey = $bDate->format('Y-m-d');
+            
             if (!isset($calendarBookings[$dayNum])) {
                 $calendarBookings[$dayNum] = [];
             }
-            $calendarBookings[$dayNum][] = [
+            if (!isset($calendarBookingsByDate[$dateKey])) {
+                $calendarBookingsByDate[$dateKey] = [];
+            }
+
+            $bookingItem = [
                 'id' => $b->id,
                 'name' => $b->name,
                 'email' => $b->email,
                 'phone' => $b->phone ?? 'N/A',
                 'user_type' => $b->user_type ?? 'Guest',
                 'room_name' => $b->room_name,
-                'booking_date' => \Carbon\Carbon::parse($b->booking_date)->format('d M Y'),
-                'clock_in' => $b->clock_in ? \Carbon\Carbon::parse($b->clock_in)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->start_time),
-                'clock_out' => $b->clock_out ? \Carbon\Carbon::parse($b->clock_out)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->end_time),
+                'booking_date' => $bDate->format('d M Y'),
+                'booking_date_raw' => $dateKey,
+                'clock_in' => $b->clock_in ? Carbon::parse($b->clock_in)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->start_time),
+                'clock_out' => $b->clock_out ? Carbon::parse($b->clock_out)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->end_time),
                 'no_of_persons' => $b->no_of_persons ?? 1,
                 'approval_status' => $b->approval_status,
                 'payment_status' => $b->payment_status,
                 'total_price' => number_format($b->total_price, 2),
                 'details_url' => route('admin.bookings.show', $b->id),
             ];
+
+            $calendarBookings[$dayNum][] = $bookingItem;
+            $calendarBookingsByDate[$dateKey][] = $bookingItem;
+        }
+
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            $calendarHtml = view('admin.partials.calendar-section', compact(
+                'calendarBookings', 'calendarBookingsByDate', 'roomAvailabilityStatus', 
+                'totalAvailableRooms', 'totalReservedRooms', 'totalRoomsCount',
+                'selectedYear', 'selectedMonth', 'viewMode', 'selectedDateStr', 'calendarDate'
+            ))->render();
+
+            return response()->json([
+                'success' => true,
+                'html' => $calendarHtml,
+                'calendarBookings' => $calendarBookings,
+                'calendarBookingsByDate' => $calendarBookingsByDate,
+                'selectedMonth' => $selectedMonth,
+                'selectedYear' => $selectedYear,
+                'viewMode' => $viewMode,
+                'selectedDateStr' => $selectedDateStr
+            ]);
         }
 
         return view('admin.dashboard', compact(
             'totalBookings', 'todayBookings', 'totalRevenue', 'todayRevenue', 
             'pendingPayments', 'pendingApprovals', 'principalApprovals', 'completedBookings', 'cancelledBookings', 'activeWorkspaces',
             'recentBookings', 'upcomingBookings', 'dailyRevenue', 'monthlyRevenue', 'workspaceData', 'insights', 'notificationBookings',
-            'calendarBookings', 'roomAvailabilityStatus', 'totalAvailableRooms', 'totalReservedRooms', 'totalRoomsCount'
+            'calendarBookings', 'calendarBookingsByDate', 'roomAvailabilityStatus', 'totalAvailableRooms', 'totalReservedRooms', 'totalRoomsCount',
+            'selectedYear', 'selectedMonth', 'viewMode', 'selectedDateStr', 'calendarDate'
         ));
     }
 
@@ -394,7 +457,9 @@ class AdminController extends Controller
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 
-        if ($preset === '20days') {
+        if ($preset === 'all') {
+            // All time history - no date restriction
+        } elseif ($preset === '20days') {
             $query->where('booking_date', '>=', Carbon::now()->subDays(20)->startOfDay()->toDateString());
         } elseif ($preset === '30days') {
             $query->where('booking_date', '>=', Carbon::now()->subDays(30)->startOfDay()->toDateString());
@@ -409,9 +474,7 @@ class AdminController extends Controller
                 $query->where('booking_date', '<=', $endDate);
             }
         } else {
-            // Default preset to 20 days if no explicit date filter is passed
-            $preset = '20days';
-            $query->where('booking_date', '>=', Carbon::now()->subDays(20)->startOfDay()->toDateString());
+            $preset = 'all';
         }
 
         $bookings = $query->orderBy('booking_date', 'desc')
@@ -487,7 +550,11 @@ class AdminController extends Controller
             ]);
         }
 
-        $booking->update(['approval_status' => 'Approved by Principal']);
+        $booking->update([
+            'approval_status' => 'Approved by Principal',
+            'principal_approved_by' => 'Principal Office',
+            'principal_approved_at' => now(),
+        ]);
 
         return view('approval_status', [
             'actionTitle' => 'Approve Booking',
@@ -511,7 +578,13 @@ class AdminController extends Controller
         }
 
         if ($booking->approval_status !== 'Approved') {
-            $booking->update(['approval_status' => 'Approved']);
+            $adminUser = Auth::user();
+            $adminName = is_object($adminUser) ? ($adminUser->name ?? $adminUser->email ?? 'Admin User') : (session('admin_username') ?: 'Admin User');
+            $booking->update([
+                'approval_status' => 'Approved',
+                'admin_approved_by' => 'Admin (' . $adminName . ')',
+                'admin_approved_at' => now(),
+            ]);
             app(\App\Services\WebhookService::class)->trigger('booking.confirmed', $booking);
         }
         
@@ -630,9 +703,13 @@ class AdminController extends Controller
 
         // Process rejection (POST request)
         $rejectionReason = $request->input('rejection_reason') ?? 'Rejected by authority.';
+        $adminUser = Auth::guard('admin')->user() ?? Auth::user();
+        $rejectorName = is_object($adminUser) ? ($adminUser->name ?? $adminUser->email ?? 'Admin Authority') : (session('admin_username') ?: 'Authority');
         $booking->update([
             'approval_status' => 'Rejected',
-            'rejection_reason' => $rejectionReason
+            'rejection_reason' => $rejectionReason,
+            'rejected_by' => $rejectorName,
+            'rejected_at' => now(),
         ]);
 
         app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);

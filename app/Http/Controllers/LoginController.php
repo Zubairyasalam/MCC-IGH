@@ -15,18 +15,33 @@ class LoginController extends Controller
 
     public function adminLogin(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (Auth::attempt($credentials + ['role' => 'admin'])) {
-            session(['admin_logged_in' => true]);
-            return redirect()->route('admin.dashboard');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if (in_array($user->role, ['admin', 'superadmin'])) {
+                $request->session()->regenerate();
+                session(['admin_logged_in' => true]);
+                return redirect()->route('admin.dashboard');
+            }
+            Auth::logout();
+            return back()->with('error', 'You do not have administrative access rights.');
         }
         return back()->with('error', 'Invalid admin credentials');
     }
 
-    public function adminLogout()
+    public function adminLogout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         session()->forget('admin_logged_in');
         return redirect()->route('admin.login');
     }
@@ -39,18 +54,33 @@ class LoginController extends Controller
 
     public function superAdminLogin(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-        if (Auth::attempt($credentials + ['role' => 'superadmin'])) {
-            session(['superadmin_logged_in' => true]);
-            return redirect()->route('superadmin.dashboard');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if ($user->role === 'superadmin') {
+                $request->session()->regenerate();
+                session(['superadmin_logged_in' => true]);
+                return redirect()->route('superadmin.dashboard');
+            }
+            Auth::logout();
+            return back()->with('error', 'You do not have superadmin privileges.');
         }
         return back()->with('error', 'Invalid superadmin credentials');
     }
 
-    public function superAdminLogout()
+    public function superAdminLogout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         session()->forget('superadmin_logged_in');
         return redirect()->route('superadmin.login');
     }

@@ -108,13 +108,13 @@
         }
 
         .top-navbar {
-            height: 72px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+            height: 56px; background: white; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
             position: sticky; top: 0; z-index: 90;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
-        .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+        .nav-right { display: flex; align-items: center; gap: 0.85rem; }
 
         /* Refined Admin Profile Dropdown - Polished Card Style */
         .admin-profile-wrap { position: relative; display: inline-flex; align-items: center; }
@@ -225,95 +225,103 @@
         .notification-item .time { font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem; }
 
         .admin-body {
-            padding: 1.5rem 2rem 2rem 1.5rem; 
-            max-width: 100%;
+            padding: 1.25rem 1.5rem; 
+            max-width: 1400px;
             width: 100%;
-            margin: 0;
+            margin: 0 auto;
             box-sizing: border-box;
             overflow-x: hidden;
         }
 
-        /* Stats Cards */
+        /* Stats Cards - Refined Professional Enterprise Grid */
         .stats-grid {
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); 
-            gap: 1rem; 
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 0.75rem; 
+            margin-bottom: 1.25rem;
             width: 100%;
             max-width: 100%;
         }
 
-        .stat-card {
-            background: white; 
-            padding: 1.25rem; 
-            border-radius: 16px; 
-            border: 1px solid var(--border);
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between;
-            min-height: 130px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-            min-width: 0;
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        }
-
-        .stat-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
-            margin-bottom: 0.5rem;
-            gap: 0.5rem;
-            width: 100%;
-            min-width: 0;
-        }
-
-        .stat-icon {
-            width: 36px; 
-            height: 36px; 
-            border-radius: 10px; 
-            display: flex; 
+        .stat-card-colored {
+            border-radius: 8px;
+            padding: 0.75rem 0.9rem;
+            display: flex;
             align-items: center;
-            justify-content: center; 
-            font-size: 1.15rem;
+            gap: 0.65rem;
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            text-decoration: none;
+            position: relative;
+            min-height: 72px;
+        }
+
+        .stat-card-colored:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .stat-card-colored .card-icon-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
-        .icon-blue { background: #eff6ff; color: #3b82f6; }
-        .icon-orange { background: #fff7ed; color: #f97316; }
-        .icon-green { background: #f0fdf4; color: #22c55e; }
-        .icon-purple { background: #faf5ff; color: #a855f7; }
-        .icon-red { background: #fef2f2; color: #ef4444; }
-
-        .stat-value { 
-            font-size: clamp(1.15rem, 1.5vw, 1.55rem); 
-            font-weight: 800; 
-            color: #1e293b;
-            line-height: 1.2;
-            margin-top: auto;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-
-        .stat-label { 
-            font-size: 0.68rem; 
-            color: #64748b; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 0.04em;
-            line-height: 1.25;
-            word-wrap: break-word;
-            display: block;
-            flex: 1;
+        .stat-card-colored .card-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             min-width: 0;
+            flex: 1;
         }
+
+        .stat-card-colored .card-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+            line-height: 1.2;
+            white-space: normal;
+            word-break: normal;
+            overflow: visible;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            opacity: 0.92;
+        }
+
+        .stat-card-colored .card-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-card-colored .card-subtext {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.88);
+            margin-top: 2px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* Solid Matte Rich Color Variants */
+        .card-bg-blue { background: #0284c7; }
+        .card-bg-navy { background: #0f172a; }
+        .card-bg-orange { background: #d97706; }
+        .card-bg-purple { background: #4f46e5; }
+        .card-bg-green { background: #16a34a; }
+        .card-bg-red { background: #dc2626; }
+        .card-bg-sky { background: #0288d1; }
+        .card-bg-pink { background: #9333ea; }
 
         /* Generic Section Card */
         .dashboard-section {
@@ -831,50 +839,105 @@
         </div>
 
         <div class="admin-body">
-            <!-- Row 1: Summary Cards -->
+            <!-- Welcome Header -->
+            <div style="margin-bottom: 1.25rem;">
+                <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+                    Welcome back, {{ Auth::user()->name ?? 'MCC-MRF Admin' }}!
+                </h2>
+                <span style="font-size: 0.82rem; color: #64748b; font-weight: 500;">
+                    Live room reservations, revenue stats, and facility occupancy overview.
+                </span>
+            </div>
+
+            <!-- Row 1: Real Room Booking Summary Stat Cards Grid -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-label">Total Rev</span>
-                        <div class="stat-icon icon-green"><i class="ph ph-currency-inr"></i></div>
+                <!-- Card 1: Lifetime Revenue -->
+                <div class="stat-card-colored card-bg-blue">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-currency-inr"></i>
                     </div>
-                    <div class="stat-value">₹{{ number_format($totalRevenue) }}</div>
+                    <div class="card-content">
+                        <span class="card-label">Lifetime Earnings</span>
+                        <div class="card-value">₹{{ number_format($totalRevenue) }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-label">Today's Rev</span>
-                        <div class="stat-icon icon-orange"><i class="ph ph-coins"></i></div>
+
+                <!-- Card 2: Today's Revenue -->
+                <div class="stat-card-colored card-bg-navy">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-coins"></i>
                     </div>
-                    <div class="stat-value">₹{{ number_format($todayRevenue) }}</div>
+                    <div class="card-content">
+                        <span class="card-label">Today's Revenue</span>
+                        <div class="card-value">₹{{ number_format($todayRevenue) }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-label">Completed</span>
-                        <div class="stat-icon icon-blue"><i class="ph ph-check-circle"></i></div>
+
+                <!-- Card 3: Total Paid Bookings -->
+                <div class="stat-card-colored card-bg-orange">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-calendar-check"></i>
                     </div>
-                    <div class="stat-value">{{ $completedBookings }}</div>
+                    <div class="card-content">
+                        <span class="card-label">Total Bookings</span>
+                        <div class="card-value">{{ $totalBookings }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-label">Pending Approval</span>
-                        <div class="stat-icon icon-purple"><i class="ph ph-hand-pointing"></i></div>
+
+                <!-- Card 4: Today's Bookings -->
+                <div class="stat-card-colored card-bg-sky">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-calendar"></i>
                     </div>
-                    <div class="stat-value">{{ $pendingApprovals }}</div>
+                    <div class="card-content">
+                        <span class="card-label">Today's Bookings</span>
+                        <div class="card-value">{{ $todayBookings }}</div>
+                    </div>
                 </div>
-                <div class="stat-card" style="border-left: 4px solid #3b82f6;">
-                    <div class="stat-header">
-                        <span class="stat-label">Approved by Principal</span>
-                        <div class="stat-icon icon-blue"><i class="ph ph-check-square"></i></div>
+
+                <!-- Card 5: Approved Bookings -->
+                <div class="stat-card-colored card-bg-green">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-check-circle"></i>
                     </div>
-                    <div class="stat-value">{{ $principalApprovals }}</div>
-                    <span style="font-size: 0.6rem; color: #64748b;">Requires final Admin action</span>
+                    <div class="card-content">
+                        <span class="card-label">Completed Bookings</span>
+                        <div class="card-value">{{ $completedBookings }}</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-label">Pending Payment</span>
-                        <div class="stat-icon icon-orange"><i class="ph ph-clock"></i></div>
+
+                <!-- Card 6: Pending Approvals -->
+                <div class="stat-card-colored card-bg-purple">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-hand-pointing"></i>
                     </div>
-                    <div class="stat-value">{{ $pendingPayments }}</div>
+                    <div class="card-content">
+                        <span class="card-label">Pending Approval</span>
+                        <div class="card-value">{{ $pendingApprovals }}</div>
+                    </div>
+                </div>
+
+                <!-- Card 7: Principal Approved -->
+                <div class="stat-card-colored card-bg-pink">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-check-square"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-label">Principal Approved</span>
+                        <div class="card-value">{{ $principalApprovals }}</div>
+                        <span class="card-subtext">Requires final action</span>
+                    </div>
+                </div>
+
+                <!-- Card 8: Pending Payments -->
+                <div class="stat-card-colored card-bg-red">
+                    <div class="card-icon-badge">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-label">Pending Payments</span>
+                        <div class="card-value">{{ $pendingPayments }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -945,138 +1008,8 @@
             </div>
 
             <!-- Full Width Detailed Master Calendar -->
-            <div class="dashboard-section detailed-calendar-section" style="margin-bottom: 1.5rem; padding: 1.5rem;">
-                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h3 style="margin:0; font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                            <i class="ph-bold ph-calendar-blank" style="color: var(--primary-color);"></i>
-                            Detailed Room Reservations Calendar
-                        </h3>
-                        <span style="font-size: 0.78rem; color: #64748b; margin-top: 2px; display: block;">Click any day to view complete category breakdown & live room availability for {{ \Carbon\Carbon::now()->format('F Y') }}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <!-- Color Legend -->
-                        <div style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 6px 14px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 0.72rem; font-weight: 700;">
-                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #166534;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span> All Free
-                            </span>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #b45309;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span> Partial Reserved
-                            </span>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #991b1b;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #dc2626;"></span> High Occupancy
-                            </span>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; color: #850f0f;">
-                                <span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #850f0f; background: transparent;"></span> Today
-                            </span>
-                        </div>
-                        <a href="{{ route('admin.college-guest') }}" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.78rem; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: var(--primary-color, #850f0f); color: white;">
-                            <i class="ph-bold ph-plus"></i> New Reservation
-                        </a>
-                    </div>
-                </div>
-
-                <div class="detailed-calendar-grid">
-                    <div class="cal-day-header">Sunday</div>
-                    <div class="cal-day-header">Monday</div>
-                    <div class="cal-day-header">Tuesday</div>
-                    <div class="cal-day-header">Wednesday</div>
-                    <div class="cal-day-header">Thursday</div>
-                    <div class="cal-day-header">Friday</div>
-                    <div class="cal-day-header">Saturday</div>
-
-                    @php
-                        $startOfMonth = \Carbon\Carbon::now()->startOfMonth();
-                        $daysInMonth = \Carbon\Carbon::now()->daysInMonth;
-                        $dayOfWeek = $startOfMonth->dayOfWeek;
-                        $today = \Carbon\Carbon::now()->day;
-                    @endphp
-
-                    @for($i = 0; $i < $dayOfWeek; $i++)
-                        <div class="cal-cell empty-cell"></div>
-                    @endfor
-
-                    @for($d = 1; $d <= $daysInMonth; $d++)
-                        @php
-                            $dayBookingsList = $calendarBookings[$d] ?? [];
-                            $count = count($dayBookingsList);
-                            $dateObj = \Carbon\Carbon::now()->startOfMonth()->addDays($d - 1);
-                            $dateStr = $dateObj->format('F d, Y');
-                            $dateIso = $dateObj->format('Y-m-d');
-                            $isToday = ($d == $today);
-
-                            // Category Breakdown Counts for this Day
-                            $stdCount = 0;
-                            $dlxCount = 0;
-                            $hallCount = 0;
-                            foreach ($dayBookingsList as $bItem) {
-                                $rNameLower = strtolower($bItem['room_name']);
-                                if (str_contains($rNameLower, 'standard')) {
-                                    $stdCount++;
-                                } elseif (str_contains($rNameLower, 'deluxe')) {
-                                    $dlxCount++;
-                                } else {
-                                    $hallCount++;
-                                }
-                            }
-
-                            $freeRooms = max(0, 26 - $count);
-
-                            $cellStatusClass = 'cell-available';
-                            if ($count >= 5) {
-                                $cellStatusClass = 'cell-heavy';
-                            } elseif ($count >= 1) {
-                                $cellStatusClass = 'cell-partial';
-                            }
-                        @endphp
-
-                        <div class="cal-cell {{ $cellStatusClass }} {{ $isToday ? 'cell-today' : '' }}"
-                             onclick="openCalendarDayModal({{ $d }}, '{{ $dateStr }}', '{{ $dateIso }}')"
-                             style="cursor: pointer;">
-                            <div class="cell-top-bar">
-                                <span class="cell-date-num">{{ $d }}</span>
-                                @if($count > 0)
-                                    <span class="cell-count-badge {{ $count >= 5 ? 'badge-red' : 'badge-amber' }}">{{ $count }} Reserved</span>
-                                @else
-                                    <span class="cell-free-tag"><i class="ph-bold ph-check" style="font-size: 0.65rem;"></i> All Free</span>
-                                @endif
-                            </div>
-
-                            <div class="cell-bookings-preview" style="display: flex; flex-direction: column; gap: 3px; margin-top: 4px;">
-                                @if($count > 0)
-                                    @if($stdCount > 0)
-                                        <div style="font-size: 0.68rem; font-weight: 700; color: #850f0f; background: #fff5f5; border: 1px solid #fecdd3; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
-                                            <span><i class="ph-bold ph-bed"></i> Standard</span>
-                                            <span style="font-weight: 800;">{{ $stdCount }}</span>
-                                        </div>
-                                    @endif
-                                    @if($dlxCount > 0)
-                                        <div style="font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb; border: 1px solid #fef3c7; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
-                                            <span><i class="ph-bold ph-star"></i> Deluxe</span>
-                                            <span style="font-weight: 800;">{{ $dlxCount }}</span>
-                                        </div>
-                                    @endif
-                                    @if($hallCount > 0)
-                                        <div style="font-size: 0.68rem; font-weight: 700; color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
-                                            <span><i class="ph-bold ph-buildings"></i> Halls</span>
-                                            <span style="font-weight: 800;">{{ $hallCount }}</span>
-                                        </div>
-                                    @endif
-                                    <div style="font-size: 0.64rem; color: #64748b; font-weight: 700; margin-top: 2px; text-align: center;">
-                                        {{ $freeRooms }} Free • Click for details
-                                    </div>
-                                @else
-                                    <div class="cell-no-bookings" style="font-size: 0.72rem; color: #166534; font-weight: 700;">
-                                        <i class="ph-bold ph-check-circle"></i> 26 Rooms Available
-                                    </div>
-                                    <div style="font-size: 0.62rem; color: #94a3b8; margin-top: 2px; text-align: center;">
-                                        Click to reserve
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endfor
-                </div>
+            <div id="detailedCalendarSectionContainer" class="dashboard-section detailed-calendar-section" style="margin-bottom: 1.5rem; padding: 1.5rem; transition: opacity 0.2s ease;">
+                @include('admin.partials.calendar-section')
             </div>
 
             <!-- Row 3: Upcoming + Usage/Insights -->
@@ -1357,7 +1290,74 @@
     </div>
 
     <script>
-        const calendarData = @json($calendarBookings ?? []);
+        let calendarData = @json($calendarBookings ?? []);
+
+        function fetchCalendarAjax(url) {
+            const container = document.getElementById('detailedCalendarSectionContainer');
+            if (container) {
+                container.style.opacity = '0.4';
+                container.style.pointerEvents = 'none';
+            }
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.html) {
+                    if (container) {
+                        container.innerHTML = data.html;
+                        container.style.opacity = '1';
+                        container.style.pointerEvents = 'auto';
+                    }
+                    if (data.calendarBookings) {
+                        calendarData = data.calendarBookings;
+                    }
+                    window.history.pushState(null, '', url);
+                } else {
+                    window.location.href = url;
+                }
+            })
+            .catch(err => {
+                console.error('AJAX calendar error:', err);
+                window.location.href = url;
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a.ajax-cal-link');
+            if (link) {
+                e.preventDefault();
+                fetchCalendarAjax(link.href);
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('.ajax-cal-select')) {
+                e.preventDefault();
+                const form = e.target.closest('form#ajaxCalendarForm');
+                if (form) {
+                    const formData = new FormData(form);
+                    const params = new URLSearchParams(formData).toString();
+                    const actionUrl = form.action + '?' + params;
+                    fetchCalendarAjax(actionUrl);
+                }
+            }
+        });
+
+        document.addEventListener('submit', function(e) {
+            if (e.target.matches('form#ajaxCalendarForm')) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData).toString();
+                const actionUrl = form.action + '?' + params;
+                fetchCalendarAjax(actionUrl);
+            }
+        });
 
         window.openCalendarDayModal = function (dayNum, dateFormattedStr, dateIso) {
             const modal = document.getElementById('calendarDayModal');

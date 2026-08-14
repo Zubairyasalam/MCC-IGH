@@ -22,6 +22,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; letter-spacing: -0.01em; }
 
         body {
             background-color: var(--bg-color);
@@ -210,14 +211,24 @@
         }
 
         .btn-save {
-            background: var(--primary-color);
-            color: white;
+            background: var(--primary-color, #850f0f);
+            color: #ffffff;
             border: none;
-            padding: 0.75rem 2rem;
+            padding: 0.6rem 1.5rem;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-save:hover {
+            background: #6b0c0c;
+            transform: translateY(-1px);
         }
 
         .guide-box {
@@ -326,6 +337,9 @@
             <a href="{{ route('superadmin.payments') }}" class="menu-item {{ Route::is('superadmin.payments') ? 'active' : '' }}">
                 <i class="ph ph-wallet"></i> Payment Details
             </a>
+            <a href="{{ route('superadmin.reports') }}" class="menu-item {{ Route::is('superadmin.reports') ? 'active' : '' }}">
+                <i class="ph ph-chart-bar"></i> Reports
+            </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item {{ Route::is('superadmin.settings') ? 'active' : '' }}">
                 <i class="ph ph-gear"></i> System Settings
             </a>
@@ -378,6 +392,29 @@
         <div class="settings-card">
             <form action="{{ route('superadmin.settings.update') }}" method="POST">
                 @csrf
+                
+                <!-- SuperAdmin Master Account & Profile -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-shield-check" style="color: var(--primary-color);"></i> SuperAdmin Account Profile & Credentials
+                    </h3>
+                    <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 1rem;">Manage your master SuperAdmin username, login email address, and account password.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #334155;">SuperAdmin Display Name</label>
+                            <input type="text" name="superadmin_name" value="{{ $superAdminUser->name ?? 'Super Admin' }}" required style="height: 38px; font-size: 0.82rem;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #334155;">SuperAdmin Login Email</label>
+                            <input type="email" name="superadmin_email" value="{{ $superAdminUser->email ?? 'apro@mcc.edu.in' }}" required style="height: 38px; font-size: 0.82rem;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.78rem; font-weight: 600; color: #334155;">New Password (Optional)</label>
+                            <input type="password" name="superadmin_password" placeholder="Leave blank to keep current" style="height: 38px; font-size: 0.82rem;">
+                        </div>
+                    </div>
+                </div>
+
                 <h3 style="font-size: 1.1rem; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
                     <i class="ph-bold ph-envelope" style="color: var(--primary-color);"></i> Mail Service Configuration
                 </h3>
@@ -395,14 +432,36 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>HOD Email Address</label>
-                    <input type="email" name="hod_email" value="{{ $settings['hod_email'] ?? 'unfortunately2909@gmail.com' }}" required placeholder="e.g. hod@domain.com">
+                <!-- Hall Warden Emails (Per Hall) -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-bank" style="color: var(--primary-color);"></i> Hostel Hall Warden Email Addresses (Per Hall)
+                    </h4>
+                    <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 1rem;">Configure specific Hall Warden emails for resident student approvals.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                        @foreach($hallsList as $hallKey => $hallInfo)
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem; font-weight: 600; color: #334155;">{{ $hallInfo['name'] }}</label>
+                                <input type="text" name="warden_emails[{{ $hallKey }}]" value="{{ $savedWardenMap[$hallKey] ?? $hallInfo['default'] }}" placeholder="{{ $hallInfo['default'] }}" style="height: 38px; font-size: 0.82rem;">
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Hall Warden Email Address</label>
-                    <input type="email" name="hall_warden_email" value="{{ $settings['hall_warden_email'] ?? 'praveenrock2609@gmail.com' }}" required placeholder="e.g. warden@domain.com">
+                <!-- HOD Emails (Per Department) -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-buildings" style="color: var(--primary-color);"></i> Department HOD Email Addresses (Per Department)
+                    </h4>
+                    <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 1rem;">Configure specific HOD emails for non-resident (dayscholar) student approvals.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; max-height: 480px; overflow-y: auto; padding-right: 6px;">
+                        @foreach($deptsList as $deptKey => $deptInfo)
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.78rem; font-weight: 600; color: #334155;">{{ $deptInfo['name'] }}</label>
+                                <input type="text" name="hod_emails[{{ $deptKey }}]" value="{{ $savedHodMap[$deptKey] ?? $deptInfo['default'] }}" placeholder="{{ $deptInfo['default'] }}" style="height: 38px; font-size: 0.82rem;">
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
                 <div class="form-group">

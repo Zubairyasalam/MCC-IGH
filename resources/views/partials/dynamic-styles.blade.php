@@ -54,7 +54,11 @@
     h3,
     h4,
     h5,
-    h6,
+    h6 {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        letter-spacing: -0.01em;
+    }
+
     .welcome-title,
     .slide-title,
     .page-hero-card h1 {
@@ -315,8 +319,45 @@
         top: 0 !important;
         z-index: 1000 !important;
         width: 100% !important;
-        box-sizing: border-box !important;
         transition: all 0.3s ease !important;
+    }
+
+    .header-left,
+    .header-right {
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .header-left {
+        gap: 12px !important;
+    }
+
+    .header-right {
+        gap: 10px !important;
+        margin-left: auto !important;
+    }
+
+    .cart-btn-header {
+        position: relative !important;
+        background: var(--primary-color, #850f0f) !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 0.55rem 1.1rem !important;
+        border-radius: 50px !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+        box-shadow: 0 4px 12px rgba(133, 15, 15, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+    .cart-btn-header:hover {
+        transform: translateY(-1px) !important;
+        filter: brightness(1.1) !important;
     }
 
     .logo-text {

@@ -958,18 +958,140 @@
                         <div class="timeline-item active">
                             <div class="timeline-point"></div>
                             <div class="timeline-content">Booking Created</div>
-                            <div class="timeline-time">{{ $booking->created_at->format('M d, Y h:i A') }}</div>
+                            <div class="timeline-time">{{ $booking->created_at ? $booking->created_at->format('M d, Y h:i A') : '' }}</div>
                         </div>
                         @if($booking->payment_status == 'Paid')
                         <div class="timeline-item active">
                             <div class="timeline-point"></div>
                             <div class="timeline-content">Payment Verified</div>
-                            <div class="timeline-time">{{ $booking->updated_at->format('M d, Y h:i A') }}</div>
+                            <div class="timeline-time">{{ $booking->updated_at ? $booking->updated_at->format('M d, Y h:i A') : '' }}</div>
                         </div>
                         <div class="timeline-item active">
                             <div class="timeline-point"></div>
                             <div class="timeline-content">Booking Confirmed</div>
-                            <div class="timeline-time">{{ $booking->updated_at->format('M d, Y h:i A') }}</div>
+                            <div class="timeline-time">{{ $booking->updated_at ? $booking->updated_at->format('M d, Y h:i A') : '' }}</div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Approval Audit & History Trail Card -->
+                <div class="details-card">
+                    <div class="details-section-header" style="margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+                        <h3 style="display: flex; align-items: center; gap: 6px; font-size: 0.95rem; font-weight: 700; color: #0f172a;">
+                            <i class="ph-bold ph-shield-check" style="color: var(--primary-color); font-size: 1.1rem;"></i> Approval Audit & History Trail
+                        </h3>
+                    </div>
+
+                    <div class="timeline" style="margin-top: 0.5rem;">
+                        <!-- Step 1: Booking Submission -->
+                        <div class="timeline-item active">
+                            <div class="timeline-point" style="background: #22c55e; border-color: #dcfce7;"></div>
+                            <div class="timeline-content" style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">Booking Submitted</div>
+                            <div class="timeline-time" style="font-size: 0.75rem; color: #64748b;">
+                                Submitted by <strong>{{ $booking->name }}</strong>
+                                @if($booking->created_at)
+                                    • {{ $booking->created_at->format('d M Y, h:i A') }} 
+                                @endif
+                                <span style="font-size: 0.7rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569; margin-left: 4px;">{{ ucfirst($booking->user_type ?? 'Guest') }}</span>
+                            </div>
+                        </div>
+
+                        @if(strtolower($booking->user_type ?? '') === 'student')
+                            <!-- Step 2: HOD / Warden Approval -->
+                            @php
+                                $isResidence = in_array(strtolower(trim($booking->residence_status ?? '')), ['residence', 'resident']);
+                                $approverRole = $isResidence ? 'Hall Warden' : 'HOD';
+                                $approverTarget = $isResidence ? ($booking->hall_name ?? 'Hostel') : ($booking->department ?? 'Department');
+                                $isHodWardenDone = in_array($booking->approval_status, ['Pending Principal Approval', 'Approved by Principal', 'Principal Approved', 'Approved']);
+                                $hodWardenName = $booking->hod_approved_by ?? ($booking->warden_approved_by ?? ($isResidence ? "Hall Warden ($approverTarget)" : "HOD ($approverTarget)"));
+                                $hodWardenTime = $booking->hod_approved_at ?? ($booking->warden_approved_at ?? null);
+                            @endphp
+                            <div class="timeline-item {{ $isHodWardenDone ? 'active' : '' }}">
+                                <div class="timeline-point" style="{{ $isHodWardenDone ? 'background: #22c55e; border-color: #dcfce7;' : 'background: #cbd5e1;' }}"></div>
+                                <div class="timeline-content" style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">
+                                    {{ $approverRole }} Approval ({{ $approverTarget }})
+                                </div>
+                                <div class="timeline-time" style="font-size: 0.75rem; color: #64748b;">
+                                    @if($isHodWardenDone)
+                                        <span style="color: #15803d; font-weight: 600;"><i class="ph-bold ph-check"></i> Accepted by {{ $hodWardenName }}</span>
+                                        @if($hodWardenTime)
+                                            • {{ \Carbon\Carbon::parse($hodWardenTime)->format('d M Y, h:i A') }}
+                                        @endif
+                                    @elseif($booking->approval_status === 'Rejected')
+                                        <span style="color: #b91c1c; font-weight: 600;"><i class="ph-bold ph-x"></i> Rejected</span>
+                                    @else
+                                        <span style="color: #d97706; font-weight: 600;"><i class="ph ph-hourglass"></i> Awaiting {{ $approverRole }} Verification</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Step 3: Principal Approval -->
+                        @php
+                            $isPrincipalDone = in_array($booking->approval_status, ['Approved by Principal', 'Principal Approved', 'Approved']);
+                            $principalName = $booking->principal_approved_by ?? 'Principal Office';
+                            $principalTime = $booking->principal_approved_at ?? null;
+                        @endphp
+                        <div class="timeline-item {{ $isPrincipalDone ? 'active' : '' }}">
+                            <div class="timeline-point" style="{{ $isPrincipalDone ? 'background: #22c55e; border-color: #dcfce7;' : 'background: #cbd5e1;' }}"></div>
+                            <div class="timeline-content" style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">Principal Approval</div>
+                            <div class="timeline-time" style="font-size: 0.75rem; color: #64748b;">
+                                @if($isPrincipalDone)
+                                    <span style="color: #15803d; font-weight: 600;"><i class="ph-bold ph-check"></i> Approved by {{ $principalName }}</span>
+                                    @if($principalTime)
+                                        • {{ \Carbon\Carbon::parse($principalTime)->format('d M Y, h:i A') }}
+                                    @endif
+                                @elseif($booking->approval_status === 'Rejected')
+                                    <span style="color: #b91c1c; font-weight: 600;"><i class="ph-bold ph-x"></i> Rejected</span>
+                                @else
+                                    <span style="color: #d97706; font-weight: 600;"><i class="ph ph-hourglass"></i> Awaiting Principal Sign-Off</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Admin Final Confirmation -->
+                        @php
+                            $isAdminDone = ($booking->approval_status === 'Approved');
+                            $loggedAdmin = Auth::user();
+                            $activeAdminName = $loggedAdmin ? ($loggedAdmin->name ?? $loggedAdmin->email) : (session('admin_username') ?? null);
+                            $adminName = $booking->admin_approved_by ?? ($activeAdminName ? "Admin ($activeAdminName)" : 'Admin User');
+                            $adminTime = $booking->admin_approved_at ?? null;
+                        @endphp
+                        <div class="timeline-item {{ $isAdminDone ? 'active' : '' }}">
+                            <div class="timeline-point" style="{{ $isAdminDone ? 'background: #22c55e; border-color: #dcfce7;' : 'background: #cbd5e1;' }}"></div>
+                            <div class="timeline-content" style="font-size: 0.85rem; font-weight: 700; color: #0f172a;">Admin Final Confirmation</div>
+                            <div class="timeline-time" style="font-size: 0.75rem; color: #64748b;">
+                                @if($isAdminDone)
+                                    <span style="color: #15803d; font-weight: 600;"><i class="ph-bold ph-check"></i> Confirmed & Sent Payment Link by {{ $adminName }}</span>
+                                    @if($adminTime)
+                                        • {{ \Carbon\Carbon::parse($adminTime)->format('d M Y, h:i A') }}
+                                    @endif
+                                @elseif($booking->approval_status === 'Rejected')
+                                    <span style="color: #b91c1c; font-weight: 600;"><i class="ph-bold ph-x"></i> Rejected</span>
+                                @else
+                                    <span style="color: #64748b;"><i class="ph ph-clock"></i> Pending Final Confirmation</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Rejection Details if Rejected -->
+                        @if($booking->approval_status === 'Rejected')
+                        <div style="background: #fef2f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 0.75rem 0.9rem; margin-top: 0.5rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #9f1239; margin-bottom: 2px;">
+                                <i class="ph-bold ph-x-circle"></i> Booking Rejected
+                            </div>
+                            <div style="font-size: 0.75rem; color: #be123c;">
+                                <strong>Rejected By:</strong> {{ $booking->rejected_by ?? 'Authority' }} 
+                                @if($booking->rejected_at)
+                                    • {{ \Carbon\Carbon::parse($booking->rejected_at)->format('d M Y, h:i A') }}
+                                @endif
+                            </div>
+                            @if($booking->rejection_reason)
+                                <div style="font-size: 0.75rem; color: #475569; margin-top: 4px; background: white; padding: 6px 8px; border-radius: 4px; border: 1px solid #ffe4e6;">
+                                    <strong>Reason:</strong> {{ $booking->rejection_reason }}
+                                </div>
+                            @endif
                         </div>
                         @endif
                     </div>

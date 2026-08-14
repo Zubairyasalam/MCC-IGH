@@ -159,6 +159,10 @@ Route::prefix('superadmin')->middleware('superadmin.auth')->group(function () {
     Route::get('/payments', [SuperAdminController::class, 'payments'])->name('superadmin.payments');
     Route::get('/room-history/{room_name}', [SuperAdminController::class, 'roomHistory'])->name('superadmin.room.history');
 
+    // Reports
+    Route::get('/reports', [SuperAdminController::class, 'reports'])->name('superadmin.reports');
+    Route::get('/reports/download', [SuperAdminController::class, 'downloadReport'])->name('superadmin.reports.download');
+    Route::get('/reports/export', [SuperAdminController::class, 'exportCsv'])->name('superadmin.reports.export');
 });
 
 Route::get('/approval-status', function () {

@@ -384,67 +384,67 @@
             </div>
 
             <!-- Quick Stay History Presets -->
-            <div style="display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; align-items: center;">
-                <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; margin-right: 4px;">Stay History Filters:</span>
+            <div style="display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.75rem; font-weight: 600; color: #64748b; margin-right: 4px;">Stay History Filters:</span>
                 <a href="{{ route('admin.reports', ['preset' => '20days']) }}" 
-                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === '20days' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; {{ ($preset ?? '') === '20days' ? 'background: var(--primary-color, #850f0f); color: white;' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
                    <i class="ph-bold ph-calendar-blank"></i> Last 20 Days Stayed
                 </a>
                 <a href="{{ route('admin.reports', ['preset' => '30days']) }}" 
-                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === '30days' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; {{ ($preset ?? '') === '30days' ? 'background: var(--primary-color, #850f0f); color: white;' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
                    <i class="ph-bold ph-calendar"></i> Last 30 Days
                 </a>
                 <a href="{{ route('admin.reports', ['preset' => 'this_month']) }}" 
-                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === 'this_month' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; {{ ($preset ?? '') === 'this_month' ? 'background: var(--primary-color, #850f0f); color: white;' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
                    <i class="ph-bold ph-calendar-check"></i> This Month
                 </a>
                 <a href="{{ route('admin.reports', ['preset' => 'all']) }}" 
-                   style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; {{ ($preset ?? '') === 'all' ? 'background: var(--primary-color, #850f0f); color: white; box-shadow: 0 2px 6px rgba(133,15,15,0.3);' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
+                   style="padding: 5px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; {{ ($preset ?? '') === 'all' ? 'background: var(--primary-color, #850f0f); color: white;' : 'background: white; border: 1px solid #cbd5e1; color: #475569;' }}">
                    <i class="ph-bold ph-clock-counter-clockwise"></i> All Time History
                 </a>
             </div>
 
-            <div class="filter-card" style="padding: 1.25rem;">
-                <form action="{{ route('admin.reports') }}" method="GET" class="filter-form" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-                    <div class="form-group" style="flex: 0 0 160px; min-width: 140px;">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #475569; margin-bottom: 4px; display: block;">Start Date</label>
-                        <input type="date" name="start_date" class="form-input" value="{{ request('start_date') }}" style="height: 44px; padding: 0 10px;">
+            <div class="filter-card" style="padding: 0.85rem 1.1rem; background: white; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); margin-bottom: 1.25rem; height: auto !important; min-height: 0 !important;">
+                <form action="{{ route('admin.reports') }}" method="GET" class="filter-form" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; height: auto !important; min-height: 0 !important;">
+                    <div style="flex: 0 0 150px; min-width: 120px; margin-bottom: 0;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.68rem; color: #475569; margin-bottom: 3px; display: block; text-transform: uppercase;">Start Date</label>
+                        <input type="date" name="start_date" class="form-input" value="{{ request('start_date') }}" style="height: 32px; padding: 0 8px; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%;">
                     </div>
-                    <div class="form-group" style="flex: 0 0 160px; min-width: 140px;">
-                        <label class="form-label" style="font-weight: 700; font-size: 0.8rem; color: #475569; margin-bottom: 4px; display: block;">End Date</label>
-                        <input type="date" name="end_date" class="form-input" value="{{ request('end_date') }}" style="height: 44px; padding: 0 10px;">
+                    <div style="flex: 0 0 150px; min-width: 120px; margin-bottom: 0;">
+                        <label class="form-label" style="font-weight: 600; font-size: 0.68rem; color: #475569; margin-bottom: 3px; display: block; text-transform: uppercase;">End Date</label>
+                        <input type="date" name="end_date" class="form-input" value="{{ request('end_date') }}" style="height: 32px; padding: 0 8px; font-size: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%;">
                     </div>
 
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: auto;">
-                        <button type="submit" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: #1e293b; border: none; font-weight: 700;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; align-self: flex-end;">
+                        <button type="submit" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #0f172a; border: none; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: white; cursor: pointer; font-family: 'Inter', sans-serif;">
                             <i class="ph ph-funnel"></i> Apply Filter
                         </button>
                         
                         @if(count($bookings) > 0)
-                            <a href="{{ route('admin.reports.download', request()->all()) }}" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: var(--primary-color, #850f0f); font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <a href="{{ route('admin.reports.download', request()->all()) }}" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: var(--primary-color, #850f0f); font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: white; font-family: 'Inter', sans-serif;">
                                 <i class="ph-bold ph-file-pdf"></i> Download PDF
                             </a>
-                            <a href="{{ route('admin.bookings.export', request()->all()) }}" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: #166534; border-color: #166534; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <a href="{{ route('admin.bookings.export', request()->all()) }}" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #166534; border: none; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: white; font-family: 'Inter', sans-serif;">
                                 <i class="ph-bold ph-file-csv"></i> Download CSV
                             </a>
                         @endif
                         
-                        <button type="button" onclick="openDocUploadModal(null, '')" class="btn-download" style="height: 44px; padding: 0 16px; font-size: 0.8rem; background: var(--primary-color, #850f0f); border: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(133, 15, 15, 0.25);">
+                        <button type="button" onclick="openDocUploadModal(null, '')" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #ffffff; border: 1px solid #cbd5e1; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: #334155; cursor: pointer; font-family: 'Inter', sans-serif;">
                             <i class="ph-bold ph-upload-simple"></i> Upload Softcopy
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div class="report-table-container">
-                <table>
+            <div class="report-table-container" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: white;">
+                <table style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th>Booking ID</th>
-                            <th>Guest & Stay History Details</th>
-                            <th>Room / Category</th>
-                            <th>Tariff (Base + GST)</th>
-                            <th>Approval & Status</th>
+                        <tr style="background: #f8fafc;">
+                            <th style="padding: 9px 12px; font-size: 0.68rem; font-weight: 600; color: #64748b;">BOOKING ID</th>
+                            <th style="padding: 9px 12px; font-size: 0.68rem; font-weight: 600; color: #64748b;">GUEST & STAY HISTORY DETAILS</th>
+                            <th style="padding: 9px 12px; font-size: 0.68rem; font-weight: 600; color: #64748b;">ROOM / CATEGORY</th>
+                            <th style="padding: 9px 12px; font-size: 0.68rem; font-weight: 600; color: #64748b;">TARIFF (BASE + GST)</th>
+                            <th style="padding: 9px 12px; font-size: 0.68rem; font-weight: 600; color: #64748b;">APPROVAL & STATUS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -454,9 +454,9 @@
                             $bSubtotal = $b->total_price / $bGstFactor;
                             $bGstAmount = $b->total_price - $bSubtotal;
                         @endphp
-                        <tr>
-                            <td>
-                                <div style="font-weight: 800; color: var(--primary-color, #850f0f); font-size: 0.9rem;">BK-{{ str_pad($b->id, 6, '0', STR_PAD_LEFT) }}</div>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 9px 12px;">
+                                <div style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">BK-{{ str_pad($b->id, 6, '0', STR_PAD_LEFT) }}</div>
                                 @if($b->reference_id)
                                     <span style="font-size: 0.65rem; font-weight: 700; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">{{ $b->reference_id }}</span>
                                 @endif

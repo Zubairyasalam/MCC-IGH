@@ -74,12 +74,16 @@ class SuperAdminController extends Controller
         if (empty($alerts))
             $alerts[] = ['type' => 'success', 'msg' => 'All systems are running smoothly. No pending actions.'];
 
-        $systemUpTime = '99.9%';
+        // ── SuperAdmin System Level Stats ──────────────────────────────
+        $totalAdmins          = \App\Models\User::whereIn('role', ['admin', 'superadmin'])->count();
+        $totalUsers           = \App\Models\User::count();
+        $webhookLogsCount     = WebhookLog::count();
+        $systemUpTime         = '99.9%';
 
         return view('superadmin.dashboard', compact(
             'totalSystemBookings', 'totalRevenue', 'todayRevenue', 'monthRevenue',
             'pendingApprovals', 'principalApprovals', 'approvedBookings', 'rejectedBookings',
-            'pendingPayments', 'paidBookings',
+            'pendingPayments', 'paidBookings', 'totalAdmins', 'totalUsers', 'webhookLogsCount',
             'revenueGrowth', 'lastMonthRevenue', 'monthlyRevenue',
             'topRooms', 'recentBookings', 'alerts', 'systemUpTime'
         ));
@@ -88,7 +92,61 @@ class SuperAdminController extends Controller
     public function settings()
     {
         $settings = Setting::all()->pluck('value', 'key');
-        return view('superadmin.settings', compact('settings'));
+        
+        $hallsList = [
+            'martin hall'       => ['name' => 'Martin Hall', 'default' => 'martinhall@mcc.edu.in'],
+            'barnes hall'       => ['name' => 'Barnes Hall', 'default' => 'wardenbarneshall@mcc.edu.in'],
+            'bishop heber hall' => ['name' => 'Bishop Heber Hall', 'default' => 'wardenbishopheberhall@mcc.edu.in'],
+            'margaret hall'     => ['name' => 'Margaret Hall', 'default' => 'wardenmargaret@mcc.edu.in'],
+            'selaiyur hall'     => ['name' => 'Selaiyur Hall', 'default' => 'wardenselaiyurhall@mcc.edu.in'],
+            'st. thomas hall'   => ['name' => 'St. Thomas Hall', 'default' => 'sthwarden@mcc.edu.in'],
+        ];
+
+        $deptsList = [
+            'mathematics'                             => ['name' => 'Mathematics (Aided)', 'default' => 'hodmaths@mcc.edu.in'],
+            'mathematics (sfs)'                       => ['name' => 'Mathematics (SFS)', 'default' => 'hodmathematics-sfs@mcc.edu.in'],
+            'philosophy'                              => ['name' => 'Philosophy', 'default' => 'hodphilosophy@mcc.edu.in'],
+            'political science'                       => ['name' => 'Political Science', 'default' => 'hodpoliticalscience@mcc.edu.in'],
+            'statistics'                              => ['name' => 'Statistics', 'default' => 'hodstatistics@mcc.edu.in'],
+            'economics'                               => ['name' => 'Economics', 'default' => 'hodeconomics@mcc.edu.in'],
+            'zoology'                                 => ['name' => 'Zoology', 'default' => 'hodzoology@mcc.edu.in'],
+            'botany'                                  => ['name' => 'Botany', 'default' => 'hodbotany@mcc.edu.in'],
+            'chemistry (aided)'                       => ['name' => 'Chemistry (Aided)', 'default' => 'hodchemistry-aided@mcc.edu.in'],
+            'chemistry (sfs)'                         => ['name' => 'Chemistry (SFS)', 'default' => 'hodchemistry-sfs@mcc.edu.in'],
+            'commerce (aided)'                        => ['name' => 'Commerce (Aided)', 'default' => 'hodcommerce-aided@mcc.edu.in'],
+            'commerce (sfs)'                          => ['name' => 'Commerce (SFS)', 'default' => 'hodcommerce-sfs@mcc.edu.in'],
+            'english'                                 => ['name' => 'English (Aided)', 'default' => 'hodenglish@mcc.edu.in'],
+            'english language and literature'         => ['name' => 'English Language & Literature (ELL)', 'default' => 'hodell@mcc.edu.in'],
+            'history'                                 => ['name' => 'History', 'default' => 'hodhistory@mcc.edu.in'],
+            'languages (aided)'                       => ['name' => 'Languages (Aided)', 'default' => 'hodlanguages-aided@mcc.edu.in'],
+            'languages (sfs)'                         => ['name' => 'Languages (SFS)', 'default' => 'hodlanguages-sfs@mcc.edu.in'],
+            'physics (aided)'                         => ['name' => 'Physics (Aided)', 'default' => 'hodphysics-aided@mcc.edu.in'],
+            'physics (sfs)'                           => ['name' => 'Physics (SFS)', 'default' => 'hodphysics-sfs@mcc.edu.in'],
+            'public administration'                   => ['name' => 'Public Administration', 'default' => 'hodpublicadministration@mcc.edu.in'],
+            'social work (aided)'                     => ['name' => 'Social Work (Aided)', 'default' => 'hodsocialwork-aided@mcc.edu.in'],
+            'social work (sfs)'                       => ['name' => 'Social Work (SFS)', 'default' => 'hodsocialwork-sfs@mcc.edu.in'],
+            'tamil (aided)'                           => ['name' => 'Tamil (Aided)', 'default' => 'hodtamil-aided@mcc.edu.in'],
+            'tamil (sfs)'                             => ['name' => 'Tamil (SFS)', 'default' => 'hodtamil-sfs@mcc.edu.in'],
+            'communication'                           => ['name' => 'Communication', 'default' => 'hodcommunication@mcc.edu.in'],
+            'data science'                            => ['name' => 'Data Science', 'default' => 'hoddatascience@mcc.edu.in'],
+            'computer science'                        => ['name' => 'Computer Science', 'default' => 'hodcomputerscience@mcc.edu.in'],
+            'tourism studies'                         => ['name' => 'Tourism Studies', 'default' => 'hodtourismstudies@mcc.edu.in'],
+            'business administration'                 => ['name' => 'Business Administration (BBA)', 'default' => 'hodbba@mcc.edu.in'],
+            'computer application (bca)'              => ['name' => 'Computer Application (BCA)', 'default' => 'hodbca@mcc.edu.in'],
+            'geography'                               => ['name' => 'Geography', 'default' => 'hodgttm@mcc.edu.in'],
+            'journalism'                              => ['name' => 'Journalism', 'default' => 'hodjournalism@mcc.edu.in'],
+            'mca'                                     => ['name' => 'Master of Computer Applications (MCA)', 'default' => 'hodmca@mcc.edu.in'],
+            'microbiology'                            => ['name' => 'Microbiology', 'default' => 'hodmicrobiology@mcc.edu.in'],
+            'physical education'                      => ['name' => 'Physical Education', 'default' => 'hodphysicaleducation@mcc.edu.in'],
+            'psychology'                              => ['name' => 'Psychology', 'default' => 'hodpsychology@mcc.edu.in'],
+            'visual communication'                    => ['name' => 'Visual Communication (Viscom)', 'default' => 'hodviscom@mcc.edu.in'],
+        ];
+
+        $savedHodMap = json_decode($settings['hod_email_map'] ?? '[]', true) ?: [];
+        $savedWardenMap = json_decode($settings['warden_email_map'] ?? '[]', true) ?: [];
+        $superAdminUser = \App\Models\User::where('role', 'superadmin')->first();
+
+        return view('superadmin.settings', compact('settings', 'hallsList', 'deptsList', 'savedHodMap', 'savedWardenMap', 'superAdminUser'));
     }
 
     public function updateSettings(Request $request)
@@ -111,8 +169,8 @@ class SuperAdminController extends Controller
                     }
                 }
             ],
-            'hod_email'           => 'required|email',
-            'hall_warden_email'   => 'required|email',
+            'hod_email'           => 'nullable|string',
+            'hall_warden_email'   => 'nullable|string',
             'mail_password'       => 'required',
             'mail_host'           => 'required|string',
             'mail_port'           => 'required|integer',
@@ -128,12 +186,30 @@ class SuperAdminController extends Controller
             'whatsapp_sender'     => 'nullable|string',
             'whatsapp_sid'        => 'nullable|string',
             'whatsapp_token'      => 'nullable|string',
+            'superadmin_name'     => 'nullable|string|max:255',
+            'superadmin_email'    => 'nullable|email|max:255',
+            'superadmin_password' => 'nullable|string|min:6',
         ]);
+
+        // Update SuperAdmin Account Credentials if provided
+        $superAdmin = \App\Models\User::where('role', 'superadmin')->first();
+        if ($superAdmin) {
+            if ($request->filled('superadmin_name')) {
+                $superAdmin->name = $request->superadmin_name;
+            }
+            if ($request->filled('superadmin_email')) {
+                $superAdmin->email = $request->superadmin_email;
+            }
+            if ($request->filled('superadmin_password')) {
+                $superAdmin->password = \Illuminate\Support\Facades\Hash::make($request->superadmin_password);
+            }
+            $superAdmin->save();
+        }
 
         Setting::updateOrCreate(['key' => 'sender_email'],    ['value' => $request->system_email]);
         Setting::updateOrCreate(['key' => 'principal_email'], ['value' => $request->principal_email]);
-        Setting::updateOrCreate(['key' => 'hod_email'],        ['value' => $request->hod_email]);
-        Setting::updateOrCreate(['key' => 'hall_warden_email'], ['value' => $request->hall_warden_email]);
+        Setting::updateOrCreate(['key' => 'hod_email'],        ['value' => $request->hod_email ?? 'unfortunately2909@gmail.com']);
+        Setting::updateOrCreate(['key' => 'hall_warden_email'], ['value' => $request->hall_warden_email ?? 'praveenrock2609@gmail.com']);
         Setting::updateOrCreate(['key' => 'mail_password'],   ['value' => $request->mail_password]);
         
         Setting::updateOrCreate(['key' => 'mail_host'],       ['value' => $request->mail_host]);
@@ -145,6 +221,17 @@ class SuperAdminController extends Controller
         Setting::updateOrCreate(['key' => 'secondary_color'], ['value' => $request->secondary_color ?? '#001a33']);
         Setting::updateOrCreate(['key' => 'use_secondary_color'], ['value' => $request->has('use_secondary_color') ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'gst_rate'],            ['value' => $request->gst_rate ?? '5']);
+
+        // Save Per-Department and Per-Hall Maps
+        if ($request->has('hod_emails') && is_array($request->hod_emails)) {
+            $hodMap = array_filter(array_map('trim', $request->hod_emails));
+            Setting::updateOrCreate(['key' => 'hod_email_map'], ['value' => json_encode($hodMap)]);
+        }
+
+        if ($request->has('warden_emails') && is_array($request->warden_emails)) {
+            $wardenMap = array_filter(array_map('trim', $request->warden_emails));
+            Setting::updateOrCreate(['key' => 'warden_email_map'], ['value' => json_encode($wardenMap)]);
+        }
 
         // WhatsApp Settings
         Setting::updateOrCreate(['key' => 'whatsapp_enabled'],  ['value' => $request->has('whatsapp_enabled') ? '1' : '0']);
@@ -159,7 +246,7 @@ class SuperAdminController extends Controller
 
     public function manageAdmins()
     {
-        $admins = \App\Models\User::where('role', 'admin')->get();
+        $admins = \App\Models\User::where('role', 'admin')->orderBy('created_at', 'desc')->get();
         return view('superadmin.admins', compact('admins'));
     }
 
@@ -257,5 +344,130 @@ class SuperAdminController extends Controller
         $roomStatus = $isBooked ? 'ALREADY BOOKED' : 'AVAILABLE';
 
         return view('superadmin.room_history', compact('bookings', 'room_name', 'roomStatus'));
+    }
+
+    public function reports(Request $request)
+    {
+        $query = Booking::query();
+
+        $preset = $request->get('preset', '');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($preset === 'all') {
+            // All time history - no date restriction
+        } elseif ($preset === '20days') {
+            $query->where('booking_date', '>=', Carbon::now()->subDays(20)->startOfDay()->toDateString());
+        } elseif ($preset === '30days') {
+            $query->where('booking_date', '>=', Carbon::now()->subDays(30)->startOfDay()->toDateString());
+        } elseif ($preset === 'this_month') {
+            $query->whereMonth('booking_date', Carbon::now()->month)
+                  ->whereYear('booking_date', Carbon::now()->year);
+        } elseif ($startDate || $endDate) {
+            if ($startDate) {
+                $query->where('booking_date', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->where('booking_date', '<=', $endDate);
+            }
+        } else {
+            $preset = 'all';
+        }
+
+        $bookings = $query->orderBy('booking_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalRevenue = $bookings->where('payment_status', 'Paid')->sum('total_price');
+        $gstVal = \App\Models\Setting::where('key', 'gst_rate')->value('value');
+        $gstRate = $gstVal !== null ? (float) $gstVal : 5.0;
+        $gstFactor = 1 + ($gstRate / 100);
+        $netRevenue = $gstFactor > 0 ? ($totalRevenue / $gstFactor) : $totalRevenue;
+        $totalGst = $totalRevenue - $netRevenue;
+
+        return view('superadmin.reports', compact('bookings', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate', 'preset', 'startDate', 'endDate'));
+    }
+
+    public function downloadReport(Request $request)
+    {
+        $query = Booking::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('booking_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('booking_date', '<=', $request->end_date);
+        }
+
+        $bookings = $query->orderBy('booking_date', 'desc')->get();
+        
+        $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5;
+        $gstFactor = 1 + ($gstRate / 100);
+        
+        $totalRevenue = $bookings->sum('total_price');
+        $netRevenue = $totalRevenue / $gstFactor;
+        $totalGst = $totalRevenue - $netRevenue;
+        
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        $primaryColor = \App\Models\Setting::where('key', 'primary_color')->value('value') ?? '#850f0f';
+
+        $pdf = \Pdf::loadView('admin.report_pdf', compact('bookings', 'startDate', 'endDate', 'primaryColor', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate'));
+        
+        return $pdf->download('System_Revenue_Report_'.now()->format('dM_Y').'.pdf');
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Booking::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('booking_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('booking_date', '<=', $request->end_date);
+        }
+
+        $bookings = $query->orderBy('booking_date', 'desc')->get();
+
+        $csvFileName = 'System_Bookings_Export_' . now()->format('Y-m-d_H-i') . '.csv';
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Booking ID', 'Reference ID', 'Guest Name', 'Email', 'Phone', 'User Type', 'Room Name', 'Booking Date', 'Start Time', 'End Time', 'Total Price', 'Payment Status', 'Approval Status', 'Created At'];
+
+        $callback = function() use ($bookings, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($bookings as $b) {
+                fputcsv($file, [
+                    'BK-' . str_pad($b->id, 6, '0', STR_PAD_LEFT),
+                    $b->reference_id ?? 'N/A',
+                    $b->name,
+                    $b->email,
+                    $b->phone ?? 'N/A',
+                    $b->user_type ?? 'Guest',
+                    $b->room_name,
+                    $b->booking_date,
+                    $b->start_time,
+                    $b->end_time,
+                    $b->total_price,
+                    $b->payment_status,
+                    $b->approval_status,
+                    $b->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

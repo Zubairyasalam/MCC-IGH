@@ -70,11 +70,12 @@
         .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
         .filter-group label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
         .filter-control { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; min-width: 150px; outline: none; }
-        .btn-filter { background: var(--primary-color); color: white; border: none; padding: 0 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; height: 36px; margin-top: auto; }
+        .btn-filter { background: var(--primary-color, #850f0f); color: white; border: none; padding: 0 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; height: 34px; margin-top: auto; transition: all 0.15s ease; text-decoration: none; }
+        .btn-filter:hover { background: #6b0c0c; opacity: 0.95; }
 
         .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; padding: 0.75rem 1rem; background: #f8fafc; text-align: left; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-        .data-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: middle; }
+        .data-table th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; padding: 10px 12px; background: #f8fafc; text-align: left; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.82rem; vertical-align: middle; }
         .data-table tr:hover td { background: #fcfcfc; }
 
         /* Status Badges */
@@ -172,6 +173,9 @@
             </a>
             <a href="{{ route('superadmin.payments') }}" class="menu-item active">
                 <i class="ph ph-wallet"></i> Payment Details
+            </a>
+            <a href="{{ route('superadmin.reports') }}" class="menu-item {{ Route::is('superadmin.reports') ? 'active' : '' }}">
+                <i class="ph ph-chart-bar"></i> Reports
             </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item">
                 <i class="ph ph-gear"></i> System Settings

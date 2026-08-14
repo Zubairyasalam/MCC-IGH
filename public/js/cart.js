@@ -5,32 +5,43 @@
 
 (function () {
     const CART_KEY = 'mcc_igh_cart';
+    let _memoryItems = null;
 
     const CartManager = {
         getItems: function () {
+            if (_memoryItems !== null) {
+                return _memoryItems;
+            }
             try {
                 const stored = localStorage.getItem(CART_KEY);
-                return stored ? JSON.parse(stored) : [];
+                _memoryItems = stored ? JSON.parse(stored) : [];
             } catch (e) {
                 console.error('Cart parse error:', e);
-                return [];
+                _memoryItems = [];
             }
+            return _memoryItems;
         },
 
         saveItems: function (items) {
+            _memoryItems = Array.isArray(items) ? items : [];
             try {
-                localStorage.setItem(CART_KEY, JSON.stringify(items));
-                this.syncUI();
+                localStorage.setItem(CART_KEY, JSON.stringify(_memoryItems));
             } catch (e) {
-                console.error('Cart save error:', e);
+                console.warn('LocalStorage save error:', e);
             }
+            this.syncUI();
         },
 
         addItem: function (roomObj) {
             if (!roomObj || !roomObj.id) return false;
             let items = this.getItems();
             // Prevent duplicates
-            const exists = items.some(item => item.id.toString().toLowerCase() === roomObj.id.toString().toLowerCase() || item.name.toString().toLowerCase() === roomObj.name.toString().toLowerCase());
+            const exists = items.some(item => {
+                const idMatch = item.id && roomObj.id && item.id.toString().toLowerCase() === roomObj.id.toString().toLowerCase();
+                const nameMatch = item.name && roomObj.name && item.name.toString().toLowerCase() === roomObj.name.toString().toLowerCase();
+                return idMatch || nameMatch;
+            });
+
             if (!exists) {
                 items.push({
                     id: roomObj.id,
@@ -49,12 +60,22 @@
         },
 
         removeItem: function (roomIdOrName) {
-            let items = this.getItems();
-            items = items.filter(item => 
-                item.id.toString().toLowerCase() !== roomIdOrName.toString().toLowerCase() && 
-                item.name.toString().toLowerCase() !== roomIdOrName.toString().toLowerCase()
-            );
+            if (roomIdOrName === undefined || roomIdOrName === null) return;
+            const target = roomIdOrName.toString().toLowerCase();
+            let items = this.getItems().filter(item => {
+                const itemId = item && item.id ? item.id.toString().toLowerCase() : '';
+                const itemName = item && item.name ? item.name.toString().toLowerCase() : '';
+                return itemId !== target && itemName !== target;
+            });
             this.saveItems(items);
+        },
+
+        removeItemByIndex: function (index) {
+            let items = this.getItems();
+            if (index >= 0 && index < items.length) {
+                items.splice(index, 1);
+                this.saveItems(items);
+            }
         },
 
         clearCart: function () {
@@ -63,11 +84,13 @@
 
         hasItem: function (roomIdOrName) {
             if (!roomIdOrName) return false;
+            const target = roomIdOrName.toString().toLowerCase();
             const items = this.getItems();
-            return items.some(item => 
-                item.id.toString().toLowerCase() === roomIdOrName.toString().toLowerCase() || 
-                item.name.toString().toLowerCase() === roomIdOrName.toString().toLowerCase()
-            );
+            return items.some(item => {
+                const itemId = item && item.id ? item.id.toString().toLowerCase() : '';
+                const itemName = item && item.name ? item.name.toString().toLowerCase() : '';
+                return itemId === target || itemName === target;
+            });
         },
 
         count: function () {
@@ -255,7 +278,7 @@
                                 </span>
                             </div>
                         </div>
-                        <button type="button" onclick="window.IGHCart.removeItem('${item.name}')" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Remove Room">
+                        <button type="button" onclick="event.preventDefault(); event.stopPropagation(); window.IGHCart.removeItemByIndex(${index});" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Remove Room">
                             <i class="ph-bold ph-trash"></i>
                         </button>
                     </div>
@@ -267,7 +290,7 @@
 
             footer.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px; flex-wrap: wrap;">
-                    <button type="button" onclick="window.IGHCart.clearCart()" style="background: none; border: none; color: #ef4444; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; white-space: nowrap;">
+                    <button type="button" onclick="event.preventDefault(); event.stopPropagation(); window.IGHCart.clearCart();" style="background: none; border: none; color: #ef4444; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; white-space: nowrap;">
                         <i class="ph-bold ph-trash" style="font-size: 1rem;"></i> Clear All
                     </button>
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">

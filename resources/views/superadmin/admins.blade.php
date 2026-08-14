@@ -67,28 +67,29 @@
             flex-direction: column;
         }
         .topbar {
-            height: 72px; background: white; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 2rem;
+            height: 56px; background: white; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
             position: sticky; top: 0; z-index: 90;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
-        .page-body { padding: 2.5rem; max-width: 1500px; width: 100%; margin: 0 auto; box-sizing: border-box; }
-        .topbar-right { display: flex; align-items: center; gap: 1rem; }
+        .page-body { padding: 1.25rem 1.5rem; max-width: 1400px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+        .topbar-right { display: flex; align-items: center; gap: 0.85rem; }
 
-        .card { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .card-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
 
         .btn {
-            padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
-            cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 0.85rem; border-radius: 6px; font-weight: 600; font-size: 0.78rem;
+            cursor: pointer; transition: all 0.15s ease; border: none; display: inline-flex; align-items: center; gap: 0.35rem;
+            line-height: 1.2; text-decoration: none; font-family: 'Inter', sans-serif; height: 32px;
         }
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-primary:hover { background: #e66d00; transform: translateY(-1px); }
-        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-muted); }
-        .btn-outline:hover { background: #f8fafc; color: var(--text-main); }
-        .btn-danger { background: #fef2f2; color: var(--danger); }
-        .btn-danger:hover { background: #fee2e2; }
+        .btn-primary { background: var(--primary-color, #850f0f); color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .btn-primary:hover { background: #6b0c0c; color: #ffffff; transform: translateY(-1px); }
+        .btn-outline { background: #ffffff; border: 1px solid #cbd5e1; color: #475569; }
+        .btn-outline:hover { background: #f8fafc; color: #0f172a; border-color: #94a3b8; }
+        .btn-danger { background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; }
+        .btn-danger:hover { background: #e11d48; color: #ffffff; border-color: #e11d48; }
 
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th {
@@ -244,6 +245,9 @@
             <a href="{{ route('superadmin.payments') }}" class="menu-item {{ Route::is('superadmin.payments') ? 'active' : '' }}">
                 <i class="ph ph-wallet"></i> Payment Details
             </a>
+            <a href="{{ route('superadmin.reports') }}" class="menu-item {{ Route::is('superadmin.reports') ? 'active' : '' }}">
+                <i class="ph ph-chart-bar"></i> Reports
+            </a>
             <a href="{{ route('superadmin.settings') }}" class="menu-item {{ Route::is('superadmin.settings') ? 'active' : '' }}">
                 <i class="ph ph-gear"></i> System Settings
             </a>
@@ -296,42 +300,80 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Admin Users</h2>
-                    <button class="btn btn-primary" onclick="openModal('addAdminModal')">
-                        <i class="ph-bold ph-plus"></i> Add New Admin
-                    </button>
+            <div class="card" style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem 1.2rem; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.65rem;">
+                    <div>
+                        <h2 class="card-title" style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0;">Admin Users</h2>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <!-- Compact Search Bar -->
+                        <div style="position: relative; display: inline-flex; align-items: center;">
+                            <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 9px; color: #94a3b8; font-size: 0.8rem;"></i>
+                            <input type="text" id="adminSearchInput" placeholder="Search username or email" style="padding: 0 10px 0 28px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.75rem; width: 190px; height: 32px; outline: none; transition: border-color 0.2s;" onkeyup="filterAdminTable()">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="openModal('addAdminModal')" style="height: 32px; padding: 0 12px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; background: var(--primary-color, #850f0f); color: white; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="ph-bold ph-plus" style="font-size: 0.75rem;"></i> Add New Admin
+                        </button>
+                    </div>
                 </div>
 
                 <div style="overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch;">
-                    <table class="data-table" style="min-width: 600px;">
+                    <table class="data-table" id="adminTable" style="width: 100%; border-collapse: collapse; min-width: 700px;">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
+                            <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                <th style="padding: 10px 12px; width: 36px; text-align: center;"><input type="checkbox" id="selectAllCheckboxes" onclick="toggleSelectAll(this)" style="cursor: pointer; width: 14px; height: 14px;"></th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Username</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Email ID</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Email Status</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Phone</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Account Status</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Created At</th>
+                                <th style="padding: 10px 12px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($admins as $admin)
-                            <tr>
-                                <td style="font-weight: 600;">{{ $admin->name }}</td>
-                                <td>{{ $admin->email }}</td>
-                                <td style="color: var(--muted);">{{ $admin->created_at->format('d M Y') }}</td>
-                                <td>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <button class="btn btn-outline" 
-                                                onclick="editAdmin({{ $admin->id }}, '{{ $admin->name }}', '{{ $admin->email }}')">
-                                            <i class="ph ph-pencil-simple"></i>
+                            <tr class="admin-row" style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;">
+                                <td style="padding: 10px 12px; text-align: center;"><input type="checkbox" class="row-checkbox" style="cursor: pointer; width: 14px; height: 14px;"></td>
+                                <td style="padding: 10px 12px; font-weight: 600; color: #0f172a; font-size: 0.82rem;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0;">
+                                            {{ strtoupper(substr($admin->name, 0, 1)) }}
+                                        </div>
+                                        <span>{{ $admin->name }}</span>
+                                        @if($admin->role === 'superadmin')
+                                            <span style="padding: 1px 5px; background: #faf5ff; border: 1px solid #e9d5ff; color: #7e22ce; font-size: 0.62rem; font-weight: 700; border-radius: 4px;">SUPERADMIN</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td style="padding: 10px 12px; color: #334155; font-size: 0.82rem;">{{ $admin->email }}</td>
+                                <td style="padding: 10px 12px;">
+                                    <span style="padding: 3px 8px; background: #22c55e; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 5px; display: inline-flex; align-items: center; gap: 3px;">
+                                        V <i class="ph-bold ph-caret-down" style="font-size: 0.6rem;"></i>
+                                    </span>
+                                </td>
+                                <td style="padding: 10px 12px; color: #64748b; font-size: 0.82rem;">-</td>
+                                <td style="padding: 10px 12px;">
+                                    <span style="padding: 3px 10px; background: #22c55e; color: white; font-size: 0.7rem; font-weight: 700; border-radius: 5px; display: inline-flex; align-items: center; gap: 3px;">
+                                        Active <i class="ph-bold ph-caret-down" style="font-size: 0.6rem;"></i>
+                                    </span>
+                                </td>
+                                <td style="padding: 10px 12px; color: #64748b; font-size: 0.78rem;">{{ $admin->created_at->format('d M Y') }}</td>
+                                <td style="padding: 10px 12px; text-align: right;">
+                                    <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                                        <button type="button" onclick="editAdmin({{ $admin->id }}, '{{ addslashes($admin->name) }}', '{{ addslashes($admin->email) }}')" style="padding: 5px 9px; background: #ffffff; border: 1px solid #cbd5e1; color: #475569; border-radius: 6px; cursor: pointer; transition: all 0.15s;" title="Edit Admin">
+                                            <i class="ph-bold ph-pencil-simple" style="font-size: 0.85rem;"></i>
                                         </button>
-                                        <form action="{{ route('superadmin.admins.delete', $admin->id) }}" method="POST" onsubmit="event.preventDefault(); showConfirmDelete(this);">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="ph ph-trash"></i>
-                                            </button>
-                                        </form>
+                                        @if($admin->role !== 'superadmin')
+                                            <form action="{{ route('superadmin.admins.delete', $admin->id) }}" method="POST" style="display: inline;" onsubmit="event.preventDefault(); showConfirmDelete(this);">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" style="padding: 5px 9px; background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; border-radius: 6px; cursor: pointer; transition: all 0.15s;" title="Delete Admin">
+                                                    <i class="ph-bold ph-trash" style="font-size: 0.85rem;"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -427,6 +469,20 @@
                 }
             }
         });
+
+        function filterAdminTable() {
+            const input = document.getElementById('adminSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#adminTable tbody tr.admin-row');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        function toggleSelectAll(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        }
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
