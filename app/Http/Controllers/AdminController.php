@@ -30,7 +30,9 @@ class AdminController extends Controller
         }
 
         $selectedDateStr = $request->input('date');
-        if ($selectedDateStr) {
+
+        // Check if date was provided AND month/year were not explicitly changed
+        if ($selectedDateStr && !$request->has('month') && !$request->has('year')) {
             try {
                 $calendarDate = Carbon::parse($selectedDateStr);
                 $selectedYear = $calendarDate->year;
@@ -39,11 +41,26 @@ class AdminController extends Controller
                 $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
             }
         } else {
-            $today = Carbon::now();
-            if ($today->year == $selectedYear && $today->month == $selectedMonth) {
-                $calendarDate = $today;
+            // Month or Year were selected from dropdown (or default current month)
+            if ($selectedDateStr) {
+                try {
+                    $parsedDate = Carbon::parse($selectedDateStr);
+                    // If date matches selected month/year, keep exact day; otherwise reset to 1st of selected month/year
+                    if ($parsedDate->month == $selectedMonth && $parsedDate->year == $selectedYear) {
+                        $calendarDate = $parsedDate;
+                    } else {
+                        $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+                    }
+                } catch (\Exception $e) {
+                    $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+                }
             } else {
-                $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+                $today = Carbon::now();
+                if ($today->year == $selectedYear && $today->month == $selectedMonth) {
+                    $calendarDate = $today;
+                } else {
+                    $calendarDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1);
+                }
             }
         }
         $selectedDateStr = $calendarDate->format('Y-m-d');

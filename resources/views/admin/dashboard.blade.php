@@ -1327,6 +1327,20 @@
             });
         }
 
+        window.triggerCalendarAjax = function(el) {
+            const form = (el && el.form) ? el.form : document.getElementById('ajaxCalendarForm');
+            if (!form) return;
+            
+            if (el && (el.name === 'month' || el.name === 'year')) {
+                if (form.date) form.date.value = '';
+            }
+            
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
+            const actionUrl = form.action + '?' + params;
+            fetchCalendarAjax(actionUrl);
+        };
+
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a.ajax-cal-link');
             if (link) {
@@ -1335,19 +1349,10 @@
             }
         });
 
-        document.addEventListener('change', function(e) {
-            if (e.target.matches('.ajax-cal-select')) {
-                const form = e.target.closest('form#ajaxCalendarForm');
-                if (form) {
-                    form.submit();
-                }
-            }
-        });
-
         document.addEventListener('submit', function(e) {
             if (e.target.matches('form#ajaxCalendarForm')) {
-                // Allow standard GET form submission to ensure live deployment compatibility
-                return true;
+                e.preventDefault();
+                window.triggerCalendarAjax(e.target);
             }
         });
 
