@@ -1337,25 +1337,17 @@
 
         document.addEventListener('change', function(e) {
             if (e.target.matches('.ajax-cal-select')) {
-                e.preventDefault();
                 const form = e.target.closest('form#ajaxCalendarForm');
                 if (form) {
-                    const formData = new FormData(form);
-                    const params = new URLSearchParams(formData).toString();
-                    const actionUrl = form.action + '?' + params;
-                    fetchCalendarAjax(actionUrl);
+                    form.submit();
                 }
             }
         });
 
         document.addEventListener('submit', function(e) {
             if (e.target.matches('form#ajaxCalendarForm')) {
-                e.preventDefault();
-                const form = e.target;
-                const formData = new FormData(form);
-                const params = new URLSearchParams(formData).toString();
-                const actionUrl = form.action + '?' + params;
-                fetchCalendarAjax(actionUrl);
+                // Allow standard GET form submission to ensure live deployment compatibility
+                return true;
             }
         });
 

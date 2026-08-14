@@ -39,7 +39,7 @@
             <!-- Month Dropdown -->
             <div style="display: flex; align-items: center; gap: 6px;">
                 <label style="font-size: 0.78rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.03em;">Month:</label>
-                <select name="month" class="ajax-cal-select" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
+                <select name="month" class="ajax-cal-select" onchange="this.form.submit();" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
                     @foreach(range(1, 12) as $m)
                         @php $mName = \Carbon\Carbon::create()->month($m)->format('F'); @endphp
                         <option value="{{ $m }}" {{ $m == $selectedMonth ? 'selected' : '' }}>{{ $mName }}</option>
@@ -50,7 +50,7 @@
             <!-- Year Dropdown -->
             <div style="display: flex; align-items: center; gap: 6px;">
                 <label style="font-size: 0.78rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.03em;">Year:</label>
-                <select name="year" class="ajax-cal-select" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
+                <select name="year" class="ajax-cal-select" onchange="this.form.submit();" style="padding: 6px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
                     @foreach(range(\Carbon\Carbon::now()->year - 2, \Carbon\Carbon::now()->year + 3) as $y)
                         <option value="{{ $y }}" {{ $y == $selectedYear ? 'selected' : '' }}>{{ $y }}</option>
                     @endforeach
@@ -60,7 +60,7 @@
             <!-- Specific Date Selector -->
             <div style="display: flex; align-items: center; gap: 6px;">
                 <label style="font-size: 0.78rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.03em;">Jump to Date:</label>
-                <input type="date" name="date" value="{{ $selectedDateStr }}" class="ajax-cal-select" style="padding: 5px 12px; font-size: 0.82rem; font-weight: 600; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
+                <input type="date" name="date" value="{{ $selectedDateStr }}" class="ajax-cal-select" onchange="this.form.submit();" style="padding: 5px 12px; font-size: 0.82rem; font-weight: 600; border-radius: 8px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; outline: none;">
             </div>
         </div>
 

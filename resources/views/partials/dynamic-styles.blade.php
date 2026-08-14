@@ -307,6 +307,7 @@
 
     .header-container,
     header:not(.auth-header) {
+        position: relative !important;
         background: #ffffff !important;
         border-bottom: 1px solid #f1f5f9 !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
@@ -322,20 +323,32 @@
         transition: all 0.3s ease !important;
     }
 
-    .header-left,
-    .header-right {
+    .header-left {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
+        z-index: 2 !important;
     }
 
-    .header-left {
-        gap: 12px !important;
+    .header-center {
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
     }
 
     .header-right {
+        display: flex !important;
+        align-items: center !important;
         gap: 10px !important;
         margin-left: auto !important;
+        flex-shrink: 0 !important;
+        z-index: 2 !important;
     }
 
     .cart-btn-header {
@@ -361,6 +374,11 @@
     }
 
     .logo-text {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
         gap: 2px !important;
     }
 
