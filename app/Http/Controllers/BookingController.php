@@ -104,9 +104,13 @@ class BookingController extends Controller
             
             // Combined Base Pricing Logic for all selected rooms
             $basePrice = 0;
+            $hasTestRoom = false;
             foreach ($selectedRooms as $rName) {
                 $normR = strtolower($rName);
-                if (str_contains($normR, 'standard')) {
+                if (str_contains($normR, 'test')) {
+                    $basePrice += 1;
+                    $hasTestRoom = true;
+                } elseif (str_contains($normR, 'standard')) {
                     // Standard Rooms: ₹1400 per 12-hour block (or fraction)
                     $twelveHourBlocks = (int) ceil($durationHours / 12.0);
                     $basePrice += max(1, $twelveHourBlocks) * 1400;
@@ -130,7 +134,12 @@ class BookingController extends Controller
             } catch (\Throwable $e) {
                 $gstRate = 5;
             }
-            $totalPrice = $basePrice * (1 + ($gstRate / 100));
+
+            if ($hasTestRoom && count($selectedRooms) === 1) {
+                $totalPrice = 1.00;
+            } else {
+                $totalPrice = $basePrice * (1 + ($gstRate / 100));
+            }
 
             // Double booking check for each selected room individually
             foreach ($selectedRooms as $singleRoom) {
