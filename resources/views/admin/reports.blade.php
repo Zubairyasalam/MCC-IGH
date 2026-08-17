@@ -318,6 +318,9 @@
             <a href="{{ route('admin.reports') }}" class="menu-item active">
                 <i class="ph ph-file-text"></i> Reports
             </a>
+            <a href="{{ route('admin.settings') }}" class="menu-item">
+                <i class="ph ph-credit-card"></i> Payment Settings
+            </a>
             <a href="{{ route('home') }}" class="menu-item" target="_blank">
                 <i class="ph ph-globe"></i> Visit Website
             </a>

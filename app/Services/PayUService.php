@@ -14,9 +14,21 @@ class PayUService
 
     public function __construct()
     {
-        $this->key = config('services.payu.key') ?: env('PAYU_MERCHANT_KEY');
-        $this->salt = config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT');
-        $this->mode = config('services.payu.mode') ?: env('PAYU_MODE', 'production');
+        $statusSetting = \App\Models\Setting::where('key', 'payu_status')->value('value');
+        $testModeSetting = \App\Models\Setting::where('key', 'payu_test_mode')->value('value');
+        $keySetting = \App\Models\Setting::where('key', 'payu_merchant_key')->value('value');
+        $saltSetting = \App\Models\Setting::where('key', 'payu_merchant_salt')->value('value');
+
+        $this->key = !empty($keySetting) ? trim($keySetting) : (config('services.payu.key') ?: env('PAYU_MERCHANT_KEY'));
+        $this->salt = !empty($saltSetting) ? trim($saltSetting) : (config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT'));
+
+        if ($testModeSetting !== null) {
+            $isTest = in_array(strtolower(trim($testModeSetting)), ['active', '1', 'test', 'true']);
+            $this->mode = $isTest ? 'test' : 'production';
+        } else {
+            $this->mode = config('services.payu.mode') ?: env('PAYU_MODE', 'production');
+        }
+
         $this->url = $this->mode === 'production' 
             ? (config('services.payu.production_url') ?: env('PAYU_PRODUCTION_URL', 'https://secure.payu.in/_payment')) 
             : (config('services.payu.test_url') ?: env('PAYU_TEST_URL', 'https://test.payu.in/_payment'));
@@ -24,6 +36,18 @@ class PayUService
         if (empty($this->key) || empty($this->salt)) {
             Log::warning('PayU credentials are not set in the configuration.');
         }
+    }
+
+    /**
+     * Check if PayU payment gateway is active
+     */
+    public function isActive(): bool
+    {
+        $statusSetting = \App\Models\Setting::where('key', 'payu_status')->value('value');
+        if ($statusSetting !== null) {
+            return in_array(strtolower(trim($statusSetting)), ['active', '1', 'true', 'enabled']);
+        }
+        return true;
     }
 
     /**

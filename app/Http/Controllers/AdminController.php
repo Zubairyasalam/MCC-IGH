@@ -1172,4 +1172,27 @@ class AdminController extends Controller
 
         return back()->with('success', 'Additional room added successfully and payment link sent to the guest.');
     }
+
+    public function settings()
+    {
+        $settings = \App\Models\Setting::all()->pluck('value', 'key');
+        return view('admin.settings', compact('settings'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'payu_status'        => 'nullable|string',
+            'payu_test_mode'     => 'nullable|string',
+            'payu_merchant_key'  => 'nullable|string',
+            'payu_merchant_salt' => 'nullable|string',
+        ]);
+
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_status'],        ['value' => $request->payu_status ?? 'active']);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_test_mode'],     ['value' => $request->payu_test_mode ?? 'deactive']);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_key'],  ['value' => trim($request->payu_merchant_key ?? '')]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_salt'], ['value' => trim($request->payu_merchant_salt ?? '')]);
+
+        return redirect()->back()->with('success', 'PayU Payment Gateway settings updated successfully.');
+    }
 }

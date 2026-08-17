@@ -46,6 +46,10 @@ class PaymentController extends Controller
     {
         $link = PaymentLink::with('booking')->where('token', $token)->firstOrFail();
 
+        if (!$this->payu->isActive()) {
+            return back()->with('error', 'Online payment gateway is currently deactivated by administrator.');
+        }
+
         if (!$link->isValid()) {
             return back()->with('error', 'Invalid or expired payment link.');
         }

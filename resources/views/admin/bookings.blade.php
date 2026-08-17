@@ -538,8 +538,11 @@
             <a href="{{ route('admin.college-guest') }}" class="menu-item">
                 <i class="ph ph-user-gear"></i> College Guests
             </a>
-            <a href="{{ route('admin.reports') }}" class="menu-item">
+            <a href="{{ route('admin.reports') }}" class="menu-item {{ Route::is('admin.reports') ? 'active' : '' }}">
                 <i class="ph ph-file-text"></i> Reports
+            </a>
+            <a href="{{ route('admin.settings') }}" class="menu-item {{ Route::is('admin.settings') ? 'active' : '' }}">
+                <i class="ph ph-credit-card"></i> Payment Settings
             </a>
             <a href="{{ route('home') }}" class="menu-item" target="_blank" rel="noopener noreferrer">
                 <i class="ph ph-globe"></i> Visit Website

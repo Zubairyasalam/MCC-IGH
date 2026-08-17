@@ -186,6 +186,10 @@ class SuperAdminController extends Controller
             'whatsapp_sender'     => 'nullable|string',
             'whatsapp_sid'        => 'nullable|string',
             'whatsapp_token'      => 'nullable|string',
+            'payu_status'         => 'nullable|string',
+            'payu_test_mode'      => 'nullable|string',
+            'payu_merchant_key'   => 'nullable|string',
+            'payu_merchant_salt'  => 'nullable|string',
             'superadmin_name'     => 'nullable|string|max:255',
             'superadmin_email'    => 'nullable|email|max:255',
             'superadmin_password' => 'nullable|string|min:6',
@@ -221,6 +225,12 @@ class SuperAdminController extends Controller
         Setting::updateOrCreate(['key' => 'secondary_color'], ['value' => $request->secondary_color ?? '#001a33']);
         Setting::updateOrCreate(['key' => 'use_secondary_color'], ['value' => $request->has('use_secondary_color') ? '1' : '0']);
         Setting::updateOrCreate(['key' => 'gst_rate'],            ['value' => $request->gst_rate ?? '5']);
+
+        // PayU Settings
+        Setting::updateOrCreate(['key' => 'payu_status'],        ['value' => $request->payu_status ?? 'active']);
+        Setting::updateOrCreate(['key' => 'payu_test_mode'],     ['value' => $request->payu_test_mode ?? 'deactive']);
+        Setting::updateOrCreate(['key' => 'payu_merchant_key'],  ['value' => trim($request->payu_merchant_key ?? '')]);
+        Setting::updateOrCreate(['key' => 'payu_merchant_salt'], ['value' => trim($request->payu_merchant_salt ?? '')]);
 
         // Save Per-Department and Per-Hall Maps
         if ($request->has('hod_emails') && is_array($request->hod_emails)) {

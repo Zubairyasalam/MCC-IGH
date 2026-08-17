@@ -318,6 +318,76 @@
             transition: all 0.2s;
         }
         .admin-logout-btn:hover { background: #ef4444; color: white; border-color: #ef4444; }
+
+        /* PayU Segment Toggles - Site Theme Matched */
+        .payu-card {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow, 0 10px 15px -3px rgba(0,0,0,0.05));
+            border: 1px solid var(--border, #e2e8f0);
+        }
+        .payu-card h3 {
+            color: #1e293b !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        .payu-card label {
+            color: #334155 !important;
+        }
+        .payu-card input[type="text"] {
+            background: #ffffff;
+            border: 1px solid var(--border, #e2e8f0);
+            color: #1e293b;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .payu-card input[type="text"]:focus {
+            border-color: var(--primary-color, #850f0f);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(133, 15, 15, 0.1);
+        }
+        .seg-group {
+            display: flex;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .seg-option {
+            flex: 1;
+            text-align: center;
+            margin: 0 !important;
+            cursor: pointer;
+        }
+        .seg-option input[type="radio"] {
+            display: none;
+        }
+        .seg-pill {
+            display: block;
+            padding: 9px 16px;
+            border-radius: 7px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .seg-option:hover .seg-pill {
+            color: var(--primary-color, #850f0f);
+        }
+        .seg-option input[type="radio"]:checked + .seg-pill {
+            background: var(--primary-color, #850f0f);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(133, 15, 15, 0.25);
+        }
     </style>
     @include('partials.dynamic-styles')
 </head>
@@ -560,6 +630,60 @@
                         </div>
                         <div style="font-size: 0.75rem; color: #64748b; margin-top: 10px;">
                             <i class="ph ph-info"></i> This rate will be used to calculate GST for all room bookings.
+                        </div>
+                    </div>
+
+                    <!-- PayU Configuration -->
+                    <div class="payu-card">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.75rem;">
+                            <i class="ph-bold ph-credit-card" style="color: var(--primary-color, #850f0f);"></i> PayU Payment Gateway Integration
+                        </h3>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <!-- PayU Status -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">PayU Status</label>
+                                <div class="seg-group">
+                                    <label class="seg-option">
+                                        <input type="radio" name="payu_status" value="active" {{ ($settings['payu_status'] ?? 'active') == 'active' ? 'checked' : '' }}>
+                                        <span class="seg-pill">Active</span>
+                                    </label>
+                                    <label class="seg-option">
+                                        <input type="radio" name="payu_status" value="deactive" {{ ($settings['payu_status'] ?? 'active') == 'deactive' ? 'checked' : '' }}>
+                                        <span class="seg-pill">Deactive</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Test Mode -->
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Test Mode</label>
+                                <div class="seg-group">
+                                    <label class="seg-option">
+                                        <input type="radio" name="payu_test_mode" value="active" {{ ($settings['payu_test_mode'] ?? 'deactive') == 'active' ? 'checked' : '' }}>
+                                        <span class="seg-pill">Active</span>
+                                    </label>
+                                    <label class="seg-option">
+                                        <input type="radio" name="payu_test_mode" value="deactive" {{ ($settings['payu_test_mode'] ?? 'deactive') == 'deactive' ? 'checked' : '' }}>
+                                        <span class="seg-pill">Deactive</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Merchant Key</label>
+                                <input type="text" name="payu_merchant_key" value="{{ $settings['payu_merchant_key'] ?? env('PAYU_MERCHANT_KEY', '') }}" placeholder="Enter PayU Merchant Key">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Merchant Salt</label>
+                                <input type="text" name="payu_merchant_salt" value="{{ $settings['payu_merchant_salt'] ?? env('PAYU_MERCHANT_SALT', '') }}" placeholder="Enter PayU Merchant Salt">
+                            </div>
+                        </div>
+
+                        <div style="font-size: 0.85rem; color: #d97706; margin-top: 1rem; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                            <i class="ph-bold ph-info" style="font-size: 1rem;"></i> PayU success and failure URLs are sent automatically during checkout.
                         </div>
                     </div>
 
