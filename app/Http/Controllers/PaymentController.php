@@ -57,24 +57,27 @@ class PaymentController extends Controller
         $booking = $link->booking;
         $txnid = 'TXN_' . strtoupper(uniqid());
 
+        // Enforce minimum 10.00 for PayU Live transaction limits
+        $amountToPay = max(10.00, (float)$booking->total_price);
+
         // Create transaction intent
         $payment = Payment::create([
             'booking_id' => $booking->id,
             'txnid' => $txnid,
-            'amount' => $booking->total_price,
+            'amount' => $amountToPay,
             'status' => 'initiated',
         ]);
 
         app(\App\Services\WebhookService::class)->trigger('payment.initiated', [
             'booking_id' => $booking->id,
             'txnid' => $txnid,
-            'amount' => $booking->total_price,
+            'amount' => $amountToPay,
             'payment_id' => $payment->id
         ]);
 
         $params = [
             'txnid' => $txnid,
-            'amount' => number_format($booking->total_price, 2, '.', ''),
+            'amount' => number_format($amountToPay, 2, '.', ''),
             'productinfo' => 'Booking #' . $booking->id . ' - ' . $booking->room_name,
             'firstname' => $booking->name,
             'email' => $booking->email,

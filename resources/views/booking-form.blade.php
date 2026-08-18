@@ -1771,12 +1771,16 @@
             }];
 
             let subtotal = 0;
+            let hasTestRoom = false;
             itemsToCalc.forEach(item => {
                 const rName = (item.name || '').toLowerCase();
                 const rCategory = (item.category || '').toLowerCase();
                 const rRateType = (item.rateType || '').toLowerCase();
                 
-                if (rRateType.includes('day') || rCategory.includes('executive') || rCategory.includes('advance') || !isNaN(item.name)) {
+                if (rName.includes('test')) {
+                    subtotal += 1;
+                    hasTestRoom = true;
+                } else if (rRateType.includes('day') || rCategory.includes('executive') || rCategory.includes('advance') || !isNaN(item.name)) {
                     const days = Math.max(1, Math.ceil(durationHours / 24.0));
                     subtotal += days * 2500;
                 } else if (rRateType.includes('12') || rName.includes('standard')) {
@@ -1790,8 +1794,14 @@
                 }
             });
 
-            const gst = subtotal * (gstRate / 100);
-            const total = subtotal + gst;
+            let gst = subtotal * (gstRate / 100);
+            let total = subtotal + gst;
+
+            if (hasTestRoom && itemsToCalc.length === 1) {
+                subtotal = 10.00;
+                gst = 0.00;
+                total = 10.00;
+            }
 
             let durationDisplay = '';
             if (durationHours >= 24) {

@@ -136,7 +136,7 @@ class BookingController extends Controller
             }
 
             if ($hasTestRoom && count($selectedRooms) === 1) {
-                $totalPrice = 1.00;
+                $totalPrice = 10.00;
             } else {
                 $totalPrice = $basePrice * (1 + ($gstRate / 100));
             }
@@ -468,11 +468,17 @@ class BookingController extends Controller
         }
 
         $deptStr = trim(($booking->department ?? '') . ($booking->stream ? ' (' . $booking->stream . ')' : ''));
-        $booking->update([
-            'approval_status' => 'Pending Principal Approval',
-            'hod_approved_by' => 'HOD' . ($deptStr ? ' - ' . $deptStr : ''),
-            'hod_approved_at' => now(),
-        ]);
+        $updateData = ['approval_status' => 'Pending Principal Approval'];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'hod_approved_by')) {
+                $updateData['hod_approved_by'] = 'HOD' . ($deptStr ? ' - ' . $deptStr : '');
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'hod_approved_at')) {
+                $updateData['hod_approved_at'] = now();
+            }
+        } catch (\Throwable $e) {}
+
+        $booking->update($updateData);
         
         // Notify Principal
         try {
@@ -480,7 +486,7 @@ class BookingController extends Controller
             $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
             Mail::to($principalEmails)->send(new BookingNotification($booking));
             Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after HOD approval for ID: ' . $booking->id);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Failed to send Principal notification after HOD approval: ' . $e->getMessage());
         }
 
@@ -512,11 +518,17 @@ class BookingController extends Controller
         }
 
         $hallStr = $booking->hall_name ?? 'Hostel';
-        $booking->update([
-            'approval_status' => 'Pending Principal Approval',
-            'warden_approved_by' => 'Hall Warden - ' . $hallStr,
-            'warden_approved_at' => now(),
-        ]);
+        $updateData = ['approval_status' => 'Pending Principal Approval'];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'warden_approved_by')) {
+                $updateData['warden_approved_by'] = 'Hall Warden - ' . $hallStr;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'warden_approved_at')) {
+                $updateData['warden_approved_at'] = now();
+            }
+        } catch (\Throwable $e) {}
+
+        $booking->update($updateData);
         
         // Notify Principal
         try {
@@ -524,7 +536,7 @@ class BookingController extends Controller
             $principalEmails = \App\Models\Setting::getEmails('principal_email', 'prasathragul75@gmail.com');
             Mail::to($principalEmails)->send(new BookingNotification($booking));
             Log::info('Booking notification sent to Principal (' . implode(', ', $principalEmails) . ') after Warden approval for ID: ' . $booking->id);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Failed to send Principal notification after Warden approval: ' . $e->getMessage());
         }
 

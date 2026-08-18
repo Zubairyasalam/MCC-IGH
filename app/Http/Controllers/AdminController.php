@@ -12,6 +12,7 @@ use App\Mail\BookingApproved;
 use App\Models\PaymentLink;
 use App\Mail\PaymentLinkMail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -567,11 +568,17 @@ class AdminController extends Controller
             ]);
         }
 
-        $booking->update([
-            'approval_status' => 'Approved by Principal',
-            'principal_approved_by' => 'Principal Office',
-            'principal_approved_at' => now(),
-        ]);
+        $updateData = ['approval_status' => 'Approved by Principal'];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'principal_approved_by')) {
+                $updateData['principal_approved_by'] = 'Principal Office';
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'principal_approved_at')) {
+                $updateData['principal_approved_at'] = now();
+            }
+        } catch (\Throwable $e) {}
+
+        $booking->update($updateData);
 
         return view('approval_status', [
             'actionTitle' => 'Approve Booking',
@@ -597,34 +604,61 @@ class AdminController extends Controller
         if ($booking->approval_status !== 'Approved') {
             $adminUser = Auth::user();
             $adminName = is_object($adminUser) ? ($adminUser->name ?? $adminUser->email ?? 'Admin User') : (session('admin_username') ?: 'Admin User');
-            $booking->update([
-                'approval_status' => 'Approved',
-                'admin_approved_by' => 'Admin (' . $adminName . ')',
-                'admin_approved_at' => now(),
-            ]);
-            app(\App\Services\WebhookService::class)->trigger('booking.confirmed', $booking);
+            
+            $updateData = ['approval_status' => 'Approved'];
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'admin_approved_by')) {
+                    $updateData['admin_approved_by'] = 'Admin (' . $adminName . ')';
+                }
+                if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'admin_approved_at')) {
+                    $updateData['admin_approved_at'] = now();
+                }
+            } catch (\Throwable $e) {}
+
+            $booking->update($updateData);
+
+            try {
+                app(\App\Services\WebhookService::class)->trigger('booking.confirmed', $booking);
+            } catch (\Throwable $e) {
+                \Log::error('Webhook trigger error in adminApprove: ' . $e->getMessage());
+            }
         }
         
-        // Generate Secure Payment Token
-        $token = Str::random(32);
-        $paymentLink = PaymentLink::create([
-            'booking_id' => $id,
-            'token' => $token,
-            'expires_at' => Carbon::now()->addHours(24),
-            'is_used' => false
-        ]);
-
-        // Notify Guest
+        // Generate Secure Payment Token & Notify Guest
+        $mailSent = false;
         try {
-            // Apply Dynamic Mail Config
-            $this->applyMailConfig();
+            if (!\Illuminate\Support\Facades\Schema::hasTable('payment_links')) {
+                \Illuminate\Support\Facades\Schema::create('payment_links', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->unsignedBigInteger('booking_id');
+                    $table->string('token')->unique();
+                    $table->timestamp('expires_at')->nullable();
+                    $table->boolean('is_used')->default(false);
+                    $table->timestamps();
+                });
+            }
 
+            $token = Str::random(32);
+            $paymentLink = PaymentLink::create([
+                'booking_id' => $id,
+                'token' => $token,
+                'expires_at' => Carbon::now()->addHours(24),
+                'is_used' => false
+            ]);
+
+            // Notify Guest
+            $this->applyMailConfig();
             Mail::to($booking->email)->send(new PaymentLinkMail($booking, $paymentLink));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send guest payment link: ' . $e->getMessage());
+            $mailSent = true;
+        } catch (\Throwable $e) {
+            \Log::error('Failed to create payment link or send guest email: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'Booking approved. Payment link has been sent to the guest.');
+        if ($mailSent) {
+            return back()->with('success', 'Booking approved. Payment link has been sent to the guest.');
+        }
+
+        return back()->with('success', 'Booking approved successfully. (Guest notification email could not be sent, but booking is now approved.)');
     }
 
     public function resendPaymentLink($id)
@@ -635,21 +669,31 @@ class AdminController extends Controller
             return back()->with('error', 'This booking is already paid.');
         }
 
-        // Generate New Secure Payment Token (invalidates previous if we want, but typically we just send a fresh one)
-        $token = Str::random(32);
-        $paymentLink = PaymentLink::create([
-            'booking_id' => $id,
-            'token' => $token,
-            'expires_at' => Carbon::now()->addHours(24),
-            'is_used' => false
-        ]);
-
         try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('payment_links')) {
+                \Illuminate\Support\Facades\Schema::create('payment_links', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->unsignedBigInteger('booking_id');
+                    $table->string('token')->unique();
+                    $table->timestamp('expires_at')->nullable();
+                    $table->boolean('is_used')->default(false);
+                    $table->timestamps();
+                });
+            }
+
+            $token = Str::random(32);
+            $paymentLink = PaymentLink::create([
+                'booking_id' => $id,
+                'token' => $token,
+                'expires_at' => Carbon::now()->addHours(24),
+                'is_used' => false
+            ]);
+
             $this->applyMailConfig();
             Mail::to($booking->email)->send(new PaymentLinkMail($booking, $paymentLink));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Failed to resend guest payment link: ' . $e->getMessage());
-            return back()->with('error', 'Failed to send email. Check logs.');
+            return back()->with('error', 'Failed to send payment link: ' . $e->getMessage());
         }
 
         return back()->with('success', 'A new payment link has been sent to the guest.');
@@ -722,14 +766,27 @@ class AdminController extends Controller
         $rejectionReason = $request->input('rejection_reason') ?? 'Rejected by authority.';
         $adminUser = Auth::guard('admin')->user() ?? Auth::user();
         $rejectorName = is_object($adminUser) ? ($adminUser->name ?? $adminUser->email ?? 'Admin Authority') : (session('admin_username') ?: 'Authority');
-        $booking->update([
-            'approval_status' => 'Rejected',
-            'rejection_reason' => $rejectionReason,
-            'rejected_by' => $rejectorName,
-            'rejected_at' => now(),
-        ]);
+        
+        $updateData = ['approval_status' => 'Rejected'];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'rejection_reason')) {
+                $updateData['rejection_reason'] = $rejectionReason;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'rejected_by')) {
+                $updateData['rejected_by'] = $rejectorName;
+            }
+            if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'rejected_at')) {
+                $updateData['rejected_at'] = now();
+            }
+        } catch (\Throwable $e) {}
 
-        app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
+        $booking->update($updateData);
+
+        try {
+            app(\App\Services\WebhookService::class)->trigger('booking.cancelled', $booking);
+        } catch (\Throwable $e) {
+            \Log::error('Webhook trigger error in reject: ' . $e->getMessage());
+        }
 
         if ($request->header('Referer') && str_contains($request->header('Referer'), '/admin')) {
             return back()->with('success', 'Booking rejected successfully.');
