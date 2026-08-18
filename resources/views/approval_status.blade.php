@@ -206,6 +206,24 @@
                 </div>
             @endif
 
+            @if(!empty($booking->approval_remarks) || !empty($booking->principal_remarks))
+                <div class="detail-group">
+                    <div class="detail-label">Principal Approval Remarks</div>
+                    <div class="reason-box" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+                        {{ $booking->approval_remarks ?? $booking->principal_remarks }}
+                    </div>
+                </div>
+            @endif
+
+            @if(empty($alreadyReviewed) && !empty($showApproveForm))
+                <form action="{{ route('admin.bookings.approve.get', $booking->id) }}" method="POST" class="form-group">
+                    @csrf
+                    <label class="form-label">Approval Remarks / Notes <span style="color: #64748b; font-weight: 400; font-size: 0.8rem;">(Optional)</span></label>
+                    <textarea name="approval_remarks" class="form-textarea" placeholder="Add any special instructions or remarks for this booking (optional)..."></textarea>
+                    <button type="submit" class="btn-submit" style="background-color: #166534;">Confirm & Approve Booking</button>
+                </form>
+            @endif
+
             @if(empty($alreadyReviewed) && !empty($showRejectForm))
                 <form action="{{ route('admin.bookings.reject', $booking->id) }}" method="POST" class="form-group">
                     @csrf

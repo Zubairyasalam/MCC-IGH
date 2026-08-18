@@ -273,8 +273,8 @@
                             </a>
                         @endif
                         
-                        <button type="button" onclick="openSoftcopyModal()" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #ffffff; border: 1px solid #cbd5e1; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: #334155; cursor: pointer; font-family: 'Inter', sans-serif;">
-                            <i class="ph-bold ph-upload-simple"></i> Upload Softcopy
+                        <button type="button" onclick="openHistoryImportModal()" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #0284c7; border: none; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: white; cursor: pointer; font-family: 'Inter', sans-serif;">
+                            <i class="ph-bold ph-database"></i> Import History Data
                         </button>
                     </div>
                 </form>
@@ -347,10 +347,20 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">₹{{ number_format($b->total_price, 2) }}</div>
+                                    <div style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">
+                                        ₹{{ number_format($b->total_price, 2) }}
+                                        @if(($b->discount_amount ?? 0) > 0)
+                                            <span style="font-size: 0.7rem; color: #94a3b8; text-decoration: line-through; font-weight: 500; margin-left: 4px;">₹{{ number_format($b->original_price, 2) }}</span>
+                                        @endif
+                                    </div>
                                     <div style="font-size: 0.7rem; color: #64748b;">
                                         Base: ₹{{ number_format($bSubtotal, 2) }} | GST: ₹{{ number_format($bGstAmount, 2) }}
                                     </div>
+                                    @if(($b->discount_amount ?? 0) > 0)
+                                        <div style="font-size: 0.68rem; color: #166534; font-weight: 700; margin-top: 2px;" title="{{ $b->discount_reason }}">
+                                            <i class="ph-bold ph-tag"></i> Offer: -₹{{ number_format($b->discount_amount, 2) }} ({{ Str::limit($b->discount_reason ?: 'Special Offer', 20) }})
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($b->approval_status === 'Approved' || str_contains($b->approval_status, 'Approved'))
@@ -371,6 +381,12 @@
                                         <i class="ph-bold {{ $b->payment_status === 'Paid' ? 'ph-check-circle' : 'ph-clock' }}"></i>
                                         Payment {{ $b->payment_status ?? 'Pending' }}
                                     </div>
+
+                                    @if($b->approval_remarks || $b->principal_remarks)
+                                        <div style="color: #0369a1; font-weight: 600; font-size: 0.68rem; background: #f0f9ff; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd; margin-top: 3px;" title="{{ $b->approval_remarks ?? $b->principal_remarks }}">
+                                            <i class="ph-bold ph-note"></i> {{ Str::limit($b->approval_remarks ?? $b->principal_remarks, 25) }}
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -383,38 +399,65 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Softcopy Upload Modal -->
-    <div id="softcopyModal" class="modal">
-        <div class="modal-content">
-            <i class="ph ph-x modal-close" onclick="closeSoftcopyModal()"></i>
-            <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;">Upload Document / Softcopy</h3>
-            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">Select a booking to attach official softcopy documentation.</p>
-            <form action="{{ route('admin.bookings.upload-document', 1) }}" id="uploadDocForm" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Target Booking</label>
-                    <select id="bookingSelect" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem;" onchange="updateUploadAction(this.value)">
-                        @foreach($bookings as $b)
-                            <option value="{{ $b->id }}">BK-{{ str_pad($b->id, 6, '0', STR_PAD_LEFT) }} - {{ $b->name }} ({{ $b->room_name }})</option>
-                        @endforeach
-                    </select>
+    <!-- History Data Import Modal -->
+    <div id="historyImportModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 99999; justify-content: center; align-items: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease;">
+        <div style="background: #ffffff; width: 100%; max-width: 600px; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="padding: 1.25rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph-bold ph-file-csv" style="color: #0284c7;"></i> Import History Data / Softcopy
+                    </h3>
                 </div>
-                <div style="margin-bottom: 1.25rem;">
-                    <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Select Softcopy File (PDF, Image)</label>
-                    <input type="file" name="admin_document" required style="width: 100%; font-size: 0.8rem;">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; height: 36px;">
-                    Upload Softcopy
+                <button type="button" onclick="closeHistoryImportModal()" style="background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; padding: 4px; border-radius: 6px;">
+                    <i class="ph-bold ph-x"></i>
                 </button>
+            </div>
+            <form action="{{ route('superadmin.reports.import') }}" method="POST" enctype="multipart/form-data" style="padding: 1.5rem;">
+                @csrf
+                <p style="font-size: 0.82rem; color: #475569; margin-top: 0; margin-bottom: 1rem; line-height: 1.4;">
+                    Upload historical booking softcopies or CSV files to import legacy records into the system.
+                </p>
+                
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem;">
+                    <label style="font-size: 0.72rem; font-weight: 700; color: #0369a1; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Supported CSV Column Headings Format:</label>
+                    <code style="display: block; font-size: 0.72rem; background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #e0f2fe; color: #0c4a6e; font-family: monospace; word-break: break-all; white-space: pre-wrap;">Reference ID, Guest Name, Email, Phone, User Type, Room Name, Booking Date, Start Time, End Time, Total Price, Payment Status, Approval Status, Department, Stream, Booking Reason, Approval Remarks</code>
+                    <p style="margin: 6px 0 0 0; font-size: 0.73rem; color: #0284c7; font-weight: 600;">
+                        <i class="ph-bold ph-info"></i> All fields are optional! If your CSV only has a few columns or empty cells, the importer automatically fills in standard default values (auto-generated Reference ID, Paid status, Approved status, etc.).
+                    </p>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select CSV / Softcopy File (.csv)</label>
+                    <input type="file" name="csv_file" class="form-input" required accept=".csv,.txt" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.85rem;">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+                    <button type="button" onclick="closeHistoryImportModal()" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #334155; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: none; background: #0284c7; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-upload-simple"></i> Import History Records
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
+        function openHistoryImportModal() {
+            const modal = document.getElementById('historyImportModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => { modal.style.opacity = '1'; }, 10);
+            }
+        }
+        function closeHistoryImportModal() {
+            const modal = document.getElementById('historyImportModal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 200);
+            }
+        }
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.querySelector('.sidebar');
         if (sidebarToggle && sidebar) {
@@ -442,20 +485,7 @@
         document.addEventListener('click', () => {
             if (adminProfileMenu) adminProfileMenu.classList.remove('open');
         });
-
-        function openSoftcopyModal() {
-            const select = document.getElementById('bookingSelect');
-            if (select && select.value) {
-                updateUploadAction(select.value);
-            }
-            document.getElementById('softcopyModal').classList.add('active');
-        }
-        function closeSoftcopyModal() {
-            document.getElementById('softcopyModal').classList.remove('active');
-        }
-        function updateUploadAction(bookingId) {
-            document.getElementById('uploadDocForm').action = "/admin/bookings/" + bookingId + "/upload-document";
-        }
+    </script>
     </script>
 </body>
 </html>

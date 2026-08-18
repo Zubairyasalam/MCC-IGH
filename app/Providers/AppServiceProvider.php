@@ -135,6 +135,13 @@ class AppServiceProvider extends ServiceProvider
                     'admin_approved_at' => 'timestamp',
                     'rejected_by' => 'string',
                     'rejected_at' => 'timestamp',
+                    'approval_remarks' => 'text',
+                    'principal_remarks' => 'text',
+                    'discount_type' => 'string',
+                    'discount_value' => 'decimal',
+                    'original_price' => 'decimal',
+                    'discount_amount' => 'decimal',
+                    'discount_reason' => 'string',
                 ];
 
                 $missing = array_diff(array_keys($requiredColumns), $columns);
@@ -172,6 +179,13 @@ class AppServiceProvider extends ServiceProvider
                         if (in_array('admin_approved_at', $missing)) $table->timestamp('admin_approved_at')->nullable();
                         if (in_array('rejected_by', $missing)) $table->string('rejected_by')->nullable();
                         if (in_array('rejected_at', $missing)) $table->timestamp('rejected_at')->nullable();
+                        if (in_array('approval_remarks', $missing)) $table->text('approval_remarks')->nullable();
+                        if (in_array('principal_remarks', $missing)) $table->text('principal_remarks')->nullable();
+                        if (in_array('discount_type', $missing)) $table->string('discount_type')->nullable();
+                        if (in_array('discount_value', $missing)) $table->decimal('discount_value', 10, 2)->default(0)->nullable();
+                        if (in_array('original_price', $missing)) $table->decimal('original_price', 10, 2)->nullable();
+                        if (in_array('discount_amount', $missing)) $table->decimal('discount_amount', 10, 2)->default(0)->nullable();
+                        if (in_array('discount_reason', $missing)) $table->string('discount_reason')->nullable();
                     });
                 }
             }

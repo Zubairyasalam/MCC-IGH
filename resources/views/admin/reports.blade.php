@@ -427,13 +427,13 @@
                             <a href="{{ route('admin.reports.download', request()->all()) }}" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: var(--primary-color, #850f0f); font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: white; font-family: 'Inter', sans-serif;">
                                 <i class="ph-bold ph-file-pdf"></i> Download PDF
                             </a>
-                            <a href="{{ route('admin.bookings.export', request()->all()) }}" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #166534; border: none; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: white; font-family: 'Inter', sans-serif;">
+                            <a href="{{ route('admin.reports.export', request()->all()) }}" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #166534; border: none; font-weight: 600; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; color: white; font-family: 'Inter', sans-serif;">
                                 <i class="ph-bold ph-file-csv"></i> Download CSV
                             </a>
                         @endif
                         
-                        <button type="button" onclick="openDocUploadModal(null, '')" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #ffffff; border: 1px solid #cbd5e1; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: #334155; cursor: pointer; font-family: 'Inter', sans-serif;">
-                            <i class="ph-bold ph-upload-simple"></i> Upload Softcopy
+                        <button type="button" onclick="openHistoryImportModal()" style="height: 32px; padding: 0 12px; font-size: 0.75rem; background: #0284c7; border: none; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; color: white; cursor: pointer; font-family: 'Inter', sans-serif;">
+                            <i class="ph-bold ph-database"></i> Import History Data
                         </button>
                     </div>
                 </form>
@@ -527,8 +527,18 @@
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight: 800; color: #0f172a;">₹{{ number_format($b->total_price, 2) }}</div>
+                                <div style="font-weight: 800; color: #0f172a;">
+                                    ₹{{ number_format($b->total_price, 2) }}
+                                    @if(($b->discount_amount ?? 0) > 0)
+                                        <span style="font-size: 0.7rem; color: #94a3b8; text-decoration: line-through; font-weight: 500; margin-left: 4px;">₹{{ number_format($b->original_price, 2) }}</span>
+                                    @endif
+                                </div>
                                 <div style="font-size: 0.7rem; color: #64748b;">Base: ₹{{ number_format($bSubtotal, 2) }} | GST: ₹{{ number_format($bGstAmount, 2) }}</div>
+                                @if(($b->discount_amount ?? 0) > 0)
+                                    <div style="font-size: 0.68rem; color: #166534; font-weight: 700; margin-top: 2px;" title="{{ $b->discount_reason }}">
+                                        <i class="ph-bold ph-tag"></i> Offer: -₹{{ number_format($b->discount_amount, 2) }} ({{ Str::limit($b->discount_reason ?: 'Special Offer', 20) }})
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -551,6 +561,12 @@
                                         <span style="font-weight: 700; color: {{ $b->payment_status === 'Paid' ? '#166534' : '#b45309' }};">
                                             <i class="ph-bold ph-credit-card"></i> {{ $b->payment_status === 'Paid' ? 'Payment Paid' : 'Payment Pending' }}
                                         </span>
+
+                                        @if($b->approval_remarks || $b->principal_remarks)
+                                            <span style="color: #0369a1; font-weight: 600; font-size: 0.68rem; background: #f0f9ff; padding: 2px 6px; border-radius: 4px; border: 1px solid #bae6fd; margin-top: 2px;" title="{{ $b->approval_remarks ?? $b->principal_remarks }}">
+                                                <i class="ph-bold ph-note"></i> {{ Str::limit($b->approval_remarks ?? $b->principal_remarks, 25) }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -568,50 +584,67 @@
         </div>
     </main>
 
-    <!-- Admin Upload Softcopy Modal -->
-    <div id="docUploadModal" class="modal-overlay" onclick="if(event.target === this) closeDocUploadModal()" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; opacity: 0; transition: opacity 0.25s ease;">
-        <div style="background: #ffffff; width: 92%; max-width: 480px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; transform: scale(0.95); transition: transform 0.25s ease; border: 1px solid var(--border);">
-            <div style="padding: 1.25rem 1.5rem; background: #ffffff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                    <i class="ph-bold ph-upload-simple" style="color: var(--primary-color, #850f0f);"></i>
-                    Upload Softcopy Document
-                </h3>
-                <button type="button" onclick="closeDocUploadModal()" style="background: rgba(100, 116, 139, 0.08); border: none; font-size: 1.2rem; cursor: pointer; color: #64748b; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+    <!-- History Data Import Modal -->
+    <div id="historyImportModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 99999; justify-content: center; align-items: center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease;">
+        <div style="background: #ffffff; width: 100%; max-width: 600px; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e2e8f0;">
+            <div style="padding: 1.25rem 1.5rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph-bold ph-file-csv" style="color: #0284c7;"></i> Import History Data / Softcopy
+                    </h3>
+                </div>
+                <button type="button" onclick="closeHistoryImportModal()" style="background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; padding: 4px; border-radius: 6px;">
                     <i class="ph-bold ph-x"></i>
                 </button>
             </div>
-            <form id="docUploadForm" action="" method="POST" enctype="multipart/form-data" style="padding: 1.5rem;">
+            <form action="{{ route('admin.reports.import') }}" method="POST" enctype="multipart/form-data" style="padding: 1.5rem;">
                 @csrf
-                <p style="font-size: 0.85rem; color: #64748b; margin-top: 0; margin-bottom: 1.25rem;" id="docUploadModalSubtitle">
-                    Attach official ID proof, referral letter, or booking softcopy document.
+                <p style="font-size: 0.82rem; color: #475569; margin-top: 0; margin-bottom: 1rem; line-height: 1.4;">
+                    Upload historical booking softcopies or CSV files to import legacy records into the system.
                 </p>
-                <div class="form-group" id="bookingSelectWrapper" style="margin-bottom: 1.25rem; display: none;">
-                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select Booking Record</label>
-                    <select id="bookingSelect" class="form-input" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-weight: 600; font-size: 0.85rem;" onchange="updateFormActionFromSelect(this.value)">
-                        <option value="">-- Choose Guest Booking --</option>
-                        @foreach($bookings as $bOpt)
-                            <option value="{{ $bOpt->id }}">
-                                BK-{{ str_pad($bOpt->id, 6, '0', STR_PAD_LEFT) }} — {{ $bOpt->name }} ({{ str_replace('-', ' ', ucwords($bOpt->room_name, '- ')) }}, {{ \Carbon\Carbon::parse($bOpt->booking_date)->format('d M Y') }})
-                            </option>
-                        @endforeach
-                    </select>
+                
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 0.85rem; margin-bottom: 1.25rem;">
+                    <label style="font-size: 0.72rem; font-weight: 700; color: #0369a1; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Supported CSV Column Headings Format:</label>
+                    <code style="display: block; font-size: 0.72rem; background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #e0f2fe; color: #0c4a6e; font-family: monospace; word-break: break-all; white-space: pre-wrap;">Reference ID, Guest Name, Email, Phone, User Type, Room Name, Booking Date, Start Time, End Time, Total Price, Payment Status, Approval Status, Department, Stream, Booking Reason, Approval Remarks</code>
+                    <p style="margin: 6px 0 0 0; font-size: 0.73rem; color: #0284c7; font-weight: 600;">
+                        <i class="ph-bold ph-info"></i> All fields are optional! If your CSV only has a few columns or empty cells, the importer automatically fills in standard default values (auto-generated Reference ID, Paid status, Approved status, etc.).
+                    </p>
                 </div>
+
                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                    <label class="form-label" style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select Document File (PDF, DOC, JPG, PNG)</label>
-                    <input type="file" name="admin_document" class="form-input" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 700; font-size: 0.85rem; color: #334155;">Select CSV / Softcopy File (.csv)</label>
+                    <input type="file" name="csv_file" class="form-input" required accept=".csv,.txt" style="width: 100%; padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.85rem;">
                 </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
-                    <button type="button" onclick="closeDocUploadModal()" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #334155; cursor: pointer;">
+                    <button type="button" onclick="closeHistoryImportModal()" style="padding: 8px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #ffffff; color: #334155; cursor: pointer;">
                         Cancel
                     </button>
-                    <button type="submit" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: none; background: var(--primary-color, #850f0f); color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <i class="ph-bold ph-upload"></i> Upload & Store
+                    <button type="submit" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; border: none; background: #0284c7; color: #ffffff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-upload-simple"></i> Import History Records
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
     <script>
+        window.openHistoryImportModal = function () {
+            const modal = document.getElementById('historyImportModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                setTimeout(() => { modal.style.opacity = '1'; }, 10);
+            }
+        };
+
+        window.closeHistoryImportModal = function () {
+            const modal = document.getElementById('historyImportModal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 200);
+            }
+        };
+
         window.openDocUploadModal = function (bookingId, guestName) {
             const modal = document.getElementById('docUploadModal');
             const form = document.getElementById('docUploadForm');

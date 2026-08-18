@@ -943,8 +943,18 @@
                             $subtotal = $booking->total_price / $gstFactor;
                             $gstAmount = $booking->total_price - $subtotal;
                         @endphp
+                        @if(($booking->discount_amount ?? 0) > 0)
                         <div class="summary-row">
-                            <span>Subtotal</span>
+                            <span>Standard Base Price</span>
+                            <span style="text-decoration: line-through; color: #94a3b8;">₹{{ number_format($booking->original_price, 2) }}</span>
+                        </div>
+                        <div class="summary-row" style="color: #166534; font-weight: 700;">
+                            <span>Discount / Offer ({{ $booking->discount_reason ?: 'Special Offer' }})</span>
+                            <span>- ₹{{ number_format($booking->discount_amount, 2) }}</span>
+                        </div>
+                        @endif
+                        <div class="summary-row">
+                            <span>Net Subtotal</span>
                             <span>₹{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="summary-row">
@@ -1035,6 +1045,7 @@
                             $isPrincipalDone = in_array($booking->approval_status, ['Approved by Principal', 'Principal Approved', 'Approved']);
                             $principalName = $booking->principal_approved_by ?? 'Principal Office';
                             $principalTime = $booking->principal_approved_at ?? null;
+                            $pRemarks = $booking->approval_remarks ?? $booking->principal_remarks;
                         @endphp
                         <div class="timeline-item {{ $isPrincipalDone ? 'active' : '' }}">
                             <div class="timeline-point" style="{{ $isPrincipalDone ? 'background: #22c55e; border-color: #dcfce7;' : 'background: #cbd5e1;' }}"></div>
@@ -1044,6 +1055,11 @@
                                     <span style="color: #15803d; font-weight: 600;"><i class="ph-bold ph-check"></i> Approved by {{ $principalName }}</span>
                                     @if($principalTime)
                                         • {{ \Carbon\Carbon::parse($principalTime)->format('d M Y, h:i A') }}
+                                    @endif
+                                    @if(!empty($pRemarks))
+                                        <div style="font-size: 0.75rem; color: #166534; margin-top: 4px; background: #f0fdf4; padding: 6px 8px; border-radius: 6px; border: 1px solid #bbf7d0;">
+                                            <strong>Principal Remarks:</strong> {{ $pRemarks }}
+                                        </div>
                                     @endif
                                 @elseif($booking->approval_status === 'Rejected')
                                     <span style="color: #b91c1c; font-weight: 600;"><i class="ph-bold ph-x"></i> Rejected</span>
@@ -1113,6 +1129,21 @@
 
                         <form action="{{ route('admin.bookings.approve', $booking->id) }}" method="POST" onsubmit="event.preventDefault(); showConfirmModal('approve', this);">
                             @csrf
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                                <div style="font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <span><i class="ph-bold ph-tag" style="color: #0284c7;"></i> Special Discount / Offer</span>
+                                    <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">(Optional)</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                    <select name="discount_type" style="padding: 6px 8px; font-size: 0.78rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-weight: 600;">
+                                        <option value="amount">Fixed (₹)</option>
+                                        <option value="percentage">Percent (%)</option>
+                                    </select>
+                                    <input type="number" step="any" min="0" name="discount_value" placeholder="Discount Amount or %" style="flex: 1; padding: 6px 10px; font-size: 0.78rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                                </div>
+                                <input type="text" name="discount_reason" placeholder="Offer Reason (e.g. 10% College Concession)" style="width: 100%; padding: 6px 10px; font-size: 0.78rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                            </div>
+
                             <button type="submit" class="btn-approve" 
                                     style="width: 100%;"
                                     {{ $booking->approval_status === 'Pending' ? 'disabled' : '' }}>
@@ -1158,8 +1189,19 @@
                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                 <form action="{{ route('admin.bookings.resend', $booking->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn-approve" style="background: #3b82f6 !important; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3) !important;">
-                                        <i class="ph-bold ph-arrows-clockwise"></i> Resend Payment Link
+                                    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+                                        <div style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 6px;">Modify Discount / Offer (Optional):</div>
+                                        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                                            <select name="discount_type" style="padding: 4px 6px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-weight: 600;">
+                                                <option value="amount" {{ $booking->discount_type === 'amount' ? 'selected' : '' }}>Fixed (₹)</option>
+                                                <option value="percentage" {{ $booking->discount_type === 'percentage' ? 'selected' : '' }}>Percent (%)</option>
+                                            </select>
+                                            <input type="number" step="any" min="0" name="discount_value" value="{{ $booking->discount_value > 0 ? $booking->discount_value : '' }}" placeholder="Amount or %" style="flex: 1; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+                                        </div>
+                                        <input type="text" name="discount_reason" value="{{ $booking->discount_reason }}" placeholder="Offer Reason / Concession Note" style="width: 100%; padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+                                    </div>
+                                    <button type="submit" style="width: 100%; height: 38px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <i class="ph-bold ph-paper-plane-tilt"></i> Resend Payment Link
                                     </button>
                                 </form>
 

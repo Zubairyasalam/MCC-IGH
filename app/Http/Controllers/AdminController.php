@@ -431,15 +431,16 @@ class AdminController extends Controller
 
             // CSV Header Row
             fputcsv($handle, [
-                'Booking ID', 'Guest Name', 'Email', 'Phone', 'Nationality', 'Passport Number', 'Visa Number',
+                'Booking ID', 'Reference ID', 'Guest Name', 'Email', 'Phone', 'Nationality', 'Passport Number', 'Visa Number',
                 'Room / Space', 'Booking Date', 'Start Time', 'End Time',
-                'No. of Persons', 'User Type', 'Residence Status', 'Approval Status', 'Payment Status',
-                'Total Price (₹)', 'Payment ID', 'Submitted At'
+                'No. of Persons', 'User Type', 'Residence Status', 'Approval Status', 'Approval Remarks', 'Payment Status',
+                'Original Price (₹)', 'Discount Amount (₹)', 'Discount Reason / Offer', 'Final Price (₹)', 'Payment ID', 'Submitted At'
             ]);
 
             foreach ($bookings as $b) {
                 fputcsv($handle, [
                     $b->id,
+                    $b->reference_id ?? '',
                     $b->name,
                     $b->email,
                     $b->phone ?? '',
@@ -454,7 +455,11 @@ class AdminController extends Controller
                     $b->user_type ?? '',
                     $b->residence_status ? ucwords($b->residence_status) : '',
                     $b->approval_status,
+                    $b->approval_remarks ?? ($b->principal_remarks ?? ($b->rejection_reason ?? '')),
                     $b->payment_status,
+                    number_format(($b->original_price ?: $b->total_price), 2),
+                    number_format(($b->discount_amount ?? 0), 2),
+                    $b->discount_reason ?? '',
                     number_format($b->total_price, 2),
                     $b->razorpay_payment_id ?? '',
                     $b->created_at->format('d M Y, H:i'),
@@ -509,6 +514,116 @@ class AdminController extends Controller
         return view('admin.reports', compact('bookings', 'totalRevenue', 'netRevenue', 'totalGst', 'gstRate', 'preset', 'startDate', 'endDate'));
     }
 
+    public function importHistory(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|max:10240',
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->getRealPath(), 'r');
+
+        if (!$handle) {
+            return back()->with('error', 'Unable to open the uploaded file.');
+        }
+
+        // Read header row
+        $header = fgetcsv($handle);
+        if (!$header) {
+            fclose($handle);
+            return back()->with('error', 'The uploaded CSV file is empty.');
+        }
+
+        // Normalize header columns
+        $headerMap = [];
+        foreach ($header as $index => $colName) {
+            $cleanKey = strtolower(trim(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace([' ', '-'], '_', $colName))));
+            $headerMap[$cleanKey] = $index;
+        }
+
+        $helperGet = function($row, $keys, $default = null) use ($headerMap) {
+            foreach ((array)$keys as $k) {
+                $cleanK = strtolower(trim(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace([' ', '-'], '_', $k))));
+                if (array_key_exists($cleanK, $headerMap) && isset($row[$headerMap[$cleanK]])) {
+                    $val = trim($row[$headerMap[$cleanK]]);
+                    if ($val !== '') return $val;
+                }
+            }
+            return $default;
+        };
+
+        $importedCount = 0;
+        $errorsCount = 0;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            try {
+                $name = $helperGet($row, ['guest_name', 'name', 'primary_guest_name', 'guest'], 'Guest User');
+                $email = $helperGet($row, ['email', 'email_address'], 'guest@mccigh.com');
+                $phone = $helperGet($row, ['phone', 'mobile', 'contact'], 'N/A');
+                $roomName = $helperGet($row, ['room_name', 'room', 'room_type'], 'Guest Room');
+                
+                $rawDate = $helperGet($row, ['booking_date', 'date', 'check_in', 'checkin'], date('Y-m-d'));
+                try {
+                    $bookingDate = Carbon::parse($rawDate)->toDateString();
+                } catch (\Throwable $e) {
+                    $bookingDate = date('Y-m-d');
+                }
+
+                $startTime = $helperGet($row, ['start_time', 'check_in_time'], '10:00:00');
+                $endTime = $helperGet($row, ['end_time', 'check_out_time'], '12:00:00');
+                $userType = $helperGet($row, ['user_type', 'type'], 'Guest');
+                $nationality = $helperGet($row, ['nationality'], 'Indian');
+                $totalPrice = (float) preg_replace('/[^0-9.]/', '', $helperGet($row, ['total_price', 'price', 'amount'], '0'));
+                $paymentStatus = ucfirst(strtolower($helperGet($row, ['payment_status', 'payment'], 'Paid')));
+                $approvalStatus = ucfirst(strtolower($helperGet($row, ['approval_status', 'approval'], 'Approved')));
+                $referenceId = $helperGet($row, ['reference_id', 'ref_id', 'booking_id']);
+                $department = $helperGet($row, ['department', 'dept']);
+                $stream = $helperGet($row, ['stream']);
+                $bookingReason = $helperGet($row, ['booking_reason', 'reason']);
+                $approvalRemarks = $helperGet($row, ['approval_remarks', 'principal_remarks', 'remarks', 'notes']);
+
+                if (empty($referenceId)) {
+                    $referenceId = 'REF-' . strtoupper(bin2hex(random_bytes(3)));
+                }
+
+                Booking::create([
+                    'reference_id' => $referenceId,
+                    'name' => $name,
+                    'primary_guest_name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'room_name' => $roomName,
+                    'booking_date' => $bookingDate,
+                    'start_time' => strlen($startTime) === 5 ? $startTime . ':00' : $startTime,
+                    'end_time' => strlen($endTime) === 5 ? $endTime . ':00' : $endTime,
+                    'user_type' => $userType,
+                    'nationality' => $nationality,
+                    'total_price' => $totalPrice,
+                    'payment_status' => in_array($paymentStatus, ['Paid', 'Unpaid', 'Pending']) ? $paymentStatus : 'Paid',
+                    'approval_status' => in_array($approvalStatus, ['Approved', 'Pending', 'Rejected']) ? $approvalStatus : 'Approved',
+                    'department' => $department,
+                    'stream' => $stream,
+                    'booking_reason' => $bookingReason,
+                    'approval_remarks' => $approvalRemarks,
+                    'principal_remarks' => $approvalRemarks,
+                ]);
+
+                $importedCount++;
+            } catch (\Throwable $e) {
+                $errorsCount++;
+                \Illuminate\Support\Facades\Log::error('Failed to import row: ' . $e->getMessage());
+            }
+        }
+
+        fclose($handle);
+
+        return back()->with('success', "Historical data import completed successfully! {$importedCount} records imported." . ($errorsCount > 0 ? " ({$errorsCount} rows skipped due to formatting errors)" : ""));
+    }
+
     public function uploadDocument(Request $request, $id)
     {
         $request->validate([
@@ -548,7 +663,7 @@ class AdminController extends Controller
         return view('admin.booking_details', compact('booking', 'relatedBookings'));
     }
 
-    public function principalApprove($id)
+    public function principalApprove($id, Request $request)
     {
         $booking = Booking::findOrFail($id);
         $status = $booking->approval_status;
@@ -568,6 +683,18 @@ class AdminController extends Controller
             ]);
         }
 
+        // If GET request without explicit instant confirm query, show approval form with optional remarks field
+        if ($request->isMethod('get') && !$request->has('confirm')) {
+            return view('approval_status', [
+                'actionTitle' => 'Approve Booking (Principal)',
+                'booking' => $booking,
+                'alreadyReviewed' => false,
+                'showApproveForm' => true
+            ]);
+        }
+
+        $approvalRemarks = $request->input('approval_remarks') ?? $request->input('remarks');
+
         $updateData = ['approval_status' => 'Approved by Principal'];
         try {
             if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'principal_approved_by')) {
@@ -575,6 +702,14 @@ class AdminController extends Controller
             }
             if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'principal_approved_at')) {
                 $updateData['principal_approved_at'] = now();
+            }
+            if (!empty($approvalRemarks)) {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'approval_remarks')) {
+                    $updateData['approval_remarks'] = $approvalRemarks;
+                }
+                if (\Illuminate\Support\Facades\Schema::hasColumn('bookings', 'principal_remarks')) {
+                    $updateData['principal_remarks'] = $approvalRemarks;
+                }
             }
         } catch (\Throwable $e) {}
 
@@ -589,7 +724,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function adminApprove($id)
+    public function adminApprove(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
         
@@ -600,6 +735,10 @@ class AdminController extends Controller
         if ($booking->approval_status !== 'Principal Approved' && $booking->approval_status !== 'Approved by Principal' && $booking->approval_status !== 'Approved') {
             return back()->with('error', 'Strict Enforced: This booking must be approved by the Principal first.');
         }
+
+        // Apply any special discount / offer passed by Admin before creating payment link
+        $this->applyDiscountToBooking($booking, $request);
+        $booking->refresh();
 
         if ($booking->approval_status !== 'Approved') {
             $adminUser = Auth::user();
@@ -655,19 +794,23 @@ class AdminController extends Controller
         }
 
         if ($mailSent) {
-            return back()->with('success', 'Booking approved. Payment link has been sent to the guest.');
+            return back()->with('success', 'Booking approved. Payment link with applied discount/pricing has been sent to the guest.');
         }
 
         return back()->with('success', 'Booking approved successfully. (Guest notification email could not be sent, but booking is now approved.)');
     }
 
-    public function resendPaymentLink($id)
+    public function resendPaymentLink(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
         
         if ($booking->payment_status === 'Paid') {
             return back()->with('error', 'This booking is already paid.');
         }
+
+        // Apply discount / offer if specified
+        $this->applyDiscountToBooking($booking, $request);
+        $booking->refresh();
 
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('payment_links')) {
@@ -696,7 +839,40 @@ class AdminController extends Controller
             return back()->with('error', 'Failed to send payment link: ' . $e->getMessage());
         }
 
-        return back()->with('success', 'A new payment link has been sent to the guest.');
+        return back()->with('success', 'A new payment link with updated pricing has been sent to the guest.');
+    }
+
+    private function applyDiscountToBooking(Booking $booking, Request $request)
+    {
+        $discountValue = (float) $request->input('discount_value', 0);
+        $discountType = $request->input('discount_type', 'amount');
+        $discountReason = $request->input('discount_reason');
+
+        if ($discountValue > 0) {
+            $basePrice = (float) ($booking->original_price ?: $booking->total_price);
+            
+            $related = Booking::where('reference_id', $booking->reference_id)->get();
+            if ($related->isEmpty()) {
+                $related = collect([$booking]);
+            }
+
+            foreach ($related as $rel) {
+                $relBase = (float) ($rel->original_price ?: $rel->total_price);
+                $relDiscount = ($discountType === 'percentage') 
+                    ? (($relBase * $discountValue) / 100.0) 
+                    : min($relBase, $discountValue);
+                $relFinal = max(0.0, $relBase - $relDiscount);
+
+                $rel->update([
+                    'original_price' => $relBase,
+                    'discount_type' => $discountType,
+                    'discount_value' => $discountValue,
+                    'discount_amount' => $relDiscount,
+                    'discount_reason' => $discountReason ?: 'Special Offer / Concession',
+                    'total_price' => $relFinal,
+                ]);
+            }
+        }
     }
 
     private function applyMailConfig()

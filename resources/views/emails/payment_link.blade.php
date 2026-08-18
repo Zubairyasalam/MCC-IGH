@@ -64,11 +64,21 @@
                             <td class="detail-label" style="padding-bottom: 8px;">Time:</td>
                             <td class="detail-value" style="padding-bottom: 8px; text-align: right;">{{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</td>
                         </tr>
+                        @if(($booking->discount_amount ?? 0) > 0)
+                        <tr>
+                            <td class="detail-label" style="padding-bottom: 8px;">Standard Price:</td>
+                            <td class="detail-value" style="padding-bottom: 8px; text-align: right; text-decoration: line-through; color: #94a3b8;">₹{{ number_format($booking->original_price, 2) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label" style="padding-bottom: 8px; color: #166534; font-weight: 700;">Discount / Special Offer:</td>
+                            <td class="detail-value" style="padding-bottom: 8px; text-align: right; color: #166534; font-weight: 700;">- ₹{{ number_format($booking->discount_amount, 2) }} ({{ $booking->discount_reason ?: 'Special Offer' }})</td>
+                        </tr>
+                        @endif
                         <tr>
                             <td colspan="2" style="border-top: 1px dashed #cbd5e1; padding-top: 12px;">
                                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                     <tr>
-                                        <td style="font-size: 16px; font-weight: 700; color: {{ $primaryColor }};">Total Amount:</td>
+                                        <td style="font-size: 16px; font-weight: 700; color: {{ $primaryColor }};">Final Payable Amount:</td>
                                         <td style="font-size: 16px; font-weight: 700; color: {{ $primaryColor }}; text-align: right;">₹{{ number_format($booking->total_price, 2) }}</td>
                                     </tr>
                                 </table>

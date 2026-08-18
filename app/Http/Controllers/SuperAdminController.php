@@ -480,4 +480,9 @@ class SuperAdminController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function importHistory(Request $request)
+    {
+        return app(\App\Http\Controllers\AdminController::class)->importHistory($request);
+    }
 }

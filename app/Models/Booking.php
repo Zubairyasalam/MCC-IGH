@@ -17,7 +17,8 @@ class Booking extends Model
         'primary_guest_name', 'no_of_persons', 'passport_number', 'visa_number', 'referral_attachment', 'admin_document', 'is_admin_read', 'booking_reason', 'residence_status', 'hall_name', 'reference_id', 'passport_visa_attachment', 'passport_attachment', 'visa_attachment', 'rejection_reason',
         'hod_approved_by', 'hod_approved_at', 'warden_approved_by', 'warden_approved_at',
         'principal_approved_by', 'principal_approved_at', 'admin_approved_by', 'admin_approved_at',
-        'rejected_by', 'rejected_at'
+        'rejected_by', 'rejected_at', 'approval_remarks', 'principal_remarks',
+        'discount_type', 'discount_value', 'original_price', 'discount_amount', 'discount_reason'
     ];
 
     protected $casts = [
