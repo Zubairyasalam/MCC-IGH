@@ -16,11 +16,13 @@ class PayUService
     {
         $statusSetting = \App\Models\Setting::where('key', 'payu_status')->value('value');
         $testModeSetting = \App\Models\Setting::where('key', 'payu_test_mode')->value('value');
+        
+        $testKeySetting = \App\Models\Setting::where('key', 'payu_test_merchant_key')->value('value');
+        $testSaltSetting = \App\Models\Setting::where('key', 'payu_test_merchant_salt')->value('value');
+        $prodKeySetting = \App\Models\Setting::where('key', 'payu_prod_merchant_key')->value('value');
+        $prodSaltSetting = \App\Models\Setting::where('key', 'payu_prod_merchant_salt')->value('value');
         $keySetting = \App\Models\Setting::where('key', 'payu_merchant_key')->value('value');
         $saltSetting = \App\Models\Setting::where('key', 'payu_merchant_salt')->value('value');
-
-        $this->key = !empty($keySetting) ? trim($keySetting) : (config('services.payu.key') ?: env('PAYU_MERCHANT_KEY'));
-        $this->salt = !empty($saltSetting) ? trim($saltSetting) : (config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT'));
 
         if ($testModeSetting !== null) {
             $isTest = in_array(strtolower(trim($testModeSetting)), ['active', '1', 'test', 'true']);
@@ -28,6 +30,17 @@ class PayUService
         } else {
             $this->mode = config('services.payu.mode') ?: env('PAYU_MODE', 'production');
         }
+
+        if ($this->mode === 'test') {
+            $keyToUse = !empty($testKeySetting) ? $testKeySetting : (!empty($keySetting) ? $keySetting : (config('services.payu.key') ?: env('PAYU_MERCHANT_KEY')));
+            $saltToUse = !empty($testSaltSetting) ? $testSaltSetting : (!empty($saltSetting) ? $saltSetting : (config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT')));
+        } else {
+            $keyToUse = !empty($prodKeySetting) ? $prodKeySetting : (!empty($keySetting) ? $keySetting : (config('services.payu.key') ?: env('PAYU_MERCHANT_KEY')));
+            $saltToUse = !empty($prodSaltSetting) ? $prodSaltSetting : (!empty($saltSetting) ? $saltSetting : (config('services.payu.salt') ?: env('PAYU_MERCHANT_SALT')));
+        }
+
+        $this->key = !empty($keyToUse) ? trim($keyToUse) : null;
+        $this->salt = !empty($saltToUse) ? trim($saltToUse) : null;
 
         $this->url = $this->mode === 'production' 
             ? (config('services.payu.production_url') ?: env('PAYU_PRODUCTION_URL', 'https://secure.payu.in/_payment')) 

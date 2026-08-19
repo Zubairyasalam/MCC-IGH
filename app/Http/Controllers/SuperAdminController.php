@@ -186,13 +186,17 @@ class SuperAdminController extends Controller
             'whatsapp_sender'     => 'nullable|string',
             'whatsapp_sid'        => 'nullable|string',
             'whatsapp_token'      => 'nullable|string',
-            'payu_status'         => 'nullable|string',
-            'payu_test_mode'      => 'nullable|string',
-            'payu_merchant_key'   => 'nullable|string',
-            'payu_merchant_salt'  => 'nullable|string',
-            'superadmin_name'     => 'nullable|string|max:255',
-            'superadmin_email'    => 'nullable|email|max:255',
-            'superadmin_password' => 'nullable|string|min:6',
+            'payu_status'             => 'nullable|string',
+            'payu_test_mode'          => 'nullable|string',
+            'payu_merchant_key'       => 'nullable|string',
+            'payu_merchant_salt'      => 'nullable|string',
+            'payu_test_merchant_key'  => 'nullable|string',
+            'payu_test_merchant_salt' => 'nullable|string',
+            'payu_prod_merchant_key'  => 'nullable|string',
+            'payu_prod_merchant_salt' => 'nullable|string',
+            'superadmin_name'         => 'nullable|string|max:255',
+            'superadmin_email'        => 'nullable|email|max:255',
+            'superadmin_password'     => 'nullable|string|min:6',
         ]);
 
         // Update SuperAdmin Account Credentials if provided
@@ -227,10 +231,25 @@ class SuperAdminController extends Controller
         Setting::updateOrCreate(['key' => 'gst_rate'],            ['value' => $request->gst_rate ?? '5']);
 
         // PayU Settings
-        Setting::updateOrCreate(['key' => 'payu_status'],        ['value' => $request->payu_status ?? 'active']);
-        Setting::updateOrCreate(['key' => 'payu_test_mode'],     ['value' => $request->payu_test_mode ?? 'deactive']);
-        Setting::updateOrCreate(['key' => 'payu_merchant_key'],  ['value' => trim($request->payu_merchant_key ?? '')]);
-        Setting::updateOrCreate(['key' => 'payu_merchant_salt'], ['value' => trim($request->payu_merchant_salt ?? '')]);
+        $testMode = $request->payu_test_mode ?? 'deactive';
+        $isTest = ($testMode === 'active' || $testMode === '1' || $testMode === 'test');
+        
+        $prodKey  = trim($request->payu_prod_merchant_key ?? '');
+        $prodSalt = trim($request->payu_prod_merchant_salt ?? '');
+        $testKey  = trim($request->payu_test_merchant_key ?? '');
+        $testSalt = trim($request->payu_test_merchant_salt ?? '');
+
+        $activeKey  = $isTest ? ($testKey ?: trim($request->payu_merchant_key ?? '')) : ($prodKey ?: trim($request->payu_merchant_key ?? ''));
+        $activeSalt = $isTest ? ($testSalt ?: trim($request->payu_merchant_salt ?? '')) : ($prodSalt ?: trim($request->payu_merchant_salt ?? ''));
+
+        Setting::updateOrCreate(['key' => 'payu_status'],             ['value' => $request->payu_status ?? 'active']);
+        Setting::updateOrCreate(['key' => 'payu_test_mode'],          ['value' => $testMode]);
+        Setting::updateOrCreate(['key' => 'payu_merchant_key'],       ['value' => $activeKey]);
+        Setting::updateOrCreate(['key' => 'payu_merchant_salt'],      ['value' => $activeSalt]);
+        Setting::updateOrCreate(['key' => 'payu_test_merchant_key'],  ['value' => $testKey]);
+        Setting::updateOrCreate(['key' => 'payu_test_merchant_salt'], ['value' => $testSalt]);
+        Setting::updateOrCreate(['key' => 'payu_prod_merchant_key'],  ['value' => $prodKey]);
+        Setting::updateOrCreate(['key' => 'payu_prod_merchant_salt'], ['value' => $prodSalt]);
 
         // Save Per-Department and Per-Hall Maps
         if ($request->has('hod_emails') && is_array($request->hod_emails)) {

@@ -1415,16 +1415,35 @@ class AdminController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'payu_status'        => 'nullable|string',
-            'payu_test_mode'     => 'nullable|string',
-            'payu_merchant_key'  => 'nullable|string',
-            'payu_merchant_salt' => 'nullable|string',
+            'payu_status'             => 'nullable|string',
+            'payu_test_mode'          => 'nullable|string',
+            'payu_merchant_key'       => 'nullable|string',
+            'payu_merchant_salt'      => 'nullable|string',
+            'payu_test_merchant_key'  => 'nullable|string',
+            'payu_test_merchant_salt' => 'nullable|string',
+            'payu_prod_merchant_key'  => 'nullable|string',
+            'payu_prod_merchant_salt' => 'nullable|string',
         ]);
 
-        \App\Models\Setting::updateOrCreate(['key' => 'payu_status'],        ['value' => $request->payu_status ?? 'active']);
-        \App\Models\Setting::updateOrCreate(['key' => 'payu_test_mode'],     ['value' => $request->payu_test_mode ?? 'deactive']);
-        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_key'],  ['value' => trim($request->payu_merchant_key ?? '')]);
-        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_salt'], ['value' => trim($request->payu_merchant_salt ?? '')]);
+        $testMode = $request->payu_test_mode ?? 'deactive';
+        $isTest = ($testMode === 'active' || $testMode === '1' || $testMode === 'test');
+        
+        $prodKey  = trim($request->payu_prod_merchant_key ?? '');
+        $prodSalt = trim($request->payu_prod_merchant_salt ?? '');
+        $testKey  = trim($request->payu_test_merchant_key ?? '');
+        $testSalt = trim($request->payu_test_merchant_salt ?? '');
+
+        $activeKey  = $isTest ? ($testKey ?: trim($request->payu_merchant_key ?? '')) : ($prodKey ?: trim($request->payu_merchant_key ?? ''));
+        $activeSalt = $isTest ? ($testSalt ?: trim($request->payu_merchant_salt ?? '')) : ($prodSalt ?: trim($request->payu_merchant_salt ?? ''));
+
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_status'],             ['value' => $request->payu_status ?? 'active']);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_test_mode'],          ['value' => $testMode]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_key'],       ['value' => $activeKey]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_merchant_salt'],      ['value' => $activeSalt]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_test_merchant_key'],  ['value' => $testKey]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_test_merchant_salt'], ['value' => $testSalt]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_prod_merchant_key'],  ['value' => $prodKey]);
+        \App\Models\Setting::updateOrCreate(['key' => 'payu_prod_merchant_salt'], ['value' => $prodSalt]);
 
         return redirect()->back()->with('success', 'PayU Payment Gateway settings updated successfully.');
     }
