@@ -57,8 +57,8 @@ class PaymentController extends Controller
         $booking = $link->booking;
         $txnid = 'TXN_' . strtoupper(uniqid());
 
-        // Enforce minimum 10.00 for PayU Live transaction limits
-        $amountToPay = max(10.00, (float)$booking->total_price);
+        // Allow any price down to 1.00 rupee for testing and discounts
+        $amountToPay = max(1.00, (float)$booking->total_price);
 
         // Create transaction intent
         $payment = Payment::create([

@@ -43,12 +43,24 @@
         p { color: #64748b; margin-top: 1rem; font-weight: 500; }
     </style>
     @include('partials.dynamic-styles')
+    <script>
+        let isSubmitted = false;
+        function submitForm() {
+            if (!isSubmitted) {
+                isSubmitted = true;
+                document.paymentForm.submit();
+            }
+        }
+    </script>
 </head>
-<body onload="setTimeout(() => document.paymentForm.submit(), 1500);">
+<body onload="setTimeout(submitForm, 1000);">
     <div class="loader-container">
         <div class="spinner"></div>
         <h2>Establishing Secure Connection</h2>
         <p>Redirecting to PayU payment gateway...</p>
+        <button type="button" onclick="submitForm()" style="margin-top: 1rem; padding: 8px 16px; background: #850f0f; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            Click here if not redirected automatically
+        </button>
         <div style="margin-top: 2rem; opacity: 0.6;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 26" fill="none" height="18">
                 <path d="M10.8 25.1c-6 0-10.8-4.8-10.8-10.8V0h10.8v14.3c0 .5.4.9.9.9h7.3v9.9h-8.2z" fill="#A4C639"/>
