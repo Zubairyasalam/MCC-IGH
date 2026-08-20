@@ -616,11 +616,15 @@
             <!-- Room Grid -->
             <div class="rooms-grid">
                 @for ($i = 1; $i <= 8; $i++)
+                    @php
+                        $isBooked = isset($bookedRooms["Standard Room " . $i]) || isset($bookedRooms["Room " . $i]) || isset($bookedRooms[(string)$i]);
+                        $bookedInfo = $bookedRooms["Standard Room " . $i] ?? $bookedRooms["Room " . $i] ?? $bookedRooms[(string)$i] ?? null;
+                    @endphp
                     <div class="card" data-name="Standard Room {{ $i }}">
                         <div class="card-image-wrapper">
                             <img src="{{ asset('assets/standard/standardroom.JPG') }}"
                                 alt="Standard Room {{ $i }}">
-                            @if(isset($bookedRooms["Standard Room " . $i]))
+                            @if($isBooked)
                                 <span class="badge" style="background:#dc3545; color: white;">Booked</span>
                             @else
                                 <span class="badge status-available">Available</span>
@@ -652,11 +656,11 @@
                                 <p class="features-footer">Best for short and budget-friendly stays</p>
                             </div>
 
-                            @if(isset($bookedRooms["Standard Room " . $i]))
+                            @if($isBooked && $bookedInfo)
                                 <div class="next-available">
                                     <p>
                                         <i class="ph-bold ph-clock-countdown"></i> Next Available:<br>
-                                        {{ date('d M, Y', strtotime($bookedRooms["Standard Room " . $i]['date'])) }} at {{ date('h:i A', strtotime($bookedRooms["Standard Room " . $i]['time'])) }}
+                                        {{ date('d M, Y', strtotime($bookedInfo['date'])) }} at {{ date('h:i A', strtotime($bookedInfo['time'])) }}
                                     </p>
                                 </div>
                             @else
@@ -670,7 +674,7 @@
                             </a>
 
                             <div class="card-actions" style="display: flex; gap: 8px;">
-                                @if(isset($bookedRooms["Standard Room " . $i]))
+                                @if($isBooked)
                                     <a href="javascript:void(0)" class="btn"
                                         style="flex: 1; background: #bc8e8e; border-color: #bc8e8e; cursor: not-allowed; opacity: 0.8; justify-content: center;">Booked</a>
                                 @else

@@ -151,10 +151,7 @@ class AdminController extends Controller
         // Real Website Room & Space Availability Status (for selected date)
         $allRoomsList = [
             'Standard Rooms' => [
-                'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5',
-                'Room 6', 'Room 7', 'Room 8', 'Room 9', 'Room 10',
-                'Room 11', 'Room 12', 'Room 13', 'Room 14', 'Room 15',
-                'Room 16', 'Room 17', 'Room 18', 'Room 19', 'Room 20'
+                'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5', 'Room 6', 'Room 7', 'Room 8'
             ],
             'Advance Rooms' => [
                 'Room 101', 'Room 102', 'Room 103', 'Room 104',
@@ -234,7 +231,7 @@ class AdminController extends Controller
                     // 4. Generic unnumbered room booking fallback
                     if (!$matchingBooking && !in_array($b->id, $assignedGenericBookingIds)) {
                         $bLowerAll = strtolower($bRoomRaw);
-                        if (str_contains($rNameLower, 'standard') || ($rNum !== null && $rNum <= 20)) {
+                        if (str_contains($rNameLower, 'standard') || ($rNum !== null && $rNum <= 8)) {
                             if (str_contains($bLowerAll, 'standard')) {
                                 $matchingBooking = $b;
                                 $assignedGenericBookingIds[] = $b->id;
