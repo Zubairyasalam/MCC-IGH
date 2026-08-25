@@ -57,8 +57,8 @@ class PaymentController extends Controller
         $booking = $link->booking;
         $txnid = 'TXN_' . strtoupper(uniqid());
 
-        // Allow any price down to 1.00 rupee for testing and discounts
-        $amountToPay = max(1.00, (float)$booking->total_price);
+        // Ensure exact 2 decimal floating point representation (e.g. 1.00)
+        $amountToPay = number_format(max(1.00, (float)$booking->total_price), 2, '.', '');
 
         // Create transaction intent
         $payment = Payment::create([
@@ -77,7 +77,7 @@ class PaymentController extends Controller
 
         $params = [
             'txnid' => $txnid,
-            'amount' => number_format($amountToPay, 2, '.', ''),
+            'amount' => $amountToPay,
             'productinfo' => 'Booking #' . $booking->id . ' - ' . $booking->room_name,
             'firstname' => $booking->name,
             'email' => $booking->email,

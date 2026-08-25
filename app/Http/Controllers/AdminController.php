@@ -845,16 +845,18 @@ class AdminController extends Controller
         $discountType = $request->input('discount_type', 'amount');
         $discountReason = $request->input('discount_reason');
 
-        if ($discountValue > 0) {
-            $basePrice = (float) ($booking->original_price ?: $booking->total_price);
-            
-            $related = Booking::where('reference_id', $booking->reference_id)->get();
-            if ($related->isEmpty()) {
-                $related = collect([$booking]);
-            }
+        $related = !empty($booking->reference_id)
+            ? Booking::where('reference_id', $booking->reference_id)->get()
+            : collect([$booking]);
 
-            foreach ($related as $rel) {
-                $relBase = (float) ($rel->original_price ?: $rel->total_price);
+        if ($related->isEmpty()) {
+            $related = collect([$booking]);
+        }
+
+        foreach ($related as $rel) {
+            $relBase = (float) ($rel->original_price > 0 ? $rel->original_price : $rel->total_price);
+
+            if ($discountValue > 0) {
                 $relDiscount = ($discountType === 'percentage') 
                     ? (($relBase * $discountValue) / 100.0) 
                     : min($relBase, $discountValue);
