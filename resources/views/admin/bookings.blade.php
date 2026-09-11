@@ -542,7 +542,7 @@
                 <i class="ph ph-file-text"></i> Reports
             </a>
             <a href="{{ route('admin.settings') }}" class="menu-item {{ Route::is('admin.settings') ? 'active' : '' }}">
-                <i class="ph ph-credit-card"></i> Payment Settings
+                <i class="ph ph-gear"></i> Admin & Payment Settings
             </a>
             <a href="{{ route('home') }}" class="menu-item" target="_blank" rel="noopener noreferrer">
                 <i class="ph ph-globe"></i> Visit Website
