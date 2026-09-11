@@ -1446,4 +1446,26 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'PayU Payment Gateway settings updated successfully.');
     }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password'     => 'required|string|min:6|confirmed',
+        ], [
+            'new_password.confirmed' => 'New password confirmation does not match.',
+            'new_password.min'       => 'New password must be at least 6 characters.',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->with('password_error', 'Current password does not match our records.');
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
+        $user->save();
+
+        return redirect()->back()->with('password_success', 'Admin password has been reset successfully!');
+    }
 }

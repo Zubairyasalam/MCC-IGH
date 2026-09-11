@@ -158,7 +158,7 @@
                 <i class="ph ph-file-text"></i> Reports
             </a>
             <a href="{{ route('admin.settings') }}" class="menu-item {{ Route::is('admin.settings') ? 'active' : '' }}">
-                <i class="ph ph-credit-card"></i> Payment Settings
+                <i class="ph ph-gear"></i> Admin & Payment Settings
             </a>
             <a href="{{ route('home') }}" class="menu-item" target="_blank" rel="noopener noreferrer">
                 <i class="ph ph-globe"></i> Visit Website
@@ -177,8 +177,8 @@
     <main class="admin-main">
         <div class="top-navbar">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <i class="ph-bold ph-credit-card" style="font-size: 1.35rem; color: var(--primary-color);"></i>
-                <span style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Payment Gateway Settings</span>
+                <i class="ph-bold ph-gear" style="font-size: 1.35rem; color: var(--primary-color);"></i>
+                <span style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Admin & System Settings</span>
             </div>
             <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
                 {{ now()->format('d M Y') }}
@@ -190,6 +190,77 @@
                 <i class="ph-bold ph-check-circle" style="font-size: 1.2rem;"></i> {{ session('success') }}
             </div>
         @endif
+
+        <!-- Admin Reset Password Card -->
+        <div style="background: #ffffff; border-radius: 20px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: var(--card-shadow); max-width: 900px; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="ph-bold ph-lock-key" style="color: var(--primary-color);"></i> Reset Admin Password
+                    </h2>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0;">Change and update your admin account login password securely.</p>
+                </div>
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">
+                    <i class="ph-bold ph-user-circle"></i> Logged in as: {{ Auth::user()->name ?? 'Admin' }} ({{ Auth::user()->email ?? '' }})
+                </span>
+            </div>
+
+            @if(session('password_success'))
+                <div class="alert-success" style="margin-bottom: 1.5rem;">
+                    <i class="ph-bold ph-check-circle" style="font-size: 1.2rem;"></i> {{ session('password_success') }}
+                </div>
+            @endif
+
+            @if(session('password_error'))
+                <div style="background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; border: 1px solid #fecaca;">
+                    <i class="ph-bold ph-warning-circle" style="font-size: 1.2rem;"></i> {{ session('password_error') }}
+                </div>
+            @endif
+
+            @if($errors->has('current_password') || $errors->has('new_password'))
+                <div style="background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; font-size: 0.88rem; border: 1px solid #fecaca;">
+                    @foreach($errors->all() as $err)
+                        <div style="display: flex; align-items: center; gap: 6px;"><i class="ph-bold ph-warning"></i> {{ $err }}</div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form action="{{ route('admin.settings.password') }}" method="POST">
+                @csrf
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Current Password -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; display: block;">Current Password</label>
+                        <div style="position: relative;">
+                            <input type="password" name="current_password" id="current_password" required placeholder="Enter current password" style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem;">
+                            <i class="ph-bold ph-eye" onclick="togglePassVisibility('current_password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; display: block;">New Password</label>
+                        <div style="position: relative;">
+                            <input type="password" name="new_password" id="new_password" required placeholder="Min. 6 characters" style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem;">
+                            <i class="ph-bold ph-eye" onclick="togglePassVisibility('new_password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; display: block;">Confirm New Password</label>
+                        <div style="position: relative;">
+                            <input type="password" name="new_password_confirmation" id="new_password_confirmation" required placeholder="Re-enter new password" style="width: 100%; padding: 0.75rem 2.5rem 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem;">
+                            <i class="ph-bold ph-eye" onclick="togglePassVisibility('new_password_confirmation', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #64748b; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save" style="background: #1e293b;">
+                    <i class="ph-bold ph-shield-check"></i> Reset Password
+                </button>
+            </form>
+        </div>
 
         <div class="payu-setting-card" style="background: #ffffff; border-radius: 20px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: var(--card-shadow); max-width: 900px;">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
@@ -325,6 +396,20 @@
     </main>
 
     <script>
+        function togglePassVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('ph-eye');
+                icon.classList.add('ph-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('ph-eye-slash');
+                icon.classList.add('ph-eye');
+            }
+        }
+
         function updatePayUStatusUI(status) {
             const badge = document.getElementById('payuOverallStatusBadge');
             if (!badge) return;

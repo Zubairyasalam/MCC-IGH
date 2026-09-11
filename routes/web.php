@@ -123,9 +123,10 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::post('/college-guest', [AdminController::class, 'storeCollegeGuestBooking'])->name('admin.college-guest.store');
     Route::post('/college-guest/check-availability', [AdminController::class, 'checkAvailability'])->name('admin.college-guest.check-availability');
 
-    // Payment Settings (PayU)
+    // Payment & Security Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+    Route::post('/settings/password', [AdminController::class, 'updatePassword'])->name('admin.settings.password');
 });
 
 // These routes are now public for one-click approval from email
