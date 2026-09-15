@@ -724,8 +724,8 @@
             ],
             'glass-room' => [
                 'name' => 'Glass Room',
-                'price' => 1500,
-                'price_formatted' => '₹1,500',
+                'price' => 2000,
+                'price_formatted' => '₹2,000',
                 'time' => '/ 4 Hours',
                 'capacity_num' => 15,
                 'capacity' => '15 Members',
@@ -734,9 +734,9 @@
             ],
             'suite-room' => [
                 'name' => 'Luxury Suite Room',
-                'price' => 4500,
-                'price_formatted' => '₹4,500',
-                'time' => '/ Day',
+                'price' => 2000,
+                'price_formatted' => '₹2,000',
+                'time' => '/ 4 Hours',
                 'capacity_num' => 2,
                 'capacity' => '2 Members',
                 'img' => asset('assets/suite.JPG'),
@@ -826,7 +826,7 @@
                         </div>
                         @endif
 
-                        <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data" onsubmit="if(this.dataset.submitted) return false; this.dataset.submitted = 'true'; const btn = this.querySelector('button[type=\'submit\']'); if(btn){ btn.disabled = true; btn.innerText = 'Submitting Booking...'; }">
                             @csrf
                             <input type="hidden" name="room_name" id="hiddenRoomNameInput" value="{{ $roomId }}">
 
@@ -1780,15 +1780,26 @@
                 if (rName.includes('test')) {
                     subtotal += 1;
                     hasTestRoom = true;
+                } else if (rName.includes('standard') || rRateType.includes('12')) {
+                    const blocks = Math.max(1, Math.ceil(durationHours / 12.0));
+                    subtotal += blocks * 1400;
+                } else if (rName.includes('conference') || rCategory.includes('conference') || rName.includes('glass')) {
+                    if (durationHours <= 4.0) {
+                        subtotal += 2000;
+                    } else {
+                        const days = Math.max(1, Math.ceil(durationHours / 24.0));
+                        subtotal += days * 8000;
+                    }
+                } else if (rName.includes('suite') || rName.includes('202')) {
+                    if (durationHours <= 4.0) {
+                        subtotal += 2000;
+                    } else {
+                        const days = Math.max(1, Math.ceil(durationHours / 24.0));
+                        subtotal += days * 3000;
+                    }
                 } else if (rRateType.includes('day') || rCategory.includes('executive') || rCategory.includes('advance') || !isNaN(item.name)) {
                     const days = Math.max(1, Math.ceil(durationHours / 24.0));
                     subtotal += days * 2500;
-                } else if (rRateType.includes('12') || rName.includes('standard')) {
-                    const blocks = Math.max(1, Math.ceil(durationHours / 12.0));
-                    subtotal += blocks * 1400;
-                } else if (rRateType.includes('4') || rCategory.includes('conference') || rName.includes('conference') || rName.includes('glass') || rName.includes('suite')) {
-                    const billableHours = Math.max(4, Math.ceil(durationHours));
-                    subtotal += billableHours * 500;
                 } else {
                     subtotal += (parseFloat(item.price) || 2000);
                 }

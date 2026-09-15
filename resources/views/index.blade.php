@@ -1002,8 +1002,9 @@
                 </div>
             </div>
 
+            @php $gstRate = \App\Models\Setting::where('key', 'gst_rate')->value('value') ?? 5; @endphp
             <div class="bw-footer">
-                <div class="bw-info">+ 5.8% GST applicable on all bookings</div>
+                <div class="bw-info">+ {{ $gstRate }}% GST applicable on all bookings</div>
                 <a href="#" class="bw-btn">Check availability &rarr;</a>
             </div>
         </div>
@@ -1069,8 +1070,8 @@
                                     'badgeClass' => 'conference-badge',
                                     'image' => asset('assets/standard/conference.JPG'),
                                     'title' => 'Conference Room',
-                                    'price' => '₹500',
-                                    'period' => 'Hour (Min 4h)',
+                                    'price' => '₹2,000',
+                                    'period' => 'Up to 4h (₹8,000/day >4h)',
                                     'desc' => 'Versatile venue for large-scale gatherings and corporate events with professional projection and sound.',
                                     'route' => 'conference.rooms',
                                     'btnText' => 'EXPLORE HALLS',
@@ -1085,8 +1086,8 @@
                                     'badgeClass' => 'conference-badge',
                                     'image' => asset('assets/standard/glass.JPG'),
                                     'title' => 'Glass Room',
-                                    'price' => '₹500',
-                                    'period' => 'Hour (Min 4h)',
+                                    'price' => '₹2,000',
+                                    'period' => 'Up to 4h (₹8,000/day >4h)',
                                     'desc' => 'Inspire creativity in our modern Glass Room, designed for collaborative brainstorming and focused team sessions.',
                                     'route' => 'conference.rooms',
                                     'btnText' => 'EXPLORE HALLS',
@@ -1101,8 +1102,8 @@
                                     'badgeClass' => 'suite-badge',
                                     'image' => asset('assets/suite.JPG'),
                                     'title' => 'Suite Room',
-                                    'price' => '₹500',
-                                    'period' => 'Hour (Min 4h)',
+                                    'price' => '₹2,000',
+                                    'period' => 'Up to 4h (₹3,000/day >4h)',
                                     'desc' => 'Flagship Suite Room offering the pinnacle of luxury, featuring a grand king-size bed and premium toiletries.',
                                     'route' => 'conference.rooms',
                                     'btnText' => 'EXPLORE SUITE',
@@ -1393,6 +1394,30 @@
 
                         <div class="card-btn-wrapper">
                             <a href="{{ route('conference.rooms') }}" class="btn btn-outline view-details-btn">
+                                VIEW DETAILS
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suite Room -->
+                <div class="card premium-card">
+                    <div class="card-image-wrapper">
+                        <img src="{{ asset('assets/suite.JPG') }}" alt="Suite Room">
+                        <span class="badge suite-badge" style="position: absolute; top: 1rem; left: 1rem; z-index: 5; background: #850f0f; color: #ffffff; font-weight: 700; padding: 6px 12px; border-radius: 4px; font-size: 0.7rem; letter-spacing: 0.8px; text-transform: uppercase; box-shadow: none; font-family: 'Inter', sans-serif;">LUXURY SUITE</span>
+                    </div>
+                    <div class="card-content">
+                        <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--primary-color); margin: 0 0 0.6rem 0; font-family: 'Outfit', sans-serif;">Suite Room</h2>
+                        <p class="description">Our flagship Suite Room offers the pinnacle of luxury, featuring a grand king-size bed and premium toiletries for ultimate comfort.</p>
+
+                        <div style="margin-bottom: 1.25rem;">
+                            <span class="gst-tag" style="font-size: 0.72rem; color: #15803d; background: #eafaf1; padding: 5px 10px; border-radius: 4px; font-weight: 700; display: inline-block; font-family: 'Inter', sans-serif;">
+                                + {{ $gstRate }}% GST applicable
+                            </span>
+                        </div>
+
+                        <div class="card-btn-wrapper">
+                            <a href="{{ route('room.details', ['id' => 'suite-room', 'category' => 'conference']) }}" class="btn btn-outline view-details-btn">
                                 VIEW DETAILS
                             </a>
                         </div>

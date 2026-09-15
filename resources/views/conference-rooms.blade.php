@@ -795,6 +795,9 @@
                                 <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-light);">for </span>
                                 <span id="time-text-{{ $roomId }}" style="font-size: 0.85rem; font-weight: 500; color: var(--text-light);">4 hours</span>
                             </div>
+                            <p style="font-size: 0.78rem; font-weight: 600; color: var(--primary-color); margin-top: 2px; margin-bottom: 4px;">
+                                {{ $room['name'] === 'Suite Room' ? 'Exceeding 4 hours: ₹3,000 per day' : 'Exceeding 4 hours: ₹8,000 per day' }}
+                            </p>
                             <p class="gst-text"><i class="ph-bold ph-info" style="font-size: 0.85rem; margin-right: 4px; opacity: 0.85;"></i> + {{ $gstRate }}% GST applicable</p>
                         </div>
                         

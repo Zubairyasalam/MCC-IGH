@@ -1206,8 +1206,8 @@
 
     @media (min-width: 1024px) {
         .dashboard-rooms-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 24px !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 20px !important;
         }
     }
 

@@ -118,10 +118,26 @@ class BookingController extends Controller
                     // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day (or fraction)
                     $days = (int) ceil($durationHours / 24.0);
                     $basePrice += max(1, $days) * 2500;
-                } elseif (in_array($normR, ['conference-hall', 'conference-room', 'glass-room', 'suite-room']) || str_contains($normR, 'conference') || str_contains($normR, 'glass') || str_contains($normR, 'suite')) {
-                    // Special Facility Rooms: ₹500 per hour (Minimum 4 hours = ₹2000)
-                    $billableHours = max(4, (int) ceil($durationHours));
-                    $basePrice += $billableHours * 500;
+                } elseif (str_contains($normR, 'conference') || str_contains($normR, 'glass')) {
+                    // Conference Room / Glass Room: Up to 4 hours: ₹2,000; Exceeds 4 hours: ₹8,000/day
+                    if ($durationHours <= 4.0) {
+                        $basePrice += 2000;
+                    } else {
+                        $days = (int) ceil($durationHours / 24.0);
+                        $basePrice += max(1, $days) * 8000;
+                    }
+                } elseif (str_contains($normR, 'suite') || $normR === '202' || str_contains($normR, '202')) {
+                    // Suite Room: Up to 4 hours: ₹2,000; More than 4 hours: ₹3,000/day
+                    if ($durationHours <= 4.0) {
+                        $basePrice += 2000;
+                    } else {
+                        $days = (int) ceil($durationHours / 24.0);
+                        $basePrice += max(1, $days) * 3000;
+                    }
+                } elseif (is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4) || str_contains($normR, 'advance')) {
+                    // Advance Rooms (Numbered 101, 201 etc): ₹2500 per 24-hour day (or fraction)
+                    $days = (int) ceil($durationHours / 24.0);
+                    $basePrice += max(1, $days) * 2500;
                 } else {
                     // Default Fallback
                     $basePrice += $durationHours > 4 ? 5000 : 2000;
@@ -141,25 +157,20 @@ class BookingController extends Controller
                 $totalPrice = $basePrice * (1 + ($gstRate / 100));
             }
 
-            // Double booking check for each selected room individually
-            foreach ($selectedRooms as $singleRoom) {
-                $exists = Booking::where('approval_status', '!=', 'Rejected')
-                    ->where('booking_date', $clockIn->toDateString())
-                    ->where(function ($query) use ($clockIn, $clockOut) {
-                        $query->where(function ($q) use ($clockIn, $clockOut) {
-                            $q->where('start_time', '<', $clockOut->toTimeString())
-                                ->where('end_time', '>', $clockIn->toTimeString());
-                        });
-                    })
-                    ->where(function ($query) use ($singleRoom) {
-                        $query->where('room_name', $singleRoom)
-                            ->orWhere('room_name', 'LIKE', '%' . $singleRoom . '%');
-                    })
-                    ->exists();
+            // 1. Check for rapid duplicate submission by same applicant (within 15 seconds)
+            $recentDuplicate = Booking::where('email', $validated['email'])
+                ->where('room_name', $validated['room_name'])
+                ->where('created_at', '>=', now()->subSeconds(15))
+                ->first();
+            if ($recentDuplicate) {
+                return redirect()->route('checkout.success', ['id' => $recentDuplicate->id])
+                    ->with('info', 'Your booking request has already been submitted.');
+            }
 
-                if ($exists) {
-                    return back()->withInput()->with('error', "{$singleRoom} is already booked for this selected time slot.");
-                }
+            // 2. Strict double booking check for each selected room individually
+            $conflictingRoom = Booking::findConflictingRoom($selectedRooms, $clockIn, $clockOut);
+            if ($conflictingRoom) {
+                return back()->withInput()->with('error', "{$conflictingRoom} is already booked for your selected dates/time slot.");
             }
 
             // Handle File Upload

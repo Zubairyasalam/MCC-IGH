@@ -1097,13 +1097,24 @@ class AdminController extends Controller
             return response()->json(['booked_rooms' => [], 'error' => 'Check-out time must be after check-in time.'], 422);
         }
 
-        // Find all rooms booked during this period
+        // Find all rooms booked during this period using exact datetime interval overlap
+        $clockInStr = $clockIn->toDateTimeString();
+        $clockOutStr = $clockOut->toDateTimeString();
+
         $rawBooked = Booking::where('approval_status', '!=', 'Rejected')
-            ->where('booking_date', $clockIn->toDateString())
-            ->where(function ($query) use ($clockIn, $clockOut) {
-                $query->where(function ($q) use ($clockIn, $clockOut) {
-                    $q->where('start_time', '<', $clockOut->toTimeString())
-                      ->where('end_time', '>', $clockIn->toTimeString());
+            ->where(function ($query) use ($clockIn, $clockOut, $clockInStr, $clockOutStr) {
+                $query->where(function ($sub) use ($clockInStr, $clockOutStr) {
+                    $sub->whereNotNull('clock_in')
+                        ->whereNotNull('clock_out')
+                        ->where('clock_in', '<', $clockOutStr)
+                        ->where('clock_out', '>', $clockInStr);
+                })
+                ->orWhere(function ($sub) use ($clockIn, $clockOut) {
+                    $sub->where(function ($leg) {
+                        $leg->whereNull('clock_in')->orWhereNull('clock_out');
+                    })
+                    ->where('booking_date', '<=', $clockOut->toDateString())
+                    ->where('booking_date', '>=', $clockIn->toDateString());
                 });
             })
             ->pluck('room_name')
@@ -1176,24 +1187,9 @@ class AdminController extends Controller
         }
 
         // Check availability for each selected room individually
-        foreach ($selectedRooms as $singleRoom) {
-            $exists = Booking::where('approval_status', '!=', 'Rejected')
-                ->where('booking_date', $clockIn->toDateString())
-                ->where(function ($query) use ($clockIn, $clockOut) {
-                    $query->where(function ($q) use ($clockIn, $clockOut) {
-                        $q->where('start_time', '<', $clockOut->toTimeString())
-                          ->where('end_time', '>', $clockIn->toTimeString());
-                    });
-                })
-                ->where(function ($query) use ($singleRoom) {
-                    $query->where('room_name', $singleRoom)
-                        ->orWhere('room_name', 'LIKE', '%' . $singleRoom . '%');
-                })
-                ->exists();
-
-            if ($exists) {
-                return back()->withInput()->with('error', "{$singleRoom} is already booked for this date and time slot.");
-            }
+        $conflictingRoom = Booking::findConflictingRoom($selectedRooms, $clockIn, $clockOut);
+        if ($conflictingRoom) {
+            return back()->withInput()->with('error', "{$conflictingRoom} is already booked for your selected date and time slot.");
         }
 
         $paymentType = $request->input('payment_type', 'non_payment');
@@ -1209,12 +1205,23 @@ class AdminController extends Controller
                 if (str_contains($normR, 'standard')) {
                     $twelveHourBlocks = (int) ceil($durationHours / 12.0);
                     $basePrice += max(1, $twelveHourBlocks) * 1400;
+                } elseif (str_contains($normR, 'conference') || str_contains($normR, 'glass')) {
+                    if ($durationHours <= 4.0) {
+                        $basePrice += 2000;
+                    } else {
+                        $days = (int) ceil($durationHours / 24.0);
+                        $basePrice += max(1, $days) * 8000;
+                    }
+                } elseif (str_contains($normR, 'suite') || $normR === '202' || str_contains($normR, '202')) {
+                    if ($durationHours <= 4.0) {
+                        $basePrice += 2000;
+                    } else {
+                        $days = (int) ceil($durationHours / 24.0);
+                        $basePrice += max(1, $days) * 3000;
+                    }
                 } elseif (is_numeric($rName) || (is_numeric(substr($rName, 0, 1)) && strlen($rName) <= 4) || str_contains($normR, 'advance')) {
                     $days = (int) ceil($durationHours / 24.0);
                     $basePrice += max(1, $days) * 2500;
-                } elseif (in_array($normR, ['conference-hall', 'conference-room', 'glass-room', 'suite-room']) || str_contains($normR, 'conference') || str_contains($normR, 'glass') || str_contains($normR, 'suite')) {
-                    $billableHours = max(4, (int) ceil($durationHours));
-                    $basePrice += $billableHours * 500;
                 } else {
                     $basePrice += $durationHours > 4 ? 5000 : 2000;
                 }
@@ -1306,18 +1313,9 @@ class AdminController extends Controller
         }
 
         // Double booking check
-        $exists = Booking::where('room_name', $request->room_name)
-            ->where('booking_date', $clockIn->toDateString())
-            ->where('approval_status', '!=', 'Rejected')
-            ->where(function ($query) use ($clockIn, $clockOut) {
-                $query->where(function ($q) use ($clockIn, $clockOut) {
-                    $q->where('start_time', '<', $clockOut->toTimeString())
-                        ->where('end_time', '>', $clockIn->toTimeString());
-                });
-            })->exists();
-
-        if ($exists) {
-            return back()->with('error', 'Selected room is already booked for this time slot.');
+        $conflictingRoom = Booking::findConflictingRoom($request->room_name, $clockIn, $clockOut);
+        if ($conflictingRoom) {
+            return back()->withInput()->with('error', "{$conflictingRoom} is already booked for this selected time slot.");
         }
 
         // Calculate duration in hours
@@ -1334,12 +1332,23 @@ class AdminController extends Controller
         if (str_contains(strtolower($roomName), 'standard')) {
             $twelveHourBlocks = (int) ceil($durationHours / 12.0);
             $basePrice = max(1, $twelveHourBlocks) * 1400;
-        } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4) || str_contains(strtolower($roomName), 'advance')) {
+        } elseif (str_contains($normR, 'conference') || str_contains($normR, 'glass')) {
+            if ($durationHours <= 4.0) {
+                $basePrice = 2000;
+            } else {
+                $days = (int) ceil($durationHours / 24.0);
+                $basePrice = max(1, $days) * 8000;
+            }
+        } elseif (str_contains($normR, 'suite') || $normR === '202' || str_contains($normR, '202')) {
+            if ($durationHours <= 4.0) {
+                $basePrice = 2000;
+            } else {
+                $days = (int) ceil($durationHours / 24.0);
+                $basePrice = max(1, $days) * 3000;
+            }
+        } elseif (is_numeric($roomName) || (is_numeric(substr($roomName, 0, 1)) && strlen($roomName) <= 4) || str_contains($normR, 'advance')) {
             $days = (int) ceil($durationHours / 24.0);
             $basePrice = max(1, $days) * 2500;
-        } elseif (in_array(strtolower($roomName), ['conference-hall', 'conference-room', 'glass-room', 'suite-room'])) {
-            $billableHours = max(4, (int) ceil($durationHours));
-            $basePrice = $billableHours * 500;
         } else {
             $basePrice = $durationHours > 4 ? 5000 : 2000;
         }

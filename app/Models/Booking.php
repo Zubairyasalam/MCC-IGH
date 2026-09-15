@@ -121,5 +121,96 @@ class Booking extends Model
         }
         return null;
     }
+
+    /**
+     * Check if any room in $selectedRooms overlaps with an existing non-rejected booking
+     * during the period [$clockIn, $clockOut].
+     *
+     * @param array|string $selectedRooms
+     * @param \Carbon\Carbon $clockIn
+     * @param \Carbon\Carbon $clockOut
+     * @param int|null $excludeBookingId
+     * @return string|null Returns the conflicting room name if found, else null.
+     */
+    public static function findConflictingRoom($selectedRooms, $clockIn, $clockOut, $excludeBookingId = null)
+    {
+        if (is_string($selectedRooms)) {
+            $selectedRooms = array_filter(array_map('trim', explode(',', $selectedRooms)));
+        }
+
+        if (empty($selectedRooms)) {
+            return null;
+        }
+
+        $clockInStr = $clockIn->toDateTimeString();
+        $clockOutStr = $clockOut->toDateTimeString();
+
+        // Query candidate non-rejected bookings whose stay interval overlaps with [$clockIn, $clockOut]
+        $query = self::where('approval_status', '!=', 'Rejected');
+
+        if ($excludeBookingId) {
+            $query->where('id', '!=', $excludeBookingId);
+        }
+
+        $candidateBookings = $query->where(function ($q) use ($clockIn, $clockOut, $clockInStr, $clockOutStr) {
+            // Interval overlap logic: existing_start < new_end AND existing_end > new_start
+            $q->where(function ($sub) use ($clockInStr, $clockOutStr) {
+                $sub->whereNotNull('clock_in')
+                    ->whereNotNull('clock_out')
+                    ->where('clock_in', '<', $clockOutStr)
+                    ->where('clock_out', '>', $clockInStr);
+            })
+            // Fallback for legacy records missing clock_in/clock_out
+            ->orWhere(function ($sub) use ($clockIn, $clockOut) {
+                $sub->where(function ($leg) {
+                    $leg->whereNull('clock_in')->orWhereNull('clock_out');
+                })
+                ->where('booking_date', '<=', $clockOut->toDateString())
+                ->where('booking_date', '>=', $clockIn->toDateString());
+            });
+        })->get(['id', 'room_name', 'clock_in', 'clock_out', 'booking_date', 'start_time', 'end_time']);
+
+        // Helper to normalize room name for accurate comparison
+        $normalizeRoomToken = function ($str) {
+            $s = strtolower(trim($str));
+            $s = str_replace(['-', '_'], ' ', $s);
+            $s = preg_replace('/\s+/', ' ', $s);
+            return $s;
+        };
+
+        foreach ($selectedRooms as $reqRoom) {
+            $normReq = $normalizeRoomToken($reqRoom);
+            $digitsReq = preg_replace('/[^0-9]/', '', $normReq);
+
+            foreach ($candidateBookings as $booking) {
+                $existingRooms = array_filter(array_map('trim', explode(',', $booking->room_name)));
+                foreach ($existingRooms as $existRoom) {
+                    $normExist = $normalizeRoomToken($existRoom);
+                    $digitsExist = preg_replace('/[^0-9]/', '', $normExist);
+
+                    // A) Exact string match after normalization
+                    if ($normReq === $normExist) {
+                        return $reqRoom;
+                    }
+
+                    // B) Numeric room matching (e.g. "Standard Room 4" vs "4" or "Standard Room 4")
+                    if (!empty($digitsReq) && !empty($digitsExist) && $digitsReq === $digitsExist) {
+                        if ($normReq === $normExist || str_contains($normReq, $normExist) || str_contains($normExist, $normReq)) {
+                            return $reqRoom;
+                        }
+                    }
+
+                    // C) Special facilities slug match (Conference Room, Glass Room, Suite Room)
+                    $slugReq = str_replace(' ', '', $normReq);
+                    $slugExist = str_replace(' ', '', $normExist);
+                    if ($slugReq === $slugExist) {
+                        return $reqRoom;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }
 

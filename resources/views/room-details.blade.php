@@ -1201,8 +1201,8 @@
             ],
             'glass-room' => [
                 'name' => 'Glass Room',
-                'price' => '₹1,500',
-                'time' => '/ 4 Hours',
+                'price' => '₹2,000',
+                'time' => '/ 4 Hours (₹8,000/day > 4h)',
                 'capacity' => '15 Members',
                 'size' => '450 sq.ft',
                 'location' => 'East Wing, Ground Floor',
@@ -1246,8 +1246,8 @@
             ],
             'suite-room' => [
                 'name' => 'Suite Room',
-                'price' => '₹4,500',
-                'time' => '/ Day',
+                'price' => '₹2,000',
+                'time' => '/ 4 Hours (₹3,000/day > 4h)',
                 'capacity' => '2 Members',
                 'size' => '600 sq.ft',
                 'location' => 'Executive Wing, 2nd Floor',
