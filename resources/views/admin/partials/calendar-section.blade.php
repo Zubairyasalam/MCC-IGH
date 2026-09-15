@@ -146,31 +146,42 @@
         @for($d = 1; $d <= $daysInMonth; $d++)
             @php
                 $dayBookingsList = $calendarBookings[$d] ?? [];
-                $count = count($dayBookingsList);
                 $dateObj = \Carbon\Carbon::createFromDate($selectedYear, $selectedMonth, $d);
                 $dateStr = $dateObj->format('F d, Y');
                 $dateIso = $dateObj->format('Y-m-d');
                 $isToday = ($dateObj->isSameDay($todayObj));
 
-                // Category Breakdown Counts for this Day
+                // Distinct room breakdown for this day
                 $stdCount = 0;
                 $dlxCount = 0;
                 $hallCount = 0;
+                $distinctRooms = [];
+
                 foreach ($dayBookingsList as $bItem) {
-                    $rNameLower = strtolower($bItem['room_name']);
-                    if (str_contains($rNameLower, 'standard')) {
-                        $stdCount++;
-                    } elseif (str_contains($rNameLower, 'deluxe') || str_contains($rNameLower, 'advance') || str_contains($rNameLower, 'executive')) {
-                        $dlxCount++;
-                    } else {
-                        $hallCount++;
+                    $tokens = array_filter(array_map('trim', explode(',', $bItem['room_name'])));
+                    foreach ($tokens as $tok) {
+                        $tLow = strtolower($tok);
+                        if (!in_array($tLow, $distinctRooms)) {
+                            $distinctRooms[] = $tLow;
+                            $numVal = preg_match('/\b(\d+)\b/', $tLow, $m) ? (int)$m[1] : null;
+
+                            if (str_contains($tLow, 'standard') || ($numVal !== null && $numVal <= 8)) {
+                                $stdCount++;
+                            } elseif (str_contains($tLow, 'advance') || str_contains($tLow, 'executive') || str_contains($tLow, 'deluxe') || ($numVal !== null && $numVal >= 101 && $numVal !== 202)) {
+                                $dlxCount++;
+                            } else {
+                                $hallCount++;
+                            }
+                        }
                     }
                 }
 
-                $freeRooms = max(0, 26 - $count);
+                $totalDayReservedRooms = count($distinctRooms);
+                $freeRooms = max(0, 21 - $totalDayReservedRooms);
+                $count = $totalDayReservedRooms;
 
                 $cellStatusClass = 'cell-available';
-                if ($count >= 5) {
+                if ($freeRooms === 0 || $count >= 15) {
                     $cellStatusClass = 'cell-heavy';
                 } elseif ($count >= 1) {
                     $cellStatusClass = 'cell-partial';
@@ -183,7 +194,7 @@
                 <div class="cell-top-bar">
                     <span class="cell-date-num">{{ $d }}</span>
                     @if($count > 0)
-                        <span class="cell-count-badge {{ $count >= 5 ? 'badge-red' : 'badge-amber' }}">{{ $count }} Reserved</span>
+                        <span class="cell-count-badge {{ ($freeRooms === 0 || $count >= 15) ? 'badge-red' : 'badge-amber' }}">{{ $count }} Reserved</span>
                     @else
                         <span class="cell-free-tag"><i class="ph-bold ph-check" style="font-size: 0.65rem;"></i> All Free</span>
                     @endif
@@ -214,7 +225,7 @@
                         </div>
                     @else
                         <div class="cell-no-bookings" style="font-size: 0.72rem; color: #166534; font-weight: 700;">
-                            <i class="ph-bold ph-check-circle"></i> 26 Available
+                            <i class="ph-bold ph-check-circle"></i> 21 Available
                         </div>
                         <div style="font-size: 0.62rem; color: #94a3b8; margin-top: 2px; text-align: center;">
                             Click to reserve
@@ -347,7 +358,7 @@
         <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1.5rem; background: #f8fafc; padding: 1rem; border-radius: 10px; border: 1px solid #e2e8f0;">
             <div style="flex: 1; min-width: 150px; background: white; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1;">
                 <span style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Total Reserved</span>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #850f0f;">{{ $dReservedCount }} / 26 Rooms</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #850f0f;">{{ $dReservedCount }} / 21 Rooms</div>
             </div>
             <div style="flex: 1; min-width: 150px; background: white; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1;">
                 <span style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Available Rooms</span>

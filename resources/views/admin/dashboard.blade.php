@@ -1373,24 +1373,36 @@
 
             titleEl.textContent = `Room Reservations & Occupancy on ${dateFormattedStr}`;
             const dayBookings = calendarData[dayNum] || [];
-            const TOTAL_ROOMS = 26;
-            const bookedCount = dayBookings.length;
-            const availableCount = Math.max(0, TOTAL_ROOMS - bookedCount);
-
-            // Compute category breakdown for this date
+            
+            // Compute distinct room breakdown for this date
             let stdCount = 0;
             let advCount = 0;
             let confCount = 0;
+            const distinctRooms = new Set();
+
             dayBookings.forEach((b) => {
-                const rNameLower = (b.room_name || '').toLowerCase();
-                if (rNameLower.includes('standard')) {
-                    stdCount++;
-                } else if (rNameLower.includes('advance') || rNameLower.includes('executive') || rNameLower.includes('deluxe') || rNameLower.includes('suite')) {
-                    advCount++;
-                } else {
-                    confCount++;
-                }
+                const roomTokens = (b.room_name || '').split(',').map(s => s.trim()).filter(Boolean);
+                roomTokens.forEach((tok) => {
+                    const tLower = tok.toLowerCase();
+                    if (!distinctRooms.has(tLower)) {
+                        distinctRooms.add(tLower);
+                        const matchNum = tLower.match(/\b\d+\b/);
+                        const numVal = matchNum ? parseInt(matchNum[0]) : null;
+
+                        if (tLower.includes('standard') || (numVal !== null && numVal <= 8)) {
+                            stdCount++;
+                        } else if (tLower.includes('advance') || tLower.includes('executive') || tLower.includes('deluxe') || (numVal !== null && numVal >= 101 && numVal !== 202)) {
+                            advCount++;
+                        } else {
+                            confCount++;
+                        }
+                    }
+                });
             });
+
+            const TOTAL_ROOMS = 21;
+            const bookedCount = distinctRooms.size;
+            const availableCount = Math.max(0, TOTAL_ROOMS - bookedCount);
 
             let statusBannerHtml = `
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.1rem; margin-bottom: 1.25rem;">
@@ -1398,20 +1410,20 @@
                         <div>
                             <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; display: block;">Daily Occupancy Summary</span>
                             <span style="font-size: 1.05rem; font-weight: 800; color: #0f172a;">
-                                ${bookedCount} Reserved • <span style="color: #166534;">${availableCount} Available</span>
+                                ${bookedCount} Reserved • <span style="color: ${availableCount > 0 ? '#166534' : '#dc2626'};">${availableCount} Available</span>
                             </span>
                         </div>
-                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: var(--primary-color, #850f0f); color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: gap: 4px;">
+                        <a href="{{ route('admin.college-guest') }}?date=${dateIso || ''}" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; background: var(--primary-color, #850f0f); color: white; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                             <i class="ph-bold ph-plus"></i> New Reservation
                         </a>
                     </div>
                     
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #fff5f5; border: 1px solid #fecdd3; color: #850f0f; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="ph-bold ph-bed"></i> Standard: ${stdCount} / 20 Reserved
+                            <i class="ph-bold ph-bed"></i> Standard: ${stdCount} / 8 Reserved
                         </span>
                         <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #fffbeb; border: 1px solid #fef3c7; color: #b45309; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="ph-bold ph-star"></i> Advance Exec: ${advCount} / 4 Reserved
+                            <i class="ph-bold ph-star"></i> Advance Exec: ${advCount} / 10 Reserved
                         </span>
                         <span style="padding: 4px 10px; font-size: 0.72rem; font-weight: 800; border-radius: 6px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; display: inline-flex; align-items: center; gap: 4px;">
                             <i class="ph-bold ph-buildings"></i> Conference: ${confCount} / 3 Reserved

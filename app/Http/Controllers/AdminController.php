@@ -390,6 +390,11 @@ class AdminController extends Controller
     {
         $query = Booking::query();
 
+        // Exclude Room Block records from standard customer bookings table
+        $query->where(function ($q) {
+            $q->whereNull('user_type')->orWhere('user_type', '!=', 'Room Block');
+        })->where('payment_status', '!=', 'Blocked');
+
         // Search
         if ($request->filled('search')) {
             $search = $request->search;
@@ -1378,9 +1383,9 @@ class AdminController extends Controller
         if ($rawRoomName === 'All Rooms') {
             $allRoomsArray = [
                 'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5', 'Room 6', 'Room 7', 'Room 8',
-                'Room 9', 'Room 10', 'Room 11', 'Room 12', 'Room 13', 'Room 14', 'Room 15', 'Room 16',
-                'Room 17', 'Room 18', 'Room 19', 'Room 20', 'Room 101', 'Room 201', 'Room 203', 'Room 207',
-                'Suite Room 202', 'Conference Room', 'Glass Room'
+                'Room 101', 'Room 102', 'Room 103', 'Room 104',
+                'Room 201', 'Room 203', 'Room 204', 'Room 205', 'Room 206', 'Room 207',
+                'Conference Room', 'Glass Room', 'Suite Room (202)'
             ];
             $selectedRooms = $allRoomsArray;
         } else {
