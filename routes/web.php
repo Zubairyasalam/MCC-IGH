@@ -122,6 +122,9 @@ Route::prefix('admin')->middleware('admin.auth')->group(function () {
     Route::get('/college-guest', [AdminController::class, 'showCollegeGuestForm'])->name('admin.college-guest');
     Route::post('/college-guest', [AdminController::class, 'storeCollegeGuestBooking'])->name('admin.college-guest.store');
     Route::post('/college-guest/check-availability', [AdminController::class, 'checkAvailability'])->name('admin.college-guest.check-availability');
+    // Room Block
+    Route::get('/room-block', [AdminController::class, 'showRoomBlockForm'])->name('admin.room-block');
+    Route::post('/room-block', [AdminController::class, 'storeRoomBlock'])->name('admin.room-block.store');
 
     // Payment & Security Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');

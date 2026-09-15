@@ -152,6 +152,9 @@
             <a href="{{ route('admin.bookings') }}" class="menu-item {{ Route::is('admin.bookings*') ? 'active' : '' }}">
                 <i class="ph ph-calendar-check"></i> Bookings
             </a>
+            <a href="{{ route('admin.room-block') }}" class="menu-item {{ Route::is('admin.room-block*') ? 'active' : '' }}">
+                <i class="ph ph-prohibit"></i> Room Block
+            </a>
             <a href="{{ route('admin.college-guest') }}" class="menu-item {{ Route::is('admin.college-guest') ? 'active' : '' }}">
                 <i class="ph ph-user-gear"></i> College Guests
             </a>

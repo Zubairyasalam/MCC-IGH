@@ -746,6 +746,9 @@
             <a href="{{ route('admin.bookings') }}" class="menu-item">
                 <i class="ph ph-calendar-check"></i> Bookings
             </a>
+            <a href="{{ route('admin.room-block') }}" class="menu-item {{ Route::is('admin.room-block*') ? 'active' : '' }}">
+                <i class="ph ph-prohibit"></i> Room Block
+            </a>
             <a href="{{ route('admin.college-guest') }}" class="menu-item">
                 <i class="ph ph-user-gear"></i> College Guests
             </a>
@@ -962,6 +965,9 @@
                         <span style="padding: 6px 14px; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; font-size: 0.75rem; font-weight: 800; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
                             <i class="ph-bold ph-x-circle" style="color: #ef4444;"></i> {{ $totalReservedRooms }} Reserved
                         </span>
+                        <button type="button" onclick="openRoomBlockModal()" style="padding: 6px 14px; background: #1e293b; color: white; font-size: 0.75rem; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                            <i class="ph-bold ph-prohibit" style="color: #f87171;"></i> Room Block
+                        </button>
                     </div>
                 </div>
 
@@ -1485,7 +1491,111 @@
                 setTimeout(() => { modal.style.display = 'none'; }, 200);
             }
         };
+
+        window.openRoomBlockModal = function (preselectDateIso) {
+            const modal = document.getElementById('roomBlockModal');
+            if (modal) {
+                if (preselectDateIso) {
+                    const blockDateInput = modal.querySelector('input[name="block_date"]');
+                    const endDateInput = modal.querySelector('input[name="end_date"]');
+                    if (blockDateInput) blockDateInput.value = preselectDateIso;
+                    if (endDateInput) endDateInput.value = preselectDateIso;
+                }
+                modal.style.display = 'flex';
+            }
+        };
+
+        window.closeRoomBlockModal = function () {
+            const modal = document.getElementById('roomBlockModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
+
+    <!-- Room Block Modal -->
+    <div id="roomBlockModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center; padding: 1rem;">
+        <div style="background: #ffffff; width: 100%; max-width: 540px; border-radius: 16px; padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; position: relative; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                <div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <i class="ph-bold ph-prohibit" style="color: #dc2626;"></i> Block Room / Facility
+                    </h3>
+                    <span style="font-size: 0.8rem; color: #64748b; margin-top: 2px; display: block;">Select room, date, and time to block availability for maintenance or official use.</span>
+                </div>
+                <button type="button" onclick="closeRoomBlockModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.room-block.store') }}" method="POST">
+                @csrf
+                <!-- Select Room -->
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Select Room / Facility <span style="color: #dc2626;">*</span></label>
+                    <select name="room_name" required style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #0f172a; outline: none; background: white;">
+                        <option value="">-- Select Room to Block --</option>
+                        <optgroup label="Special Options">
+                            <option value="All Rooms">All Rooms (Full Facility Block)</option>
+                        </optgroup>
+                        <optgroup label="Standard Rooms (₹2,000 / ₹8,000)">
+                            @foreach(range(1, 20) as $num)
+                                <option value="Room {{ $num }}">Standard Room {{ $num }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup label="Executive Rooms">
+                            <option value="Room 101">Executive Room 101</option>
+                            <option value="Room 201">Executive Room 201</option>
+                            <option value="Room 203">Executive Room 203</option>
+                            <option value="Room 207">Executive Room 207</option>
+                        </optgroup>
+                        <optgroup label="Suite Rooms (₹2,000 / ₹3,000)">
+                            <option value="Suite Room 202">Suite Room 202</option>
+                        </optgroup>
+                        <optgroup label="Conference & Special Facilities">
+                            <option value="Conference Room">Conference Room</option>
+                            <option value="Glass Room">Glass Room</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Check-in / Start Date <span style="color: #dc2626;">*</span></label>
+                        <input type="date" name="block_date" required value="{{ date('Y-m-d') }}" style="width: 100%; padding: 0.7rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Check-out / End Date <span style="color: #dc2626;">*</span></label>
+                        <input type="date" name="end_date" required value="{{ date('Y-m-d') }}" style="width: 100%; padding: 0.7rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; font-weight: 600;">
+                    </div>
+                </div>
+
+                <!-- Time Selection -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+                    <div>
+                        <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Start Time</label>
+                        <input type="time" name="start_time" value="00:00" style="width: 100%; padding: 0.7rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">End Time</label>
+                        <input type="time" name="end_time" value="23:59" style="width: 100%; padding: 0.7rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; font-weight: 600;">
+                    </div>
+                </div>
+
+                <!-- Reason / Notes -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Reason / Notes</label>
+                    <input type="text" name="reason" placeholder="e.g. Maintenance & Cleaning, Official VIP Reserved" style="width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeRoomBlockModal()" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; color: #64748b; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="padding: 0.75rem 1.75rem; border-radius: 8px; border: none; background: #dc2626; color: white; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="ph-bold ph-prohibit"></i> Confirm Room Block
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
 

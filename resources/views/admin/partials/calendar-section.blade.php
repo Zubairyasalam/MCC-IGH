@@ -93,6 +93,10 @@
             <a href="{{ route('admin.college-guest') }}" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.78rem; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: var(--primary-color, #850f0f); color: white; margin-left: 6px;">
                 <i class="ph-bold ph-plus"></i> New Reservation
             </a>
+
+            <button type="button" onclick="openRoomBlockModal()" style="padding: 0.45rem 1rem; font-size: 0.78rem; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: #dc2626; color: white;">
+                <i class="ph-bold ph-prohibit"></i> Room Block
+            </button>
         </div>
     </form>
 </div>

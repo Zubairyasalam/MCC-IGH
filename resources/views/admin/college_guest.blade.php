@@ -677,6 +677,9 @@
             <a href="{{ route('admin.bookings') }}" class="menu-item">
                 <i class="ph ph-calendar-check"></i> Bookings
             </a>
+            <a href="{{ route('admin.room-block') }}" class="menu-item {{ Route::is('admin.room-block*') ? 'active' : '' }}">
+                <i class="ph ph-prohibit"></i> Room Block
+            </a>
             <a href="{{ route('admin.college-guest') }}" class="menu-item active">
                 <i class="ph ph-user-gear"></i> College Guests
             </a>
@@ -945,52 +948,280 @@
 
                         <!-- No. of Persons -->
                         <div class="form-group">
-                            <label for="no_of_persons">Number of Guests</label>
-                            <div class="input-wrapper">
-                                <i class="ph ph-users"></i>
-                                <input type="number" id="no_of_persons" name="no_of_persons" class="form-input" min="1" max="100" value="{{ old('no_of_persons', 1) }}" required>
-                            </div>
-                            <span id="capacity_limit_hint" style="font-size: 0.75rem; color: #64748b; font-weight: 500; margin-top: 4px; display: none;"></span>
-                        </div>
+                <!-- Mode Switcher Tabs -->
+                <div style="display: flex; gap: 8px; margin-bottom: 1.75rem; background: #f1f5f9; padding: 4px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <button type="button" id="tabGuestBooking" onclick="switchFormTab('guest')" style="flex: 1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; background: var(--primary-color); color: white; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="ph-bold ph-user-gear"></i> College Guest Booking
+                    </button>
+                    <button type="button" id="tabRoomBlock" onclick="switchFormTab('block')" style="flex: 1; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; background: transparent; color: #64748b; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="ph-bold ph-prohibit"></i> Room Block
+                    </button>
+                </div>
 
-                        <!-- Clock In (Date and Time) -->
-                        <div class="form-group">
-                            <label for="clock_in">Clock In Date & Time</label>
-                            <div class="input-wrapper">
-                                <i class="ph ph-calendar-check"></i>
-                                <input type="datetime-local" id="clock_in" name="clock_in" class="form-input" value="{{ old('clock_in') }}" required style="padding-left: 2.8rem;">
-                            </div>
-                        </div>
-
-                        <!-- Clock Out (Date and Time) -->
-                        <div class="form-group">
-                            <label for="clock_out">Clock Out Date & Time</label>
-                            <div class="input-wrapper">
-                                <i class="ph ph-calendar-x"></i>
-                                <input type="datetime-local" id="clock_out" name="clock_out" class="form-input" value="{{ old('clock_out') }}" required style="padding-left: 2.8rem;">
-                            </div>
-                        </div>
-
-                        <!-- Notes / Remarks -->
-                        <div class="form-group full-width">
-                            <label for="booking_reason">Purpose of Visit / Remarks</label>
-                            <textarea id="booking_reason" name="booking_reason" class="form-textarea" placeholder="Describe the purpose of visit, booking approval authority, or special requirements...">{{ old('booking_reason') }}</textarea>
-                        </div>
+                <!-- Section 1: College Guest Booking Form -->
+                <div id="collegeGuestFormSection">
+                    <div class="form-title-group">
+                        <h2>Book a Room for College Guest</h2>
+                        <p>Create a booking directly for institutional guests, former principals, or visitors with zero charges and instant confirmation.</p>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="btn-group">
-                        <a href="{{ route('admin.bookings') }}" class="btn-cancel">Cancel</a>
-                        <button type="submit" class="btn-submit">
-                            <i class="ph ph-calendar-plus"></i> Create Booking
-                        </button>
+                    <form action="{{ route('admin.college-guest.store') }}" method="POST">
+                        @csrf
+                        
+                        <div class="form-grid">
+                            <!-- Guest Name -->
+                            <div class="form-group">
+                                <label for="name">Guest Name</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-user"></i>
+                                    <input type="text" id="name" name="name" required placeholder="Enter full name of guest" value="{{ old('name') }}">
+                                </div>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-envelope"></i>
+                                    <input type="email" id="email" name="email" required placeholder="guest@mcc.edu.in" value="{{ old('email') }}">
+                                </div>
+                            </div>
+
+                            <!-- Mobile / Phone -->
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-phone"></i>
+                                    <input type="tel" id="phone" name="phone" required placeholder="+91 98765 43210" value="{{ old('phone') }}">
+                                </div>
+                            </div>
+
+                            <!-- Designation / Category -->
+                            <div class="form-group">
+                                <label for="designation">Designation / Department</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-briefcase"></i>
+                                    <input type="text" id="designation" name="designation" required placeholder="e.g. Visiting Professor, Alumnus, Examiner" value="{{ old('designation') }}">
+                                </div>
+                            </div>
+
+                            <!-- Room Selection -->
+                            <div class="form-group full-width">
+                                <label for="room_name">Select Room / Workspace</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-bed"></i>
+                                    <select id="room_name" name="room_name" required style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 1.5px solid var(--border); border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none;">
+                                        <option value="">-- Choose Room --</option>
+                                        <optgroup label="Standard Rooms (₹2,000 / ₹8,000)">
+                                            @foreach(range(1, 20) as $num)
+                                                <option value="Room {{ $num }}" {{ old('room_name') == "Room {$num}" ? 'selected' : '' }}>Standard Room {{ $num }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                        <optgroup label="Executive Rooms">
+                                            <option value="Room 101" {{ old('room_name') == 'Room 101' ? 'selected' : '' }}>Executive Room 101</option>
+                                            <option value="Room 201" {{ old('room_name') == 'Room 201' ? 'selected' : '' }}>Executive Room 201</option>
+                                            <option value="Room 203" {{ old('room_name') == 'Room 203' ? 'selected' : '' }}>Executive Room 203</option>
+                                            <option value="Room 207" {{ old('room_name') == 'Room 207' ? 'selected' : '' }}>Executive Room 207</option>
+                                        </optgroup>
+                                        <optgroup label="Suite Rooms (₹2,000 / ₹3,000)">
+                                            <option value="Suite Room 202" {{ old('room_name') == 'Suite Room 202' ? 'selected' : '' }}>Suite Room 202</option>
+                                        </optgroup>
+                                        <optgroup label="Conference & Special Facilities">
+                                            <option value="Conference Room" {{ old('room_name') == 'Conference Room' ? 'selected' : '' }}>Conference Room</option>
+                                            <option value="Glass Room" {{ old('room_name') == 'Glass Room' ? 'selected' : '' }}>Glass Room</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Payment Type Toggle -->
+                            <div class="form-group full-width">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.5rem;">Billing & Tariff Option</label>
+                                <div style="display: flex; gap: 1rem; background: #f8fafc; border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 12px; align-items: center;">
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; margin: 0;">
+                                        <input type="radio" name="payment_type" value="non_payment" {{ old('payment_type', 'non_payment') === 'non_payment' ? 'checked' : '' }} style="accent-color: var(--primary-color);">
+                                        Complimentary / Institutional (₹0 Charge)
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; margin: 0;">
+                                        <input type="radio" name="payment_type" value="payment" {{ old('payment_type') === 'payment' ? 'checked' : '' }} style="accent-color: var(--primary-color);">
+                                        Send Payment Link to Guest Email
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Check In Datetime -->
+                            <div class="form-group">
+                                <label for="clock_in">Check-In Date & Time</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-calendar-blank"></i>
+                                    <input type="datetime-local" id="clock_in" name="clock_in" required value="{{ old('clock_in', request('date') ? request('date').'T12:00' : '') }}">
+                                </div>
+                            </div>
+
+                            <!-- Check Out Datetime -->
+                            <div class="form-group">
+                                <label for="clock_out">Check-Out Date & Time</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-calendar-check"></i>
+                                    <input type="datetime-local" id="clock_out" name="clock_out" required value="{{ old('clock_out', request('date') ? request('date').'T12:00' : '') }}">
+                                </div>
+                            </div>
+
+                            <!-- Number of Persons -->
+                            <div class="form-group">
+                                <label for="no_of_persons">Number of Guests</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-users"></i>
+                                    <input type="number" id="no_of_persons" name="no_of_persons" min="1" max="100" required value="{{ old('no_of_persons', 1) }}">
+                                </div>
+                            </div>
+
+                            <!-- Booking Reason / Remarks -->
+                            <div class="form-group full-width">
+                                <label for="booking_reason">Purpose of Visit / Remarks</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-notebook"></i>
+                                    <input type="text" id="booking_reason" name="booking_reason" placeholder="e.g. Official Meeting, Guest Speaker for National Seminar" value="{{ old('booking_reason') }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="btn-group">
+                            <a href="{{ route('admin.bookings') }}" class="btn-cancel">Cancel</a>
+                            <button type="submit" class="btn-submit">
+                                <i class="ph ph-calendar-plus"></i> Create Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Section 2: Room Block Form -->
+                <div id="roomBlockFormSection" style="display: none;">
+                    <div class="form-title-group" style="margin-bottom: 1.5rem;">
+                        <h2 style="color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-bold ph-prohibit"></i> Block Room / Facility
+                        </h2>
+                        <p>Set room availability blocks for maintenance, cleaning, or official events across specific dates and times.</p>
                     </div>
-                </form>
+
+                    <form action="{{ route('admin.room-block.store') }}" method="POST">
+                        @csrf
+                        <div class="form-grid">
+                            <!-- Select Room -->
+                            <div class="form-group full-width">
+                                <label for="block_room_name">Select Room / Facility to Block <span style="color: #dc2626;">*</span></label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-bed"></i>
+                                    <select name="room_name" id="block_room_name" required style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 1.5px solid var(--border); border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; background: white;">
+                                        <option value="">-- Choose Room to Block --</option>
+                                        <optgroup label="Special Options">
+                                            <option value="All Rooms">All Rooms (Full Facility Block)</option>
+                                        </optgroup>
+                                        <optgroup label="Standard Rooms (₹2,000 / ₹8,000)">
+                                            @foreach(range(1, 20) as $num)
+                                                <option value="Room {{ $num }}">Standard Room {{ $num }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                        <optgroup label="Executive Rooms">
+                                            <option value="Room 101">Executive Room 101</option>
+                                            <option value="Room 201">Executive Room 201</option>
+                                            <option value="Room 203">Executive Room 203</option>
+                                            <option value="Room 207">Executive Room 207</option>
+                                        </optgroup>
+                                        <optgroup label="Suite Rooms (₹2,000 / ₹3,000)">
+                                            <option value="Suite Room 202">Suite Room 202</option>
+                                        </optgroup>
+                                        <optgroup label="Conference & Special Facilities">
+                                            <option value="Conference Room">Conference Room</option>
+                                            <option value="Glass Room">Glass Room</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Start Date -->
+                            <div class="form-group">
+                                <label for="block_start_date">Block Start Date <span style="color: #dc2626;">*</span></label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-calendar"></i>
+                                    <input type="date" name="block_date" id="block_start_date" required value="{{ date('Y-m-d') }}">
+                                </div>
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="form-group">
+                                <label for="block_end_date">Block End Date <span style="color: #dc2626;">*</span></label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-calendar-check"></i>
+                                    <input type="date" name="end_date" id="block_end_date" required value="{{ date('Y-m-d') }}">
+                                </div>
+                            </div>
+
+                            <!-- Start Time -->
+                            <div class="form-group">
+                                <label for="block_start_time">Start Time</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-clock"></i>
+                                    <input type="time" name="start_time" id="block_start_time" value="00:00">
+                                </div>
+                            </div>
+
+                            <!-- End Time -->
+                            <div class="form-group">
+                                <label for="block_end_time">End Time</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-clock-afternoon"></i>
+                                    <input type="time" name="end_time" id="block_end_time" value="23:59">
+                                </div>
+                            </div>
+
+                            <!-- Reason -->
+                            <div class="form-group full-width">
+                                <label for="block_reason">Reason / Notes</label>
+                                <div class="input-wrapper">
+                                    <i class="ph ph-notebook"></i>
+                                    <input type="text" name="reason" id="block_reason" placeholder="e.g. Maintenance & Repair, Official VIP Event">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <a href="{{ route('admin.dashboard') }}" class="btn-cancel">Cancel</a>
+                            <button type="submit" class="btn-submit" style="background: #dc2626;">
+                                <i class="ph-bold ph-prohibit"></i> Confirm Room Block
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
+        function switchFormTab(mode) {
+            const guestSec = document.getElementById('collegeGuestFormSection');
+            const blockSec = document.getElementById('roomBlockFormSection');
+            const tabGuest = document.getElementById('tabGuestBooking');
+            const tabBlock = document.getElementById('tabRoomBlock');
+
+            if (mode === 'guest') {
+                guestSec.style.display = 'block';
+                blockSec.style.display = 'none';
+                tabGuest.style.background = 'var(--primary-color)';
+                tabGuest.style.color = 'white';
+                tabBlock.style.background = 'transparent';
+                tabBlock.style.color = '#64748b';
+            } else {
+                guestSec.style.display = 'none';
+                blockSec.style.display = 'block';
+                tabBlock.style.background = '#dc2626';
+                tabBlock.style.color = 'white';
+                tabGuest.style.background = 'transparent';
+                tabGuest.style.color = '#64748b';
+            }
+        }
+
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.querySelector('.sidebar');
 

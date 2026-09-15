@@ -163,8 +163,19 @@ class AdminController extends Controller
         ];
 
         // Fetch active bookings for selected date (defaults to today or focus date)
-        $todayActiveBookings = Booking::whereDate('booking_date', $calendarDate->toDateString())
-            ->where('approval_status', '!=', 'Rejected')
+        $calDayStart = $calendarDate->copy()->startOfDay()->toDateTimeString();
+        $calDayEnd = $calendarDate->copy()->endOfDay()->toDateTimeString();
+
+        $todayActiveBookings = Booking::where('approval_status', '!=', 'Rejected')
+            ->where(function ($q) use ($calendarDate, $calDayStart, $calDayEnd) {
+                $q->where(function ($sub) use ($calDayStart, $calDayEnd) {
+                    $sub->whereNotNull('clock_in')
+                        ->whereNotNull('clock_out')
+                        ->where('clock_in', '<', $calDayEnd)
+                        ->where('clock_out', '>', $calDayStart);
+                })
+                ->orWhereDate('booking_date', $calendarDate->toDateString());
+            })
             ->get();
 
         $roomAvailabilityStatus = [];
@@ -189,7 +200,7 @@ class AdminController extends Controller
 
                 foreach ($todayActiveBookings as $b) {
                     $bRoomRaw = $b->room_name;
-                    $roomTokens = array_map('trim', explode(',', $bRoomRaw));
+                    $roomTokens = array_filter(array_map('trim', explode(',', $bRoomRaw)));
 
                     foreach ($roomTokens as $token) {
                         $tLower = strtolower($token);
@@ -250,10 +261,11 @@ class AdminController extends Controller
 
                 if ($matchingBooking) {
                     $totalReservedRooms++;
+                    $isBlocked = ($matchingBooking->user_type === 'Room Block' || $matchingBooking->payment_status === 'Blocked');
                     $roomAvailabilityStatus[$category][] = [
                         'name' => $rName,
                         'is_available' => false,
-                        'status' => 'Reserved',
+                        'status' => $isBlocked ? 'Blocked' : 'Reserved',
                         'guest_name' => $matchingBooking->name,
                         'user_type' => $matchingBooking->user_type ?? 'Guest',
                         'time' => ($matchingBooking->start_time && $matchingBooking->end_time) ? (\Carbon\Carbon::parse($matchingBooking->start_time)->format('H:i') . ' - ' . \Carbon\Carbon::parse($matchingBooking->end_time)->format('H:i')) : 'Full Day',
@@ -278,23 +290,23 @@ class AdminController extends Controller
         $endOfMonthObj = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->endOfMonth();
 
         $monthBookings = Booking::where('approval_status', '!=', 'Rejected')
-            ->whereBetween('booking_date', [$startOfMonthObj->toDateString(), $endOfMonthObj->toDateString()])
+            ->where(function ($q) use ($startOfMonthObj, $endOfMonthObj) {
+                $q->whereBetween('booking_date', [$startOfMonthObj->toDateString(), $endOfMonthObj->toDateString()])
+                  ->orWhere(function ($sub) use ($startOfMonthObj, $endOfMonthObj) {
+                      $sub->whereNotNull('clock_in')
+                          ->whereNotNull('clock_out')
+                          ->where('clock_in', '<=', $endOfMonthObj->copy()->endOfDay())
+                          ->where('clock_out', '>=', $startOfMonthObj->copy()->startOfDay());
+                  });
+            })
             ->orderBy('start_time')
             ->get();
 
         $calendarBookings = [];
         $calendarBookingsByDate = [];
         foreach ($monthBookings as $b) {
-            $bDate = Carbon::parse($b->booking_date);
-            $dayNum = (int) $bDate->day;
-            $dateKey = $bDate->format('Y-m-d');
-            
-            if (!isset($calendarBookings[$dayNum])) {
-                $calendarBookings[$dayNum] = [];
-            }
-            if (!isset($calendarBookingsByDate[$dateKey])) {
-                $calendarBookingsByDate[$dateKey] = [];
-            }
+            $cIn = $b->clock_in ? Carbon::parse($b->clock_in) : Carbon::parse($b->booking_date . ' ' . ($b->start_time ?: '00:00'));
+            $cOut = $b->clock_out ? Carbon::parse($b->clock_out) : Carbon::parse($b->booking_date . ' ' . ($b->end_time ?: '23:59'));
 
             $bookingItem = [
                 'id' => $b->id,
@@ -303,19 +315,47 @@ class AdminController extends Controller
                 'phone' => $b->phone ?? 'N/A',
                 'user_type' => $b->user_type ?? 'Guest',
                 'room_name' => $b->room_name,
-                'booking_date' => $bDate->format('d M Y'),
-                'booking_date_raw' => $dateKey,
-                'clock_in' => $b->clock_in ? Carbon::parse($b->clock_in)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->start_time),
-                'clock_out' => $b->clock_out ? Carbon::parse($b->clock_out)->format('d M Y, h:i A') : ($b->booking_date . ' ' . $b->end_time),
-                'no_of_persons' => $b->no_of_persons ?? 1,
+                'booking_date' => $cIn->format('d M Y'),
+                'booking_date_raw' => $cIn->format('Y-m-d'),
+                'clock_in' => $cIn->format('d M Y, h:i A'),
+                'clock_out' => $cOut->format('d M Y, h:i A'),
+                'no_of_persons' => $b->no_of_persons ?? 0,
                 'approval_status' => $b->approval_status,
                 'payment_status' => $b->payment_status,
                 'total_price' => number_format($b->total_price, 2),
                 'details_url' => route('admin.bookings.show', $b->id),
             ];
 
-            $calendarBookings[$dayNum][] = $bookingItem;
-            $calendarBookingsByDate[$dateKey][] = $bookingItem;
+            $currDate = $cIn->copy()->startOfDay();
+            $lastDate = $cOut->copy()->startOfDay();
+
+            if ($cOut->format('H:i:s') === '00:00:00' && $lastDate->gt($currDate)) {
+                $lastDate->subDay();
+            }
+
+            while ($currDate->lte($lastDate)) {
+                if ($currDate->year == $selectedYear && $currDate->month == $selectedMonth) {
+                    $dayNum = (int) $currDate->day;
+                    $dateKey = $currDate->format('Y-m-d');
+
+                    if (!isset($calendarBookings[$dayNum])) {
+                        $calendarBookings[$dayNum] = [];
+                    }
+                    if (!isset($calendarBookingsByDate[$dateKey])) {
+                        $calendarBookingsByDate[$dateKey] = [];
+                    }
+
+                    $exists = false;
+                    foreach ($calendarBookings[$dayNum] as $ex) {
+                        if ($ex['id'] === $b->id) { $exists = true; break; }
+                    }
+                    if (!$exists) {
+                        $calendarBookings[$dayNum][] = $bookingItem;
+                        $calendarBookingsByDate[$dateKey][] = $bookingItem;
+                    }
+                }
+                $currDate->addDay();
+            }
         }
 
         if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
@@ -1292,6 +1332,91 @@ class AdminController extends Controller
         }
 
         return redirect()->route('admin.bookings')->with('success', 'College guest booking created successfully (Complimentary / Non-Payment).');
+    }
+
+    public function showRoomBlockForm()
+    {
+        $activeBlocks = Booking::where('approval_status', '!=', 'Rejected')
+            ->where(function ($q) {
+                $q->where('user_type', 'Room Block')
+                  ->orWhere('payment_status', 'Blocked');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.room_block', compact('activeBlocks'));
+    }
+
+    public function storeRoomBlock(Request $request)
+    {
+        $request->validate([
+            'room_name' => 'required|string|max:1000',
+            'block_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:block_date',
+            'start_time' => 'nullable|string',
+            'end_time' => 'nullable|string',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $startDateStr = $request->block_date;
+        $endDateStr = $request->input('end_date', $startDateStr);
+        if (empty($endDateStr)) {
+            $endDateStr = $startDateStr;
+        }
+
+        $startTimeStr = $request->input('start_time', '00:00');
+        $endTimeStr = $request->input('end_time', '23:59');
+
+        $clockIn = Carbon::parse("{$startDateStr} {$startTimeStr}");
+        $clockOut = Carbon::parse("{$endDateStr} {$endTimeStr}");
+
+        if ($clockOut->lte($clockIn)) {
+            $clockOut = $clockIn->copy()->addDay();
+        }
+
+        $rawRoomName = $request->room_name;
+        if ($rawRoomName === 'All Rooms') {
+            $allRoomsArray = [
+                'Room 1', 'Room 2', 'Room 3', 'Room 4', 'Room 5', 'Room 6', 'Room 7', 'Room 8',
+                'Room 9', 'Room 10', 'Room 11', 'Room 12', 'Room 13', 'Room 14', 'Room 15', 'Room 16',
+                'Room 17', 'Room 18', 'Room 19', 'Room 20', 'Room 101', 'Room 201', 'Room 203', 'Room 207',
+                'Suite Room 202', 'Conference Room', 'Glass Room'
+            ];
+            $selectedRooms = $allRoomsArray;
+        } else {
+            $selectedRooms = array_filter(array_map('trim', explode(',', $rawRoomName)));
+            if (empty($selectedRooms)) {
+                $selectedRooms = [$rawRoomName];
+            }
+        }
+
+        // Check availability conflict
+        $conflictingRoom = Booking::findConflictingRoom($selectedRooms, $clockIn, $clockOut);
+        if ($conflictingRoom) {
+            return back()->withInput()->with('error', "Cannot block room: {$conflictingRoom} is already booked/blocked for the selected time slot.");
+        }
+
+        $reason = $request->reason ? trim($request->reason) : 'Room Blocked by Admin';
+
+        $booking = new Booking();
+        $booking->name = "BLOCKED - {$reason}";
+        $booking->email = 'admin@mccigh.com';
+        $booking->phone = 'N/A';
+        $booking->user_type = 'Room Block';
+        $booking->room_name = implode(', ', $selectedRooms);
+        $booking->booking_date = $clockIn->toDateString();
+        $booking->start_time = $clockIn->format('H:i');
+        $booking->end_time = $clockOut->format('H:i');
+        $booking->clock_in = $clockIn;
+        $booking->clock_out = $clockOut;
+        $booking->total_price = 0;
+        $booking->payment_status = 'Blocked';
+        $booking->approval_status = 'Approved';
+        $booking->no_of_persons = 0;
+        $booking->booking_reason = $reason;
+        $booking->save();
+
+        return back()->with('success', "Room block successfully created for " . (count($selectedRooms) > 5 ? count($selectedRooms) . " Rooms" : implode(', ', $selectedRooms)) . " from {$clockIn->format('d M Y, h:i A')} to {$clockOut->format('d M Y, h:i A')}.");
     }
 
     public function addRoomToBooking(Request $request, $id)
