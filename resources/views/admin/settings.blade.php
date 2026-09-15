@@ -137,17 +137,12 @@
             display: flex; align-items: center; gap: 0.5rem; border: 1px solid #bbf7d0;
         }
     </style>
+    @include('partials.dynamic-styles')
 </head>
 <body>
-    <div class="admin-sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <a href="{{ route('home') }}" style="text-decoration:none; display:flex; align-items:center; gap:0.75rem;">
-                <img src="{{ asset('assets/logo_transparent.png') }}" alt="MCC Logo" class="sidebar-logo">
-                <div class="sidebar-brand">
-                    <span class="mcc-title">MCC-MRF</span>
-                    <span class="igh-subtitle">INNOVATION PARK</span>
-                </div>
-            </a>
+            <div class="sidebar-logo"><img src="/assets/logo_transparent.png" alt="MCC-MRF Logo" style="height:80px; width:auto; object-fit:contain;"></div>
         </div>
 
         <div class="sidebar-menu">
@@ -183,6 +178,9 @@
     <main class="admin-main">
         <div class="top-navbar">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <button id="sidebarToggle" style="display: none; background: #fff; border: 1px solid var(--border); border-radius: 8px; width: 40px; height: 40px; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer; font-size: 1.25rem;">
+                    <i class="ph ph-list"></i>
+                </button>
                 <i class="ph-bold ph-gear" style="font-size: 1.35rem; color: var(--primary-color);"></i>
                 <span style="font-weight: 700; font-size: 1.15rem; color: var(--text-main);">Admin Settings</span>
             </div>
@@ -282,6 +280,14 @@
                 icon.classList.remove('ph-eye-slash');
                 icon.classList.add('ph-eye');
             }
+        }
+
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
         }
     </script>
 </body>
